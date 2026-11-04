@@ -1,0 +1,86 @@
+% ============================================================
+% tutor.dlv — Sexto Sentido
+% Política pedagógica: de los diagnósticos a UNA acción con UN motivo.
+% Prioridad menor = se prefiere. Las prioridades son únicas para que
+% nunca haya empate.
+%
+% Salida que lee Python:
+%   seleccionada(Accion, Motivo).
+% ============================================================
+
+% ---------- Candidatas en fase inicial ----------
+candidata(advertir_privacidad, 10, riesgo_privacidad)
+    :- fase(inicial), diagnostico(riesgo_privacidad), not ayuda_previa.
+
+candidata(comparar_con_anterior, 12, error_repetido)
+    :- fase(inicial), diagnostico(error_repetido), not ayuda_previa.
+
+candidata(pedir_verificacion, 15, acepta_sin_evidencia_seguro)
+    :- fase(inicial), diagnostico(acepta_sin_evidencia), diagnostico(error_seguro), not ayuda_previa.
+
+candidata(pedir_contraejemplo, 18, desconfia_de_todo)
+    :- fase(inicial), diagnostico(desconfia_de_todo), not ayuda_previa.
+
+candidata(pedir_contexto, 20, falta_contexto)
+    :- fase(inicial), diagnostico(falta_contexto), not ayuda_previa.
+
+candidata(sugerir_calculo, 22, calculo_dudoso)
+    :- fase(inicial), diagnostico(calculo_dudoso), not ayuda_previa.
+
+candidata(pedir_criterio_justo, 24, generaliza)
+    :- fase(inicial), diagnostico(generaliza), not ayuda_previa.
+
+candidata(remitir_a_persona, 26, no_consulta)
+    :- fase(inicial), diagnostico(no_consulta), not ayuda_previa.
+
+candidata(preguntar_autoria, 28, entrega_como_propio)
+    :- fase(inicial), diagnostico(entrega_como_propio), not ayuda_previa.
+
+candidata(pedir_evidencia, 30, error_inseguro)
+    :- fase(inicial), diagnostico(error_inseguro), not ayuda_previa.
+
+% Red de seguridad: cualquier error seguro sin acción más específica
+candidata(pedir_verificacion, 35, error_seguro)
+    :- fase(inicial), diagnostico(error_seguro), not ayuda_previa.
+
+candidata(reforzar_confianza, 40, correcta_insegura)
+    :- fase(inicial), diagnostico(correcta_insegura).
+
+candidata(confirmar, 50, correcta_segura)
+    :- fase(inicial), diagnostico(correcta_segura).
+
+% ---------- Candidatas en fase final ----------
+candidata(cerrar_elogio_calibrado, 60, mejoro_y_calibro)
+    :- fase(final), diagnostico(mejoro), diagnostico(calibro).
+
+candidata(cerrar_elogio, 62, mejoro)
+    :- fase(final), diagnostico(mejoro).
+
+candidata(cerrar_mantuvo, 64, mantuvo_correcta)
+    :- fase(final), diagnostico(mantuvo_correcta).
+
+candidata(cerrar_explicar_cambio, 66, cambio_a_otro_error)
+    :- fase(final), diagnostico(cambio_a_otro_error).
+
+candidata(cerrar_explicar, 68, no_cambio)
+    :- fase(final), diagnostico(no_cambio).
+
+candidata(cerrar_revisar_duda, 70, empeoro)
+    :- fase(final), diagnostico(empeoro).
+
+% Red de seguridad final
+candidata(cerrar_explicar, 90, fase_final)
+    :- fase(final).
+
+% ---------- Selección: la de menor prioridad ----------
+hay_mejor(P) :- candidata(_, P, _), candidata(_, P2, _), P2 < P.
+seleccionada(A, M) :- candidata(A, P, M), not hay_mejor(P).
+
+% ---------- Sentidos ganados (solo fase final) ----------
+sentido(justificar) :- fase(final), justifico(inicial).
+sentido(revisar)    :- fase(final), diagnostico(mejoro).
+sentido(calibrar)   :- fase(final), diagnostico(calibro).
+
+#show seleccionada/2.
+#show diagnostico/1.
+#show sentido/1.

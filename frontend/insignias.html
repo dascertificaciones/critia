@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sexto Sentido · Insignias</title>
+<link rel="stylesheet" href="assets/css/estilo.css">
+<style>
+  .vitrina { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .insignia { background: var(--panel); border: 1px solid var(--linea); border-radius: var(--radio); padding: 16px 12px; text-align: center; position: relative; }
+  .insignia .img { width: 96px; height: 96px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center; background: var(--panel-2); border: 3px solid var(--linea); overflow: hidden; }
+  .insignia .img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .insignia .img .num { font-size: 34px; font-weight: 800; color: var(--texto-suave); }
+  .insignia.obtenida .img { border-color: var(--acento); box-shadow: 0 0 0 5px rgba(255,204,77,.18); }
+  .insignia:not(.obtenida) .img img { filter: grayscale(1) brightness(.5); }
+  .insignia .corto { font-weight: 800; font-size: 15px; }
+  .insignia .nombre { font-size: 12px; color: var(--texto-suave); margin-top: 4px; min-height: 32px; }
+  .insignia .avance { margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--acento-2); }
+  .insignia .puntos { display: flex; gap: 4px; justify-content: center; margin-top: 6px; }
+  .insignia .puntos span { width: 10px; height: 10px; border-radius: 50%; background: var(--linea); }
+  .insignia .puntos span.on { background: var(--acento-2); }
+  .insignia.obtenida .puntos span { background: var(--acento); }
+  .candado { position: absolute; top: 10px; right: 12px; font-size: 14px; opacity: .6; }
+  @media (max-width: 700px) { .vitrina { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="contenedor">
+  <header class="cabecera">
+    <a class="logo" href="index.html" style="text-decoration:none;color:inherit"><span class="ojo">👁</span> Sexto Sentido</a>
+    <div class="jugador" id="jugador"></div>
+  </header>
+
+  <div class="tarjeta" style="margin-bottom:16px">
+    <h1>Tus insignias</h1>
+    <p class="suave">Una por cada postulado del pensamiento crítico. Se gana cuando aplicas el postulado en <b id="meta-n">2</b> casos distintos <b>sin necesitar la pista</b>. Tu maestro o maestra la confirma.</p>
+    <div class="acciones" style="margin-top:8px">
+      <a class="btn btn-secundario" href="index.html">Volver al mapa</a>
+      <a class="btn btn-secundario" href="tablero.html">Ver tablero</a>
+    </div>
+  </div>
+
+  <div class="vitrina" id="vitrina"></div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script>
+(async function () {
+  const alumno = Sesion.leer();
+  if (!alumno) { location.href = 'index.html'; return; }
+  const [prog, lista] = await Promise.all([api(`/alumno/${alumno.seudonimo}/progreso`), api(`/insignias/${alumno.seudonimo}`)]);
+  pintarCabecera(alumno, prog.sentidos_total);
+  document.getElementById('meta-n').textContent = prog.casos_para_insignia;
+
+  document.getElementById('vitrina').innerHTML = lista.map(i => {
+    const puntos = Array.from({ length: i.meta }, (_, k) => `<span class="${k < i.avance ? 'on' : ''}"></span>`).join('');
+    return `
+      <div class="insignia ${i.obtenida ? 'obtenida' : ''}" title="${i.nombre}">
+        ${i.obtenida ? '' : '<span class="candado">🔒</span>'}
+        <div class="img">
+          <img src="${i.imagen}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'num',textContent:'${i.n}'}))">
+        </div>
+        <div class="corto">${i.corto}</div>
+        <div class="nombre">${i.nombre}</div>
+        <div class="avance">${i.obtenida ? 'Obtenida' : (i.avance >= i.meta ? 'Lista para confirmar' : `${i.avance} de ${i.meta}`)}</div>
+        <div class="puntos">${puntos}</div>
+      </div>`;
+  }).join('');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sexto Sentido · Panel docente</title>
+<link rel="stylesheet" href="assets/css/estilo.css">
+<style>
+  .contenedor { max-width: 1100px; }
+  .pestanas { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .pestana { background: var(--panel-2); border: 1px solid var(--linea); color: var(--texto-suave); border-radius: 999px; padding: 8px 16px; font-weight: 800; cursor: pointer; font-size: 14px; }
+  .pestana.activa { background: var(--acento); color: #1a1a1a; border-color: var(--acento); }
+  .pestana .n { background: rgba(0,0,0,.25); border-radius: 999px; padding: 1px 8px; margin-left: 6px; font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  th { color: var(--texto-suave); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--panel-2); border: 1px solid var(--linea); border-radius: 12px; padding: 14px; }
+  .kpi b { display: block; font-size: 28px; color: var(--acento); }
+  .kpi span { font-size: 13px; color: var(--texto-suave); }
+  .tag { display: inline-block; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--linea); }
+  .tag.ok { color: var(--ok); border-color: var(--ok); } .tag.mal { color: var(--mal); border-color: var(--mal); } .tag.aviso { color: var(--acento); border-color: var(--acento); }
+  .reflexion-card { background: var(--panel-2); border: 1px solid var(--linea); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+  .reflexion-card .texto { background: #0f1527; border-radius: 10px; padding: 12px; margin: 10px 0; white-space: pre-wrap; }
+  .rubrica { font-size: 13px; color: var(--texto-suave); }
+  .rubrica label { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; margin: 4px 0; cursor: pointer; }
+  .fila-acciones { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .fila-acciones input[type=text] { flex: 1; min-width: 200px; padding: 8px 12px; font-size: 14px; }
+  .btn-peq { padding: 8px 14px; font-size: 13px; }
+  .caso-detalle { background: #0f1527; border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 13px; white-space: pre-wrap; }
+  .barrita { height: 8px; background: var(--panel-2); border-radius: 4px; overflow: hidden; display: flex; }
+  .barrita > i { display: block; height: 100%; }
+  .b-ok { background: var(--ok); } .b-mej { background: var(--acento-2); } .b-mal { background: var(--mal); }
+  .ficha-equipo { vertical-align: middle; margin-right: 6px; }
+  details summary { cursor: pointer; font-weight: 700; }
+  .vacio { color: var(--texto-suave); padding: 20px; text-align: center; }
+  @media (max-width: 700px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="contenedor">
+  <header class="cabecera">
+    <a class="logo" href="index.html" style="text-decoration:none;color:inherit"><span class="ojo">👁</span> Sexto Sentido <span class="suave" style="font-weight:600;font-size:14px;margin-left:6px">· docente</span></a>
+    <div class="jugador" id="estado"></div>
+  </header>
+
+  <!-- Clave -->
+  <section id="login" class="tarjeta">
+    <h1>Panel docente</h1>
+    <p class="suave">Escribe la clave de docente para entrar. Nada de lo que veas aquí llega a los alumnos.</p>
+    <label for="clave">Clave</label>
+    <input type="password" id="clave" placeholder="clave de docente" style="width:100%;background:#0f1527;color:var(--texto);border:1px solid var(--linea);border-radius:12px;padding:12px 14px;font-size:16px">
+    <div class="acciones"><button class="btn btn-primario" id="entrar">Entrar</button></div>
+  </section>
+
+  <!-- Panel -->
+  <section id="panel" class="oculto">
+    <div class="pestanas" id="pestanas"></div>
+    <div class="tarjeta" id="contenido"></div>
+  </section>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script>
+(function () {
+  let clave = '';
+  try { clave = sessionStorage.getItem('ss_docente') || ''; } catch {}
+  const H = () => ({ 'x-docente': clave });
+  const $ = s => document.getElementById(s);
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let META = null;
+
+  const PESTANAS = [
+    ['resumen', 'Resumen'], ['reflexiones', 'Reflexiones'], ['insignias', 'Insignias'],
+    ['alertas', 'Alertas'], ['casos', 'Casos'], ['alumnos', 'Alumnos'],
+  ];
+  let activa = 'resumen';
+
+  async function entrar() {
+    clave = $('clave').value.trim();
+    try {
+      await api('/docente/alumnos', 'GET', null, H());
+      try { sessionStorage.setItem('ss_docente', clave); } catch {}
+      $('login').classList.add('oculto'); $('panel').classList.remove('oculto');
+      META = await api('/meta');
+      $('estado').innerHTML = `<button class="btn btn-enlace" id="salir">salir</button>`;
+      $('salir').onclick = () => { try { sessionStorage.removeItem('ss_docente'); } catch {} location.reload(); };
+      await pintarPestanas();
+    } catch (e) { toast('Clave incorrecta'); }
+  }
+  $('entrar').onclick = entrar;
+  $('clave').onkeydown = e => { if (e.key === 'Enter') entrar(); };
+  if (clave) { $('clave').value = clave; entrar(); }
+
+  async function pintarPestanas() {
+    const [ref, sug, ale] = await Promise.all([
+      api('/docente/reflexiones', 'GET', null, H()), api('/docente/sugerencias', 'GET', null, H()), api('/docente/alertas', 'GET', null, H())]);
+    const conteo = { reflexiones: ref.length, insignias: sug.length, alertas: ale.length };
+    $('pestanas').innerHTML = PESTANAS.map(([k, n]) => `
+      <button class="pestana ${k === activa ? 'activa' : ''}" data-k="${k}">${n}${conteo[k] ? `<span class="n">${conteo[k]}</span>` : ''}</button>`).join('');
+    [...$('pestanas').children].forEach(b => b.onclick = () => { activa = b.dataset.k; pintarPestanas(); });
+    await VISTAS[activa]();
+  }
+
+  const VISTAS = {
+    async resumen() {
+      const r = await api('/docente/resumen', 'GET', null, H());
+      const t = r.totales;
+      const tasa = t.errores_ini ? Math.round(100 * t.mejoraron / t.errores_ini) : 0;
+      $('contenido').innerHTML = `
+        <h2>Resumen del grupo</h2>
+        <div class="kpis">
+          <div class="kpi"><b>${t.alumnos || 0}</b><span>alumnos activos</span></div>
+          <div class="kpi"><b>${t.intentos || 0}</b><span>casos resueltos</span></div>
+          <div class="kpi"><b>${t.errores_ini || 0}</b><span>errores iniciales</span></div>
+          <div class="kpi"><b>${tasa}%</b><span>de errores corregidos tras la pista</span></div>
+        </div>
+        <h2 style="font-size:16px">Por caso</h2>
+        <p class="suave peq">Verde: acertó sin pista. Verde-agua: corrigió después de la pista. Rojo: siguió mal.</p>
+        <table><thead><tr><th>Caso</th><th>N</th><th style="width:30%">Resultado</th><th>Conf. inicial → final</th><th>Dudas</th></tr></thead><tbody>
+        ${r.por_caso.map(c => `<tr>
+          <td><b>${esc(c.titulo)}</b><br><span class="peq suave">${c.caso_id}</span></td><td>${c.n}</td>
+          <td><div class="barrita"><i class="b-ok" style="width:${100 * c.ok_ini / c.n}%"></i><i class="b-mej" style="width:${100 * c.mejoraron / c.n}%"></i><i class="b-mal" style="width:${100 * c.siguen_mal / c.n}%"></i></div>
+              <span class="peq suave">${c.ok_ini} · ${c.mejoraron} · ${c.siguen_mal}</span></td>
+          <td>${c.conf_ini_prom ?? '-'} → ${c.conf_fin_prom ?? '-'}</td><td>${c.dudas || ''}</td></tr>`).join('') || '<tr><td colspan="5" class="vacio">Aún no hay casos resueltos</td></tr>'}
+        </tbody></table>
+        <h2 style="font-size:16px;margin-top:20px">Errores más frecuentes</h2>
+        <table><tbody>${r.por_familia.map(f => `<tr><td>${esc(f.familia)}</td><td>${f.n}</td></tr>`).join('') || '<tr><td class="vacio">Sin datos</td></tr>'}</tbody></table>`;
+    },
+
+    async reflexiones() {
+      const lista = await api('/docente/reflexiones', 'GET', null, H());
+      if (!lista.length) { $('contenido').innerHTML = '<h2>Reflexiones</h2><div class="vacio">No hay reflexiones pendientes de revisar.</div>'; return; }
+      $('contenido').innerHTML = `<h2>Reflexiones por revisar</h2><p class="suave peq">Marca los criterios que cumple; el puntaje se calcula solo. La nota es opcional.</p>` +
+        lista.map(r => `
+          <div class="reflexion-card" data-id="${r.id}">
+            <div><span class="tag">${esc(r.caso_id)}</span> <span class="peq suave">${esc(r.seudonimo)} · ${esc((r.cierre || '').slice(0, 16).replace('T', ' '))}</span></div>
+            <p class="peq suave" style="margin-top:8px"><b>Pregunta:</b> ${esc(r.pregunta)}</p>
+            <div class="texto">${esc(r.reflexion)}</div>
+            <div class="rubrica">${r.rubrica.map((c, i) => `<label><input type="checkbox" data-c="${i}"> ${esc(c)}</label>`).join('')}</div>
+            <div class="fila-acciones">
+              <input type="text" placeholder="Nota para ti (opcional)" class="nota">
+              <button class="btn btn-primario btn-peq guardar">Guardar revisión</button>
+            </div>
+          </div>`).join('');
+      [...document.querySelectorAll('.reflexion-card .guardar')].forEach(b => b.onclick = async () => {
+        const card = b.closest('.reflexion-card');
+        const puntaje = [...card.querySelectorAll('input[type=checkbox]')].filter(c => c.checked).length;
+        await api('/docente/revision', 'POST', { intento_id: +card.dataset.id, puntaje, nota: card.querySelector('.nota').value }, H());
+        card.remove(); toast('Revisión guardada'); pintarPestanas();
+      });
+    },
+
+    async insignias() {
+      const sug = await api('/docente/sugerencias', 'GET', null, H());
+      const nombre = n => (META.postulados.find(p => p.n === n) || {}).corto || n;
+      $('contenido').innerHTML = `<h2>Insignias por confirmar</h2>
+        <p class="suave peq">El sistema sugiere cuando un alumno aplicó un postulado en ${sug[0]?.casos?.length || 2}+ casos sin pista. Tú decides si la otorgas.</p>
+        ${sug.length ? `<table><thead><tr><th>Alumno</th><th>Postulado</th><th>Casos</th><th></th></tr></thead><tbody>
+          ${sug.map(s => `<tr><td>${esc(s.seudonimo)}</td><td><img src="assets/insignias/p${String(s.postulado).padStart(2, '0')}.png" style="width:28px;vertical-align:middle;border-radius:50%;margin-right:6px" onerror="this.remove()">${esc(nombre(s.postulado))}</td>
+            <td class="peq suave">${s.casos.join(', ')}</td>
+            <td><button class="btn btn-primario btn-peq" data-s="${esc(s.seudonimo)}" data-p="${s.postulado}">Otorgar</button></td></tr>`).join('')}
+          </tbody></table>` : '<div class="vacio">No hay sugerencias por ahora.</div>'}
+        <h2 style="font-size:16px;margin-top:20px">Otorgar a mano</h2>
+        <div class="fila-acciones">
+          <input type="text" id="ins-seu" placeholder="seudónimo">
+          <select id="ins-p" style="padding:8px 12px;border-radius:10px;background:#0f1527;color:var(--texto);border:1px solid var(--linea)">${META.postulados.map(p => `<option value="${p.n}">${p.n}. ${esc(p.corto)}</option>`).join('')}</select>
+          <button class="btn btn-secundario btn-peq" id="ins-ok">Otorgar</button>
+        </div>`;
+      [...$('contenido').querySelectorAll('button[data-s]')].forEach(b => b.onclick = async () => {
+        await api('/docente/insignia', 'POST', { seudonimo: b.dataset.s, postulado: +b.dataset.p }, H()); toast('Insignia otorgada'); pintarPestanas();
+      });
+      $('ins-ok').onclick = async () => {
+        const s = $('ins-seu').value.trim(); if (!s) return;
+        try { await api('/docente/insignia', 'POST', { seudonimo: s, postulado: +$('ins-p').value }, H()); toast('Insignia otorgada'); pintarPestanas(); }
+        catch (e) { toast(e.message); }
+      };
+    },
+
+    async alertas() {
+      const a = await api('/docente/alertas', 'GET', null, H());
+      const texto = { pista_no_funciona_o_clave_mal: 'Más del 80% sigue mal tras la pista: revisa la clave o la pista', demasiado_facil: 'Nadie se equivoca: puede ser demasiado fácil', alumnos_reportan_duda: 'Varios alumnos marcaron el caso como dudoso' };
+      $('contenido').innerHTML = `<h2>Alertas sobre casos</h2><p class="suave peq">Se calculan con al menos 5 intentos por caso. Son señales para revisar, no veredictos.</p>` +
+        (a.length ? `<table><thead><tr><th>Caso</th><th>Señal</th><th>N</th></tr></thead><tbody>${a.map(x => `<tr><td>${esc(x.caso_id)}</td><td><span class="tag aviso">${esc(texto[x.tipo] || x.tipo)}</span></td><td>${x.n}</td></tr>`).join('')}</tbody></table>` : '<div class="vacio">Sin alertas. Hacen falta más intentos o todo va bien.</div>');
+    },
+
+    async casos() {
+      const lista = await api('/docente/casos', 'GET', null, H());
+      const niv = { 1: ['Automático', 'ok'], 2: ['Aprobación rápida', 'aviso'], 3: ['Lectura completa', 'mal'] };
+      $('contenido').innerHTML = `<h2>Banco de casos</h2><p class="suave peq">${lista.length} casos. Los provisionales vienen de la carpeta <code>docente/</code> (n8n) y los alumnos los ven marcados hasta que los apruebes.</p>
+        <table><thead><tr><th>ID</th><th>Título</th><th>Misión</th><th>Nivel</th><th>Estado</th><th></th></tr></thead><tbody>
+        ${lista.map(c => `<tr>
+          <td class="peq">${esc(c.id)}</td>
+          <td><details><summary>${esc(c.titulo)}</summary><div class="caso-detalle"><b>Situación:</b> ${esc(c.situacion)}\n\n<b>Pregunta:</b> ${esc(c.pregunta)}\n${(c.opciones || []).map(o => `\n${o.clave}) ${esc(o.texto)} ${o.correcta ? '✓' : ''}`).join('')}\n\n<b>Pista:</b> ${esc(c.pista)}\n\n<b>Explicación:</b> ${esc(c.explicacion)}</div></details></td>
+          <td>${c.mision}</td>
+          <td><span class="tag ${niv[c.nivel_revision]?.[1] || ''}">${niv[c.nivel_revision]?.[0] || c.nivel_revision}</span></td>
+          <td>${c.provisional ? '<span class="tag aviso">provisional</span>' : '<span class="tag ok">aprobado</span>'}</td>
+          <td>${c.provisional ? `<button class="btn btn-primario btn-peq" data-id="${esc(c.id)}">Aprobar</button>` : ''}</td></tr>`).join('')}
+        </tbody></table>`;
+      [...$('contenido').querySelectorAll('button[data-id]')].forEach(b => b.onclick = async () => {
+        try { await api(`/docente/casos/${b.dataset.id}/aprobar`, 'POST', null, H()); toast('Caso aprobado'); VISTAS.casos(); } catch (e) { toast(e.message); }
+      });
+    },
+
+    async alumnos() {
+      const lista = await api('/docente/alumnos', 'GET', null, H());
+      $('contenido').innerHTML = `<h2>Alumnos</h2><p class="suave peq">Solo seudónimos. Haz clic en uno para ver su historial.</p>
+        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Equipo</th><th>Casos</th><th>Sentidos</th><th>Insignias</th></tr></thead><tbody>
+        ${lista.map(a => `<tr style="cursor:pointer" data-s="${esc(a.seudonimo)}"><td><b>${esc(a.seudonimo)}</b></td><td><span class="ficha-equipo ${a.equipo}"></span>${a.equipo}</td><td>${a.casos}</td><td>${a.sentidos}</td><td>${a.insignias}</td></tr>`).join('')}
+        </tbody></table><div id="hist"></div>` : '<div class="vacio">Nadie se ha registrado todavía.</div>'}`;
+      [...$('contenido').querySelectorAll('tr[data-s]')].forEach(tr => tr.onclick = async () => {
+        const h = await api(`/docente/alumnos/${tr.dataset.s}`, 'GET', null, H());
+        $('hist').innerHTML = `<h2 style="font-size:16px;margin-top:20px">Historial de ${esc(tr.dataset.s)}</h2>
+          <table><thead><tr><th>Caso</th><th>Inicial</th><th>Tutor</th><th>Revisada</th><th>Sentidos</th><th>Reflexión</th></tr></thead><tbody>
+          ${h.map(i => `<tr>
+            <td><b>${esc(i.titulo)}</b><br><span class="peq suave">${esc(i.inicio.slice(0, 16).replace('T', ' '))}</span></td>
+            <td><span class="tag ${i.eval_ini === 'correcta' ? 'ok' : 'mal'}">${esc(i.clave_ini)} · ${i.conf_ini}</span>${i.just_ini ? `<br><span class="peq suave">"${esc(i.just_ini)}"</span>` : ''}</td>
+            <td class="peq suave">${esc(i.accion_ini)}</td>
+            <td><span class="tag ${i.eval_fin === 'correcta' ? 'ok' : 'mal'}">${esc(i.clave_fin)} · ${i.conf_fin}</span></td>
+            <td>${i.sentidos.length}/3</td>
+            <td class="peq">${esc(i.reflexion || '')}${i.reporta_duda ? ' <span class="tag aviso">dudó del caso</span>' : ''}</td></tr>`).join('') || '<tr><td colspan="6" class="vacio">Sin casos cerrados</td></tr>'}
+          </tbody></table>`;
+        $('hist').scrollIntoView({ behavior: 'smooth' });
+      });
+    },
+  };
+})();
+</script>
+</body>
+</html>

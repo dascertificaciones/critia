@@ -1,0 +1,31 @@
+{
+  "misiones": [
+    {"n": 1, "nombre": "El sentido de la duda", "postulados": [1, 2], "descripcion": "Que algo suene claro y seguro no lo hace cierto. Aprende a pedir evidencia."},
+    {"n": 2, "nombre": "La fuente fantasma", "postulados": [3], "descripcion": "Una cita con buen formato puede no existir. Aprende a comprobar fuentes."},
+    {"n": 3, "nombre": "Lo que falta", "postulados": [1, 7], "descripcion": "Las respuestas sin contexto no sirven. Aprende a preguntar mejor."},
+    {"n": 4, "nombre": "El termómetro", "postulados": [5, 6], "descripcion": "Tu confianza debe seguir a la evidencia. Aprende a calibrarla."},
+    {"n": 5, "nombre": "El criterio justo", "postulados": [8], "descripcion": "Las generalizaciones sobre personas necesitan pruebas. Aprende a detectar estereotipos."},
+    {"n": 6, "nombre": "La bóveda", "postulados": [10], "descripcion": "Tus datos y los de otros se protegen. Aprende a decir que no."},
+    {"n": 7, "nombre": "Mi nombre, mi trabajo", "postulados": [9, 12], "descripcion": "Usar herramientas no quita tu responsabilidad. Aprende a explicar y declarar."},
+    {"n": 8, "nombre": "El sexto sentido", "postulados": [4, 11], "descripcion": "Hay decisiones que necesitan a una persona. Aprende a reconocer el límite."}
+  ],
+  "postulados": [
+    {"n": 1, "nombre": "Toda afirmación necesita evidencia", "corto": "Evidencia"},
+    {"n": 2, "nombre": "Que suene claro no significa que sea cierto", "corto": "Claridad no es verdad"},
+    {"n": 3, "nombre": "Las fuentes se verifican", "corto": "Fuentes"},
+    {"n": 4, "nombre": "Revisa si las premisas están completas", "corto": "Premisas"},
+    {"n": 5, "nombre": "La confianza sigue a la evidencia", "corto": "Calibración"},
+    {"n": 6, "nombre": "Cambiar de opinión con mejores razones", "corto": "Apertura"},
+    {"n": 7, "nombre": "Considera el contexto antes de generalizar", "corto": "Contexto"},
+    {"n": 8, "nombre": "Las generalizaciones sobre personas requieren criterios justos", "corto": "Justicia"},
+    {"n": 9, "nombre": "Explicar el propio razonamiento es parte de pensar bien", "corto": "Explicación"},
+    {"n": 10, "nombre": "La información personal se protege", "corto": "Privacidad"},
+    {"n": 11, "nombre": "Hay decisiones que requieren consultar a alguien", "corto": "Consulta"},
+    {"n": 12, "nombre": "Usar herramientas no quita la responsabilidad", "corto": "Responsabilidad"}
+  ],
+  "sentidos": [
+    {"clave": "justificar", "nombre": "Justificar", "descripcion": "Escribiste por qué elegiste tu respuesta."},
+    {"clave": "revisar", "nombre": "Revisar", "descripcion": "Después de la pista, cambiaste a la respuesta correcta."},
+    {"clave": "calibrar", "nombre": "Calibrar", "descripcion": "Tu confianza se movió en la dirección correcta."}
+  ]
+}

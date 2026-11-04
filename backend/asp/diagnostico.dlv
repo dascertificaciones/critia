@@ -1,0 +1,66 @@
+% ============================================================
+% diagnostico.dlv — Sexto Sentido
+% Convierte los hechos observados en diagnósticos pedagógicos.
+%
+% Hechos que recibe desde Python (motor.py):
+%   fase(inicial | final).
+%   familia_caso(F).                 familia de error del caso
+%   respuesta(Fase, Opcion, Eval).   Eval: correcta | error_esperado | error_otro
+%   tipo_error(Fase, T).             familia del error cometido (si lo hubo)
+%   confianza(Fase, C).              0..100
+%   justifico(Fase).                 si escribió una justificación
+%   ayuda_previa.                    si ya recibió una pista en este caso
+%   historial_error(F, N).           N casos anteriores con error inicial de familia F
+% ============================================================
+
+% ---------- Umbrales (ajustables) ----------
+umbral_seguro(70).
+umbral_inseguro(50).
+umbral_repeticion(2).
+
+% ---------- Estado de la fase actual ----------
+fase_actual(X) :- fase(X).
+
+es_error(P) :- respuesta(P, _, error_esperado).
+es_error(P) :- respuesta(P, _, error_otro).
+es_correcta(P) :- respuesta(P, _, correcta).
+
+seguro(P)   :- confianza(P, C), umbral_seguro(U), C >= U.
+inseguro(P) :- confianza(P, C), umbral_inseguro(U), C < U.
+
+% ---------- Diagnósticos sobre la fase actual ----------
+diagnostico(error_seguro)     :- fase_actual(P), es_error(P), seguro(P).
+diagnostico(error_inseguro)   :- fase_actual(P), es_error(P), not seguro(P).
+diagnostico(correcta_insegura):- fase_actual(P), es_correcta(P), inseguro(P).
+diagnostico(correcta_segura)  :- fase_actual(P), es_correcta(P), not inseguro(P).
+
+% Tipo de error cometido en la fase actual
+error_de_tipo(T) :- fase_actual(P), es_error(P), tipo_error(P, T).
+
+diagnostico(desconfia_de_todo) :- error_de_tipo(desconfia_de_todo).
+diagnostico(riesgo_privacidad) :- error_de_tipo(comparte_datos).
+diagnostico(riesgo_privacidad) :- error_de_tipo(asume_autentico).
+diagnostico(falta_contexto)    :- error_de_tipo(ignora_contexto).
+diagnostico(calculo_dudoso)    :- error_de_tipo(confunde_resultado_y_razonamiento).
+diagnostico(acepta_sin_evidencia) :- error_de_tipo(acepta_sin_evidencia).
+diagnostico(acepta_sin_evidencia) :- error_de_tipo(confia_en_cita).
+diagnostico(generaliza)        :- error_de_tipo(generaliza).
+diagnostico(no_consulta)       :- error_de_tipo(no_consulta).
+diagnostico(entrega_como_propio) :- error_de_tipo(entrega_como_propio).
+
+% Error que ya se repitió en casos anteriores
+diagnostico(error_repetido) :- error_de_tipo(T), historial_error(T, N), umbral_repeticion(U), N >= U.
+
+% ---------- Diagnósticos de revisión (solo fase final) ----------
+diagnostico(mejoro)    :- fase(final), es_error(inicial), es_correcta(final).
+diagnostico(no_cambio) :- fase(final), es_error(inicial), es_error(final),
+                          respuesta(inicial, O, _), respuesta(final, O, _).
+diagnostico(cambio_a_otro_error) :- fase(final), es_error(inicial), es_error(final),
+                          respuesta(inicial, O1, _), respuesta(final, O2, _), O1 != O2.
+diagnostico(empeoro)   :- fase(final), es_correcta(inicial), es_error(final).
+diagnostico(mantuvo_correcta) :- fase(final), es_correcta(inicial), es_correcta(final).
+
+% Calibración: la confianza se movió en la dirección correcta
+calibro :- fase(final), es_error(inicial), confianza(inicial, C1), confianza(final, C2), C2 < C1.
+calibro :- fase(final), es_correcta(inicial), confianza(inicial, C1), confianza(final, C2), C2 >= C1.
+diagnostico(calibro) :- calibro.

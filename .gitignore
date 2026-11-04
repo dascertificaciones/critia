@@ -1,0 +1,6 @@
+__pycache__/
+*.db
+venv/
+.env
+backend/casos/docente/*.json
+!backend/casos/docente/.gitkeep

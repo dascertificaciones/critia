@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sexto Sentido · Caso</title>
+<link rel="stylesheet" href="assets/css/estilo.css">
+</head>
+<body>
+<div class="contenedor">
+  <header class="cabecera">
+    <a class="logo" href="index.html" style="text-decoration:none;color:inherit"><span class="ojo">👁</span> Sexto Sentido</a>
+    <div class="jugador" id="jugador"></div>
+  </header>
+
+  <div class="pasos">
+    <div class="paso" id="p1"></div><div class="paso" id="p2"></div><div class="paso" id="p3"></div><div class="paso" id="p4"></div>
+  </div>
+
+  <!-- Paso 1: decidir -->
+  <section id="decidir" class="tarjeta">
+    <div class="etiqueta-mision" id="etiqueta"></div>
+    <h1 id="titulo"></h1>
+    <div class="situacion" id="situacion"></div>
+    <div class="pregunta" id="pregunta"></div>
+    <div class="opciones" id="opciones"></div>
+    <textarea id="abierta" class="oculto" placeholder="Escribe aquí tu respuesta..."></textarea>
+
+    <div class="confianza">
+      <div class="confianza-cab"><label for="conf" style="margin:0">¿Qué tan seguro estás?</label><span class="confianza-valor" id="conf-valor">50</span></div>
+      <input type="range" id="conf" min="0" max="100" step="5" value="50">
+      <div class="escala"><span>Nada seguro</span><span>Totalmente seguro</span></div>
+    </div>
+
+    <label for="just">¿Por qué? <span class="suave peq">(una línea; te da un sentido)</span></label>
+    <input type="text" id="just" placeholder="Elegí esto porque..." maxlength="200">
+
+    <div class="acciones">
+      <button class="btn btn-primario" id="enviar" disabled>Decidir</button>
+      <button class="btn btn-enlace" id="duda" title="Si crees que el caso está mal planteado">¿El caso está mal?</button>
+    </div>
+  </section>
+
+  <!-- Paso 2: pista -->
+  <section id="pista-seccion" class="oculto">
+    <div class="tutor">
+      <div class="avatar">👁</div>
+      <div>
+        <div class="dice" id="tutor-dice"></div>
+        <div class="motivo" id="tutor-motivo"></div>
+        <div class="pista" id="tutor-pista"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Paso 3: revisar -->
+  <section id="revisar" class="tarjeta oculto">
+    <h2>Ahora que lo pensaste de nuevo, ¿qué decides?</h2>
+    <p class="suave peq">Puedes mantener tu respuesta o cambiarla. Lo que cuenta es que lo revises.</p>
+    <div class="opciones" id="opciones2"></div>
+    <div class="confianza">
+      <div class="confianza-cab"><label for="conf2" style="margin:0">¿Y ahora qué tan seguro estás?</label><span class="confianza-valor" id="conf2-valor">50</span></div>
+      <input type="range" id="conf2" min="0" max="100" step="5" value="50">
+      <div class="escala"><span>Nada seguro</span><span>Totalmente seguro</span></div>
+    </div>
+    <div class="acciones"><button class="btn btn-primario" id="enviar2" disabled>Confirmar</button></div>
+  </section>
+
+  <!-- Paso 4: cierre -->
+  <section id="cierre" class="tarjeta oculto">
+    <div class="tutor" style="margin-top:0">
+      <div class="avatar">👁</div>
+      <div><div class="dice" id="cierre-dice"></div><div class="motivo" id="cierre-motivo"></div></div>
+    </div>
+    <div class="sentidos-ganados" id="sentidos"></div>
+    <h2>Lo que había que ver</h2>
+    <div class="explicacion" id="explicacion"></div>
+    <div id="reflexion-caja">
+      <label for="reflexion" id="reflexion-pregunta"></label>
+      <textarea id="reflexion" placeholder="Escribe con tus palabras..."></textarea>
+      <p class="suave peq">Esto lo lee tu maestro o maestra, no el sistema.</p>
+    </div>
+    <div class="acciones">
+      <button class="btn btn-primario" id="terminar">Guardar y volver al mapa</button>
+    </div>
+  </section>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script>
+(async function () {
+  const alumno = Sesion.leer();
+  if (!alumno) { location.href = 'index.html'; return; }
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) { location.href = 'index.html'; return; }
+
+  const meta = await api('/meta');
+  const prog = await api(`/alumno/${alumno.seudonimo}/progreso`);
+  pintarCabecera(alumno, prog.sentidos_total);
+
+  const ab = await api(`/caso/${id}/abrir`, 'POST', { seudonimo: alumno.seudonimo });
+  const caso = ab.caso, intento = ab.intento_id;
+  const abierta = caso.formato === 'reflexion_abierta';
+  const mision = meta.misiones.find(m => m.n === caso.mision);
+
+  const $ = s => document.getElementById(s);
+  const setPaso = n => { for (let i = 1; i <= 4; i++) { const p = $('p' + i); p.className = 'paso' + (i < n ? ' hecho' : i === n ? ' activo' : ''); } };
+  setPaso(1);
+
+  // ---- Paso 1 ----
+  $('etiqueta').textContent = `Misión ${caso.mision} · ${mision ? mision.nombre : ''}`;
+  $('titulo').textContent = caso.titulo;
+  $('situacion').textContent = caso.situacion;
+  $('pregunta').textContent = caso.pregunta;
+
+  let clave = null, clave2 = null;
+  function pintarOpciones(contenedor, alElegir) {
+    contenedor.innerHTML = '';
+    caso.opciones.forEach(o => {
+      const b = document.createElement('button');
+      b.className = 'opcion';
+      b.innerHTML = `<span class="letra">${o.clave}</span><span>${o.texto}</span>`;
+      b.onclick = () => { [...contenedor.children].forEach(x => x.classList.remove('elegida')); b.classList.add('elegida'); alElegir(o.clave); };
+      contenedor.appendChild(b);
+    });
+  }
+  if (abierta) {
+    $('opciones').classList.add('oculto');
+    $('abierta').classList.remove('oculto');
+    $('just').parentElement.querySelector('label[for=just]').classList.add('oculto');
+    $('just').classList.add('oculto');
+    $('abierta').oninput = () => { $('enviar').disabled = $('abierta').value.trim().length < 10; };
+    $('duda').classList.add('oculto');
+  } else {
+    pintarOpciones($('opciones'), k => { clave = k; $('enviar').disabled = false; });
+  }
+  $('conf').oninput = () => $('conf-valor').textContent = $('conf').value;
+  $('conf2').oninput = () => $('conf2-valor').textContent = $('conf2').value;
+
+  let dudaReportada = false;
+  $('duda').onclick = async () => {
+    if (dudaReportada) return;
+    await api(`/intento/${intento}/duda`, 'POST');
+    dudaReportada = true;
+    toast('Gracias por avisar. Tu maestro revisará este caso. Aun así, responde.');
+  };
+
+  $('enviar').onclick = async () => {
+    $('enviar').disabled = true;
+    try {
+      const conf = +$('conf').value;
+      const just = abierta ? $('abierta').value.trim() : $('just').value.trim();
+      const r = await api(`/intento/${intento}/responder`, 'POST', { clave: abierta ? '-' : clave, confianza: conf, justificacion: just });
+      [...$('opciones').children].forEach(b => b.disabled = true);
+      $('conf').disabled = true; $('just').disabled = true; $('abierta').disabled = true;
+
+      if (abierta) {
+        // Un caso abierto se cierra de inmediato: lo revisa el docente.
+        const r2 = await api(`/intento/${intento}/revisar`, 'POST', { clave: '-', confianza: conf });
+        await api(`/intento/${intento}/reflexion`, 'POST', { texto: just });
+        mostrarCierre(r2, true);
+        return;
+      }
+      setPaso(2);
+      $('tutor-dice').textContent = r.texto_accion;
+      $('tutor-motivo').textContent = 'Motivo: ' + r.texto_motivo;
+      $('tutor-pista').innerHTML = r.pista ? `<b>Pista:</b> ${r.pista}` : '';
+      $('tutor-pista').classList.toggle('oculto', !r.pista);
+      $('pista-seccion').classList.remove('oculto');
+      $('revisar').classList.remove('oculto');
+      $('conf2').value = conf; $('conf2-valor').textContent = conf;
+      pintarOpciones($('opciones2'), k => { clave2 = k; $('enviar2').disabled = false; });
+      // Preselecciona la respuesta inicial
+      const idx = caso.opciones.findIndex(o => o.clave === clave);
+      if (idx >= 0) $('opciones2').children[idx].click();
+      $('revisar').scrollIntoView({ behavior: 'smooth' });
+      setPaso(3);
+    } catch (e) { toast(e.message); $('enviar').disabled = false; }
+  };
+
+  // ---- Paso 3 ----
+  $('enviar2').onclick = async () => {
+    $('enviar2').disabled = true;
+    try {
+      const r2 = await api(`/intento/${intento}/revisar`, 'POST', { clave: clave2, confianza: +$('conf2').value });
+      [...$('opciones2').children].forEach(b => b.disabled = true);
+      $('conf2').disabled = true;
+      mostrarCierre(r2, false);
+    } catch (e) { toast(e.message); $('enviar2').disabled = false; }
+  };
+
+  // ---- Paso 4 ----
+  function mostrarCierre(r2, esAbierta) {
+    setPaso(4);
+    $('cierre-dice').textContent = r2.texto_accion;
+    $('cierre-motivo').textContent = 'Motivo: ' + r2.texto_motivo;
+    const iconos = { justificar: '✍️', revisar: '🔁', calibrar: '🎯' };
+    $('sentidos').innerHTML = meta.sentidos.map(s => `
+      <div class="sentido ${r2.sentidos.includes(s.clave) ? 'ganado' : ''}" title="${s.descripcion}">
+        <div class="icono">${iconos[s.clave] || '★'}</div><div class="nombre">${s.nombre}</div>
+      </div>`).join('');
+    $('explicacion').textContent = r2.explicacion;
+    if (r2.reflexion && !esAbierta) { $('reflexion-pregunta').textContent = r2.reflexion; }
+    else { $('reflexion-caja').classList.add('oculto'); }
+    $('cierre').classList.remove('oculto');
+    $('cierre').scrollIntoView({ behavior: 'smooth' });
+    pintarCabecera(alumno, prog.sentidos_total + r2.sentidos.length);
+  }
+
+  $('terminar').onclick = async () => {
+    const t = $('reflexion').value.trim();
+    if (t && !$('reflexion-caja').classList.contains('oculto')) {
+      await api(`/intento/${intento}/reflexion`, 'POST', { texto: t });
+    }
+    location.href = 'index.html';
+  };
+})().catch(e => { console.error(e); toast('Algo falló: ' + e.message, 5000); });
+</script>
+</body>
+</html>

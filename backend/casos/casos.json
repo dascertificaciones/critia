@@ -1,0 +1,497 @@
+{
+  "version": "1.0",
+  "publico": "secundaria 12-15",
+  "familias_error": [
+    "acepta_sin_evidencia",
+    "confia_en_cita",
+    "ignora_contexto",
+    "generaliza",
+    "comparte_datos",
+    "asume_autentico",
+    "entrega_como_propio",
+    "no_consulta",
+    "confunde_resultado_y_razonamiento",
+    "desconfia_de_todo"
+  ],
+  "formatos": [
+    "tres_opciones",
+    "cinco_opciones",
+    "comparar_respuestas",
+    "reflexion_abierta"
+  ],
+  "casos": [
+    {
+      "id": "ABC-ESC-001",
+      "mision": 1,
+      "postulado": 1,
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "La app que promete",
+      "situacion": "Tu escuela está pensando en comprar una app para estudiar matemáticas. En la página de la app dice: \"El 95% de los estudiantes mejora sus calificaciones en un mes. Recomendada por expertos.\" Tu maestro te pide tu opinión sobre si la escuela debería comprarla.",
+      "pregunta": "¿Qué necesitas saber antes de decir que la app funciona?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Nada más: si lo dice la página oficial, es cierto.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Quiénes fueron esos estudiantes, cuántos eran, quién midió la mejora y dónde está ese estudio.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Nada: todas las apps mienten, así que no hay que comprarla.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "¿Quién hizo la medición? ¿La empresa que vende la app o alguien que no gana dinero con ella?",
+      "explicacion": "Un porcentaje sin datos de respaldo no prueba nada. Para saber si la app funciona necesitas: cuántos estudiantes se midieron, cómo se midió la mejora, quién hizo la medición y si se puede consultar el estudio. Decir que todas las apps mienten tampoco es una decisión fundamentada; es rechazar sin revisar.",
+      "reflexion": "Escribe una pregunta que le harías a la empresa de la app antes de recomendarla.",
+      "rubrica_reflexion": [
+        "La pregunta pide un dato concreto (cuántos, quién, cómo, dónde).",
+        "La pregunta no se puede responder solo con un sí o un no."
+      ]
+    },
+    {
+      "id": "ABC-ESC-002",
+      "mision": 1,
+      "postulado": 2,
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "El precio que sube y baja",
+      "situacion": "Le preguntas a una IA: \"Una mochila cuesta 800 pesos. Sube 25% y luego baja 25%. ¿Vuelve a costar 800?\" La IA responde: \"¡Claro que sí! Es una pregunta muy inteligente. Si sube 25% y baja 25%, los dos cambios se cancelan y el precio regresa a 800 pesos. Es una regla sencilla que siempre funciona.\"",
+      "pregunta": "¿Qué deberías hacer para decidir si la respuesta es correcta?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Confiar en la respuesta porque explica la regla con claridad y es amable.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Hacer las dos cuentas y revisar sobre qué cantidad se aplica cada porcentaje.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Confiar en la regla \"los cambios se cancelan\" porque suena lógica.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        }
+      ],
+      "pista": "El segundo 25%, ¿se aplica sobre 800 o sobre el precio que ya subió?",
+      "explicacion": "800 × 1.25 = 1000. Luego 1000 × 0.75 = 750. No vuelve a 800. El segundo 25% se calcula sobre 1000, no sobre 800, por eso quita más de lo que el primero puso. La IA explicó con claridad y amabilidad, pero eso no la hace correcta. La única forma de saberlo era hacer la cuenta.",
+      "reflexion": "¿Qué te hizo dudar o confiar en la respuesta de la IA antes de hacer la cuenta?",
+      "rubrica_reflexion": [
+        "Identifica al menos una señal del texto de la IA (tono, seguridad, palabras) que influyó en su decisión.",
+        "Distingue entre cómo sonaba la respuesta y si era correcta."
+      ]
+    },
+    {
+      "id": "ABC-ESC-003",
+      "mision": 7,
+      "postulado": 9,
+      "familia_error": null,
+      "formato": "reflexion_abierta",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "Explica tu decisión",
+      "situacion": "Para una tarea de ciencias, le pediste a una IA que te explicara por qué el cielo es azul. Te dio una explicación de dos párrafos que sonaba bien. Tu maestra te pregunta: \"¿Y tú cómo sabes que esa explicación es correcta?\"",
+      "pregunta": "Escribe, en tus palabras, qué harías para responderle a tu maestra. No copies la explicación de la IA; explica cómo la revisarías.",
+      "opciones": [],
+      "pista": "Piensa en dos fuentes distintas a la IA donde podrías comparar la explicación.",
+      "explicacion": "No hay una sola respuesta correcta. Lo que se evalúa es si puedes explicar tu propio proceso: con qué compararías la explicación (tu libro de texto, una página de una universidad o museo, tu maestra), qué parte te genera dudas y qué harías si las fuentes no coinciden.",
+      "reflexion": null,
+      "rubrica_reflexion": [
+        "Menciona al menos una fuente distinta a la IA para comparar.",
+        "Describe qué haría si la IA y la fuente no coinciden.",
+        "Usa sus propias palabras, no repite el texto de la IA."
+      ]
+    },
+    {
+      "id": "ABC-ESC-004",
+      "mision": 8,
+      "postulado": 4,
+      "familia_error": "confunde_resultado_y_razonamiento",
+      "formato": "comparar_respuestas",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Tres respuestas, una pregunta",
+      "situacion": "Pregunta: \"Un grupo de 30 alumnos va a un museo. La entrada cuesta 40 pesos, pero por cada 10 alumnos uno entra gratis. ¿Cuánto pagan en total?\"\n\nRespuesta 1: \"Pagan 1200 pesos, porque 30 × 40 = 1200.\"\n\nRespuesta 2: \"Entran gratis 3 alumnos (uno por cada 10). Pagan 27 alumnos. 27 × 40 = 1080 pesos.\"\n\nRespuesta 3: \"Entran gratis 3 alumnos. Pagan 27 alumnos. 27 × 40 = 1200 pesos.\"",
+      "pregunta": "¿Cuál respuesta tiene el resultado correcto Y el razonamiento correcto?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Respuesta 1: el resultado es correcto y el razonamiento también.",
+          "correcta": false,
+          "tipo_error": "ignora_contexto"
+        },
+        {
+          "clave": "B",
+          "texto": "Respuesta 2: el resultado es correcto y el razonamiento también.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Respuesta 3: el razonamiento es correcto, así que el resultado también debe serlo.",
+          "correcta": false,
+          "tipo_error": "confunde_resultado_y_razonamiento"
+        }
+      ],
+      "pista": "Revisa cada respuesta en dos partes: ¿aplicó la regla de los gratis? ¿Hizo bien la multiplicación?",
+      "explicacion": "La respuesta 1 olvida la regla de los alumnos gratis. La respuesta 3 razona bien pero multiplica mal (27 × 40 no es 1200). La respuesta 2 aplica la regla y hace bien la cuenta: 1080 pesos. Una respuesta puede tener buen razonamiento y mal resultado, o al revés. Hay que revisar las dos cosas.",
+      "reflexion": "¿Por qué una respuesta con buen razonamiento puede terminar mal?",
+      "rubrica_reflexion": [
+        "Reconoce que el razonamiento y el cálculo son pasos distintos.",
+        "Da un ejemplo propio o explica el de la respuesta 3."
+      ]
+    },
+    {
+      "id": "AI-LIM-001",
+      "mision": 3,
+      "postulado": 1,
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Segura, pero falsa",
+      "situacion": "Le preguntas a una IA cuál es el río más largo de México. Responde con total seguridad: \"El río más largo de México es el río Lerma, con 2,500 kilómetros de longitud. Esto es un dato bien establecido por la geografía mexicana.\"",
+      "pregunta": "¿Qué haces con esta respuesta antes de ponerla en tu tarea?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "La uso tal cual: la IA lo dice con mucha seguridad y menciona que es un dato establecido.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Busco el dato en una fuente independiente, por ejemplo el INEGI o un atlas escolar, y comparo.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "No la uso: las IA siempre se equivocan en geografía.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Decir \"es un dato bien establecido\" no es lo mismo que mostrar de dónde salió el dato. ¿Dónde lo puedes comprobar?",
+      "explicacion": "La respuesta suena segura, pero el dato es falso: el río Lerma mide alrededor de 750 kilómetros, y el río más largo de México es el Bravo (o el sistema Grijalva-Usumacinta, según cómo se mida). Una IA puede sonar completamente segura y estar equivocada. La seguridad del tono no es evidencia. La opción C tampoco sirve: rechazar todo sin revisar es tan poco crítico como aceptar todo.",
+      "reflexion": "¿Qué frase de la respuesta de la IA te daba más confianza? ¿Por qué esa frase no era una prueba?",
+      "rubrica_reflexion": [
+        "Identifica una frase concreta (\"con total seguridad\", \"dato bien establecido\").",
+        "Explica que la frase no muestra de dónde salió el dato."
+      ]
+    },
+    {
+      "id": "AI-LIM-002",
+      "mision": 2,
+      "postulado": 3,
+      "familia_error": "confia_en_cita",
+      "formato": "tres_opciones",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "La fuente que no existe",
+      "situacion": "Le pides a una IA que te ayude con un trabajo sobre el sueño en adolescentes. Te responde: \"Según el estudio de Ramírez y Olvera (2019), publicado en la Revista Mexicana de Neurociencia Escolar, los adolescentes que duermen menos de 6 horas bajan 2 puntos en promedio.\" Buscas la revista y el artículo y no encuentras ninguno de los dos.",
+      "pregunta": "¿Qué decides?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Uso la cita de todos modos: tiene autores, año y revista, así que seguro existe aunque no la encuentre.",
+          "correcta": false,
+          "tipo_error": "confia_en_cita"
+        },
+        {
+          "clave": "B",
+          "texto": "No uso esa cita. Busco un estudio real sobre sueño y adolescentes en una fuente que sí pueda encontrar.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Dejo de usar la IA para cualquier tarea, porque inventa todo.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Una cita con formato correcto se puede escribir sin que exista. ¿Qué prueba que una fuente es real?",
+      "explicacion": "Las IA pueden inventar referencias que parecen reales: autores, año, revista, todo con el formato correcto. Que una cita se vea bien no prueba que exista. Si no la encuentras en un catálogo o buscador académico, no la uses. Eso no significa que la IA sea inútil; significa que las citas siempre se verifican.",
+      "reflexion": "Describe en dos pasos cómo comprobarías si una cita existe.",
+      "rubrica_reflexion": [
+        "Menciona dónde buscaría (buscador académico, biblioteca, la página de la revista).",
+        "Menciona que revisaría que el artículo diga lo que la IA afirma."
+      ]
+    },
+    {
+      "id": "AI-LIM-003",
+      "mision": 3,
+      "postulado": 7,
+      "familia_error": "ignora_contexto",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Lo que la pregunta no dijo",
+      "situacion": "Un compañero le pregunta a una IA: \"¿Cuánto tiempo tarda en hervir el agua?\" La IA responde: \"El agua tarda aproximadamente 4 minutos en hervir.\" Tu compañero lo anota como dato para el experimento de ciencias.",
+      "pregunta": "¿Qué le dirías a tu compañero?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Que está bien, 4 minutos es un dato razonable.",
+          "correcta": false,
+          "tipo_error": "ignora_contexto"
+        },
+        {
+          "clave": "B",
+          "texto": "Que la respuesta no sirve sin saber cuánta agua, en qué recipiente, con qué fuego y a qué altura sobre el mar. Hay que preguntar mejor.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Que la IA se equivocó y el dato correcto es 10 minutos.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        }
+      ],
+      "pista": "¿4 minutos para una taza o para una olla? ¿En la playa o en Toluca?",
+      "explicacion": "La pregunta no tenía contexto, así que la IA inventó uno. El tiempo depende de la cantidad de agua, la fuente de calor, el recipiente y la altitud (en Toluca el agua hierve a menos temperatura que en la costa). Cuando una respuesta no dice bajo qué condiciones aplica, falta contexto. La solución es hacer una mejor pregunta, no adivinar otro número.",
+      "reflexion": "Reescribe la pregunta de tu compañero para que la IA no pueda responder sin contexto.",
+      "rubrica_reflexion": [
+        "La pregunta nueva incluye al menos dos condiciones (cantidad, recipiente, fuego, lugar).",
+        "La pregunta sigue siendo clara y corta."
+      ]
+    },
+    {
+      "id": "AI-LIM-004",
+      "mision": 5,
+      "postulado": 8,
+      "familia_error": "generaliza",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "El consejo que generaliza",
+      "situacion": "Tu grupo va a formar equipos para un concurso de robótica. Alguien le pregunta a una IA cómo repartir los roles. La IA responde: \"Los alumnos que juegan videojuegos deberían programar, porque tienen más lógica. Los que son buenos en artes deberían hacer el diseño, porque son más creativos que lógicos.\"",
+      "pregunta": "¿Qué opinas del consejo?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Tiene sentido: cada quien a lo que se le da.",
+          "correcta": false,
+          "tipo_error": "generaliza"
+        },
+        {
+          "clave": "B",
+          "texto": "Generaliza sin pruebas. Habría que preguntar a cada persona qué sabe hacer y qué quiere aprender.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Está mal porque los que juegan videojuegos no tienen lógica.",
+          "correcta": false,
+          "tipo_error": "generaliza"
+        }
+      ],
+      "pista": "¿Jugar videojuegos prueba que alguien sabe programar? ¿Ser bueno en artes prueba que alguien no es lógico?",
+      "explicacion": "El consejo asigna habilidades a grupos de personas por una característica que no tiene que ver (jugar videojuegos, gustar de las artes). Eso es un estereotipo: una generalización sin evidencia sobre cada persona. La opción C comete el mismo error al revés. Un criterio justo pregunta a cada quien qué sabe y qué quiere aprender.",
+      "reflexion": "Escribe un criterio justo para repartir los roles del equipo.",
+      "rubrica_reflexion": [
+        "El criterio se basa en lo que cada persona sabe o quiere, no en un grupo al que pertenece.",
+        "El criterio se puede aplicar igual a todos."
+      ]
+    },
+    {
+      "id": "AI-LIM-005",
+      "mision": 6,
+      "postulado": 10,
+      "familia_error": "comparte_datos",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "Lo que la app te pide",
+      "situacion": "Encuentras una app de IA que promete hacer tus tareas \"personalizadas\". Para empezar te pide: tu nombre completo, el nombre de tu escuela, tu dirección, el nombre completo de tu mejor amigo y la contraseña de tu cuenta escolar \"para sincronizar tus materias\".",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Doy todos los datos: sin ellos la app no puede personalizar nada.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
+        },
+        {
+          "clave": "B",
+          "texto": "No doy ninguno de esos datos. Si la app los necesita para funcionar, no la uso, y le cuento a un adulto de confianza.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Doy mis datos pero no los de mi amigo, porque esos no son míos.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
+        }
+      ],
+      "pista": "¿Para hacer una tarea de matemáticas la app necesita tu dirección? ¿Necesita tu contraseña?",
+      "explicacion": "Una app que hace tareas no necesita tu dirección, ni el nombre de tu amigo, ni tu contraseña. Pedir más datos de los necesarios es una señal de alerta. La contraseña nunca se comparte con nadie, ni con una app. La opción C acierta en proteger a tu amigo pero sigue entregando datos tuyos que no hacen falta. Ante la duda, no compartes y le preguntas a un adulto.",
+      "reflexion": "Haz dos listas: datos que una app de tareas sí podría necesitar y datos que nunca debes dar.",
+      "rubrica_reflexion": [
+        "La lista de \"nunca\" incluye contraseña y dirección.",
+        "La lista de \"sí\" solo tiene datos ligados a la tarea (materia, grado, tema)."
+      ]
+    },
+    {
+      "id": "AI-LIM-006",
+      "mision": 6,
+      "postulado": 10,
+      "familia_error": "asume_autentico",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "El video del director",
+      "situacion": "En un grupo de mensajes circula un video donde el director de tu escuela anuncia que mañana no hay clases. La voz y la cara se ven normales. Nadie de tu familia ha recibido aviso oficial de la escuela.",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "No voy a la escuela: el video es del director y se ve real.",
+          "correcta": false,
+          "tipo_error": "asume_autentico"
+        },
+        {
+          "clave": "B",
+          "texto": "Confirmo por el canal oficial de la escuela o con un adulto antes de decidir. Un video que se ve real puede estar hecho con IA.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Reenvío el video a más grupos para que todos se enteren.",
+          "correcta": false,
+          "tipo_error": "asume_autentico"
+        }
+      ],
+      "pista": "¿Por qué el aviso llegó por un grupo de mensajes y no por el canal oficial de la escuela?",
+      "explicacion": "Hoy es posible crear videos con la cara y la voz de una persona que nunca dijo eso. Que se vea y suene real no prueba que lo sea. La señal importante es que no hay aviso oficial. Antes de actuar o reenviar, se confirma por el canal oficial o con un adulto. Reenviar sin confirmar hace que la posible mentira llegue a más gente.",
+      "reflexion": "¿Qué dos señales te harían sospechar de un video o audio que recibes?",
+      "rubrica_reflexion": [
+        "Menciona al menos una señal del contexto (canal por el que llegó, falta de aviso oficial, urgencia).",
+        "No se basa solo en \"se ve raro\" o \"se ve bien\"."
+      ]
+    },
+    {
+      "id": "AI-LIM-007",
+      "mision": 7,
+      "postulado": 12,
+      "familia_error": "entrega_como_propio",
+      "formato": "tres_opciones",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "Mi nombre en el trabajo",
+      "situacion": "Tienes que entregar un ensayo de dos páginas sobre la Independencia de México. Le pides a una IA que lo escriba completo, lo copias, le pones tu nombre y lo entregas. Tu maestra pregunta al grupo: \"¿Quién usó IA para este trabajo y cómo?\"",
+      "pregunta": "¿Qué consideras que fue aceptable y qué no?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Todo fue aceptable: la IA es una herramienta, como una calculadora.",
+          "correcta": false,
+          "tipo_error": "entrega_como_propio"
+        },
+        {
+          "clave": "B",
+          "texto": "Usar la IA para buscar ideas o revisar mi redacción es aceptable; copiar el texto completo y firmarlo como mío no lo es, y lo digo.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Nada fue aceptable: usar IA para cualquier tarea es trampa.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "¿Qué parte del ensayo que entregaste es tuya? ¿Qué aprendiste al hacerlo?",
+      "explicacion": "La diferencia está en quién hizo el trabajo de pensar. Pedir ideas, una explicación o una revisión de ortografía es apoyo; el trabajo sigue siendo tuyo. Copiar un texto completo y firmarlo como propio no lo es: no aprendiste y presentaste algo que no hiciste. La opción C también falla: la herramienta no es el problema, lo es cómo se usa. Decir cómo usaste la IA es parte de hacerlo bien.",
+      "reflexion": "Escribe la nota que pondrías al final de un trabajo para decir cómo usaste la IA.",
+      "rubrica_reflexion": [
+        "La nota dice qué le pidió a la IA en concreto.",
+        "La nota dice qué parte del trabajo hizo la persona."
+      ]
+    },
+    {
+      "id": "AI-LIM-008",
+      "mision": 8,
+      "postulado": 11,
+      "familia_error": "no_consulta",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "Cuándo preguntar a alguien",
+      "situacion": "Tu primo de 13 años tiene dolor de estómago fuerte desde hace dos días. Le pregunta a una IA qué tomar y la IA le dice el nombre de una pastilla y cuántas tomar. Él te dice que va a ir a la farmacia a comprarla.",
+      "pregunta": "¿Qué le dices?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Que está bien, la IA le dio una respuesta clara.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
+        },
+        {
+          "clave": "B",
+          "texto": "Que un dolor fuerte de dos días no se resuelve con una respuesta de IA: hay que decirle a un adulto y que lo vea un médico.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Que busque en otra IA para comparar las dos respuestas.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
+        }
+      ],
+      "pista": "La IA no puede examinarlo ni saber su historial. ¿Quién sí puede?",
+      "explicacion": "Hay decisiones donde la respuesta correcta no es verificar mejor, sino reconocer que el asunto necesita a una persona con criterio y responsabilidad: un adulto de confianza y un médico. La IA no puede examinar a tu primo, no conoce su historial y no responde por lo que pase. Comparar dos IA (opción C) no resuelve eso; sigue siendo nadie quien lo revise.",
+      "reflexion": "Escribe dos situaciones en las que no usarías una IA para decidir, sino que preguntarías a una persona.",
+      "rubrica_reflexion": [
+        "Las situaciones tienen consecuencias reales (salud, seguridad, dinero, un conflicto con alguien).",
+        "Dice a quién preguntaría en cada caso."
+      ]
+    },
+    {
+      "id": "DET-001",
+      "mision": 8,
+      "postulado": 4,
+      "familia_error": null,
+      "formato": "reflexion_abierta",
+      "nivel_revision": 2,
+      "provisional": false,
+      "especial": "detective",
+      "titulo": "El caso del detective",
+      "situacion": "Un grupo de alumnos le pidió a tres IA distintas que les dijeran si es verdad que \"los adolescentes aprenden mejor de noche\". Las tres respondieron que sí, con mucha seguridad y con explicaciones distintas:\n\nIA 1: \"Sí. Estudios de la Universidad de Harvard de 2021 lo confirman: el cerebro adolescente alcanza su pico de atención entre las 10 pm y la 1 am.\"\n\nIA 2: \"Sí, por eso a los adolescentes les cuesta despertarse temprano. Es biológico y está comprobado.\"\n\nIA 3: \"Sí. Mi experiencia con miles de estudiantes lo demuestra: los que estudian de noche sacan mejores notas.\"\n\nEl grupo concluye: \"Si tres IA dicen lo mismo, tiene que ser cierto.\"",
+      "pregunta": "Eres el detective del equipo. Escribe qué está mal en el razonamiento del grupo y qué harías para averiguar si la afirmación es verdad. Revisa las tres respuestas: ¿cuál cita una fuente?, ¿esa fuente se puede comprobar?, ¿qué dato le falta a cada una?, ¿puede una IA tener \"experiencia\"?",
+      "opciones": [],
+      "pista": "Que tres respuestas coincidan no prueba nada si ninguna muestra evidencia. ¿Las tres pueden estar copiando la misma idea popular?",
+      "explicacion": "Tres respuestas iguales sin evidencia siguen siendo cero evidencias. La IA 1 cita una universidad y un año, pero no dice qué estudio ni dónde leerlo; hay que buscarlo. La IA 2 confunde dos cosas: que a muchos adolescentes les cueste madrugar no prueba que aprendan mejor de noche. La IA 3 dice tener experiencia con estudiantes, pero una IA no tiene experiencia propia; está inventando una autoridad. Para averiguarlo de verdad: buscar la fuente de la IA 1 en un catálogo, buscar estudios sobre sueño y rendimiento en adolescentes en una fuente confiable, y preguntar a un maestro o maestra. Y aunque fuera cierto que duermen distinto, eso no diría nada sobre cuándo aprenden mejor sin medirlo.",
+      "reflexion": null,
+      "rubrica_reflexion": [
+        "Señala que la coincidencia entre IA no es evidencia.",
+        "Identifica que la cita de la IA 1 no se puede comprobar tal como está.",
+        "Detecta que la IA 3 inventa una experiencia que no puede tener.",
+        "Propone al menos un paso concreto de verificación."
+      ]
+    }
+  ]
+}
