@@ -7,63 +7,68 @@
 <link rel="stylesheet" href="assets/css/estilo.css">
 <style>
   .contenedor { max-width: 1100px; }
-  .pestanas { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
-  .pestana { background: var(--panel-2); border: 1px solid var(--linea); color: var(--texto-suave); border-radius: 999px; padding: 8px 16px; font-weight: 800; cursor: pointer; font-size: 14px; }
-  .pestana.activa { background: var(--acento); color: #1a1a1a; border-color: var(--acento); }
-  .pestana .n { background: rgba(0,0,0,.25); border-radius: 999px; padding: 1px 8px; margin-left: 6px; font-size: 12px; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--linea); vertical-align: top; }
-  th { color: var(--texto-suave); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
-  tr:hover td { background: rgba(255,255,255,.02); }
-  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
-  .kpi { background: var(--panel-2); border: 1px solid var(--linea); border-radius: 12px; padding: 14px; }
-  .kpi b { display: block; font-size: 28px; color: var(--acento); }
-  .kpi span { font-size: 13px; color: var(--texto-suave); }
-  .tag { display: inline-block; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--linea); }
-  .tag.ok { color: var(--ok); border-color: var(--ok); } .tag.mal { color: var(--mal); border-color: var(--mal); } .tag.aviso { color: var(--acento); border-color: var(--acento); }
-  .reflexion-card { background: var(--panel-2); border: 1px solid var(--linea); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-  .reflexion-card .texto { background: #0f1527; border-radius: 10px; padding: 12px; margin: 10px 0; white-space: pre-wrap; }
-  .rubrica { font-size: 13px; color: var(--texto-suave); }
-  .rubrica label { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; margin: 4px 0; cursor: pointer; }
-  .fila-acciones { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .pestanas { display: flex; gap: 0; flex-wrap: wrap; margin-bottom: 20px; border-bottom: var(--trazo) solid var(--tinta); }
+  .pestana { background: transparent; border: 0; border-bottom: 4px solid transparent; margin-bottom: -2px; color: var(--tinta-suave); padding: 10px 14px; font-weight: 700; cursor: pointer; font-size: 15px; font-family: var(--sans); }
+  .pestana.activa { color: var(--tinta); border-bottom-color: var(--sello); }
+  .pestana .n { background: var(--ambar); color: var(--tinta); border-radius: 999px; padding: 1px 8px; margin-left: 6px; font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--papel-3); vertical-align: top; }
+  th { color: var(--tinta-suave); font-weight: 700; font-size: 13px; border-bottom: var(--trazo) solid var(--tinta); }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 6px 0 22px; }
+  .kpi { border-top: var(--trazo) solid var(--tinta); padding: 10px 0 0; }
+  .kpi b { display: block; font-family: var(--serif); font-weight: 900; font-size: 40px; line-height: 1; color: var(--tinta); }
+  .kpi span { font-size: 14px; color: var(--tinta-suave); }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; border: 2px solid var(--tinta-suave); color: var(--tinta-suave); background: transparent; }
+  .tag.ok { color: var(--hierba); border-color: var(--hierba); } .tag.mal { color: var(--sello); border-color: var(--sello); } .tag.aviso { color: var(--tinta); border-color: var(--ambar); background: var(--ambar-claro); }
+  .reflexion-card { border: var(--trazo) solid var(--tinta); border-radius: var(--r); padding: 16px; margin-bottom: 14px; background: #fff; }
+  .reflexion-card .texto { background: var(--papel); border-left: 4px solid var(--tinta); padding: 10px 14px; margin: 10px 0; white-space: pre-wrap; font-size: 16px; }
+  .rubrica { font-size: 14px; }
+  .rubrica label { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; margin: 6px 0; cursor: pointer; }
+  .rubrica input { width: 18px; height: 18px; accent-color: var(--hierba); }
+  .fila-acciones { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
   .fila-acciones input[type=text] { flex: 1; min-width: 200px; padding: 8px 12px; font-size: 14px; }
-  .btn-peq { padding: 8px 14px; font-size: 13px; }
-  .caso-detalle { background: #0f1527; border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 13px; white-space: pre-wrap; }
-  .barrita { height: 8px; background: var(--panel-2); border-radius: 4px; overflow: hidden; display: flex; }
+  .btn-peq { padding: 8px 14px; font-size: 14px; }
+  .caso-detalle { background: var(--papel); border-radius: var(--r); padding: 12px; margin-top: 8px; font-size: 14px; white-space: pre-wrap; }
+  .barrita { height: 10px; border: 2px solid var(--tinta); border-radius: 5px; overflow: hidden; display: flex; background: var(--papel); }
   .barrita > i { display: block; height: 100%; }
-  .b-ok { background: var(--ok); } .b-mej { background: var(--acento-2); } .b-mal { background: var(--mal); }
+  .b-ok { background: var(--hierba); } .b-mej { background: var(--ambar); } .b-mal { background: var(--sello); }
   .ficha-equipo { vertical-align: middle; margin-right: 6px; }
   details summary { cursor: pointer; font-weight: 700; }
-  .vacio { color: var(--texto-suave); padding: 20px; text-align: center; }
+  .vacio { color: var(--tinta-suave); padding: 24px 0; }
+  .caso-edit label { margin-top: 10px; font-size: 14px; }
+  .caso-edit input[type=text], .caso-edit textarea { font-size: 15px; padding: 8px 10px; }
+  .caso-edit textarea { min-height: 72px; }
   @media (max-width: 700px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
 <div class="contenedor">
   <header class="cabecera">
-    <a class="logo" href="index.html" style="text-decoration:none;color:inherit"><span class="ojo">👁</span> Sexto Sentido <span class="suave" style="font-weight:600;font-size:14px;margin-left:6px">· docente</span></a>
+    <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Sexto Sentido <span class="suave" style="font-family:var(--sans);font-weight:400;font-size:14px;margin-left:6px">para docentes</span></a>
     <div class="jugador" id="estado"></div>
   </header>
 
   <!-- Clave -->
-  <section id="login" class="tarjeta">
+  <section id="login" class="tarjeta" style="max-width:520px">
     <h1>Panel docente</h1>
-    <p class="suave">Escribe la clave de docente para entrar. Nada de lo que veas aquí llega a los alumnos.</p>
+    <p class="suave">Escribe la clave para entrar. Nada de lo que veas aquí llega a los alumnos.</p>
     <label for="clave">Clave</label>
-    <input type="password" id="clave" placeholder="clave de docente" style="width:100%;background:#0f1527;color:var(--texto);border:1px solid var(--linea);border-radius:12px;padding:12px 14px;font-size:16px">
+    <input type="password" id="clave" placeholder="clave de docente">
     <div class="acciones"><button class="btn btn-primario" id="entrar">Entrar</button></div>
   </section>
 
   <!-- Panel -->
   <section id="panel" class="oculto">
     <div class="pestanas" id="pestanas"></div>
-    <div class="tarjeta" id="contenido"></div>
+    <div id="contenido"></div>
   </section>
 </div>
 
+<script src="assets/js/iconos.js"></script>
 <script src="assets/js/api.js"></script>
 <script>
 (function () {
+  document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
   let clave = '';
   try { clave = sessionStorage.getItem('ss_docente') || ''; } catch {}
   const H = () => ({ 'x-docente': clave });
@@ -72,7 +77,7 @@
   let META = null;
 
   const PESTANAS = [
-    ['resumen', 'Resumen'], ['generar', '✨ Generar casos'], ['casos', 'Casos'], ['reflexiones', 'Reflexiones'],
+    ['resumen', 'Resumen'], ['generar', 'Generar casos'], ['casos', 'Casos'], ['reflexiones', 'Reflexiones'],
     ['insignias', 'Insignias'], ['alertas', 'Alertas'], ['alumnos', 'Alumnos'],
   ];
   let activa = 'resumen';
@@ -161,18 +166,18 @@
         <p class="suave peq">Escribe el tema de tu clase. El sistema redacta casos con el modelo <b>${esc(est.modelo)}</b>, los pasa por filtros automáticos (estructura, una sola correcta, cuentas, datos personales, segunda opinión ciega) y los deja como <b>provisionales</b> para que los revises y apruebes en la pestaña Casos. Nada llega a los alumnos sin tu aprobación.</p>
         ${est.configurado ? '' : '<p class="tag mal" style="display:inline-block;margin-bottom:10px">El servidor no tiene clave del modelo (LLM_API_KEY). Pídele al administrador que la configure.</p>'}
         <label for="g-tema">Tema</label>
-        <input type="text" id="g-tema" placeholder="por ejemplo: porcentajes y descuentos, la Independencia de México, alimentación" maxlength="120" style="width:100%;background:#0f1527;color:var(--texto);border:1px solid var(--linea);border-radius:12px;padding:12px 14px;font-size:16px">
+        <input type="text" id="g-tema" placeholder="por ejemplo: porcentajes y descuentos, la Independencia de México, alimentación" maxlength="120">
         <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
           <div><label for="g-post">Postulado a practicar</label>
-            <select id="g-post" style="width:100%;padding:12px;border-radius:12px;background:#0f1527;color:var(--texto);border:1px solid var(--linea);font-size:15px">
+            <select id="g-post">
               ${META.postulados.map(p => `<option value="${p.n}">${p.n}. ${esc(p.corto)} · misión: ${esc(misionDe(p.n))}</option>`).join('')}
             </select></div>
           <div><label for="g-grado">Grado</label>
-            <select id="g-grado" style="width:100%;padding:12px;border-radius:12px;background:#0f1527;color:var(--texto);border:1px solid var(--linea);font-size:15px">
+            <select id="g-grado">
               <option>1° de secundaria</option><option selected>2° de secundaria</option><option>3° de secundaria</option><option>bachillerato</option>
             </select></div>
           <div><label for="g-n">Cuántos</label>
-            <select id="g-n" style="width:100%;padding:12px;border-radius:12px;background:#0f1527;color:var(--texto);border:1px solid var(--linea);font-size:15px">
+            <select id="g-n">
               <option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option>
             </select></div>
         </div>
@@ -209,7 +214,7 @@
           <div class="kpi"><b>${tasa}%</b><span>de errores corregidos tras la pista</span></div>
         </div>
         <h2 style="font-size:16px">Por caso</h2>
-        <p class="suave peq">Verde: acertó sin pista. Verde-agua: corrigió después de la pista. Rojo: siguió mal.</p>
+        <p class="suave peq">Verde: acertó sin pista. Ámbar: corrigió después de la pista. Rojo: siguió mal.</p>
         <table><thead><tr><th>Caso</th><th>N</th><th style="width:30%">Resultado</th><th>Conf. inicial → final</th><th>Dudas</th></tr></thead><tbody>
         ${r.por_caso.map(c => `<tr>
           <td><b>${esc(c.titulo)}</b><br><span class="peq suave">${c.caso_id}</span></td><td>${c.n}</td>
@@ -257,7 +262,7 @@
         <h2 style="font-size:16px;margin-top:20px">Otorgar a mano</h2>
         <div class="fila-acciones">
           <input type="text" id="ins-seu" placeholder="seudónimo">
-          <select id="ins-p" style="padding:8px 12px;border-radius:10px;background:#0f1527;color:var(--texto);border:1px solid var(--linea)">${META.postulados.map(p => `<option value="${p.n}">${p.n}. ${esc(p.corto)}</option>`).join('')}</select>
+          <select id="ins-p" style="width:auto">${META.postulados.map(p => `<option value="${p.n}">${p.n}. ${esc(p.corto)}</option>`).join('')}</select>
           <button class="btn btn-secundario btn-peq" id="ins-ok">Otorgar</button>
         </div>`;
       [...$('contenido').querySelectorAll('button[data-s]')].forEach(b => b.onclick = async () => {

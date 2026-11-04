@@ -37,7 +37,7 @@ function pintarCabecera(alumno, sentidos) {
   el.innerHTML = `
     <span class="ficha-equipo ${alumno.equipo}"></span>
     <span>${alumno.seudonimo}</span>
-    <span class="sentidos-pill">${sentidos ?? 0} sentidos</span>
+    <span class="sentidos-pill">${sentidos ?? 0}<small>sentidos</small></span>
     <button class="btn btn-enlace" id="salir">salir</button>`;
   document.getElementById('salir').onclick = () => { Sesion.borrar(); location.href = 'index.html'; };
 }

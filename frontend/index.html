@@ -9,23 +9,25 @@
 <body>
 <div class="contenedor">
   <header class="cabecera">
-    <div class="logo"><span class="ojo">👁</span> Sexto Sentido</div>
+    <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Sexto Sentido</a>
     <div class="jugador" id="jugador"></div>
   </header>
 
   <!-- Entrada -->
-  <section id="entrada" class="tarjeta">
-    <h1>La expedición</h1>
-    <p class="suave">Ocho misiones para aprender a revisar lo que una IA te dice antes de creerlo. Ganas <b>sentidos</b> por justificar, revisar y calibrar tu confianza. No por acertar a la primera.</p>
+  <section id="entrada">
+    <h1>Una expedición para no creerle a todo lo que dice una IA.</h1>
+    <p class="suave" style="max-width:56ch">Ocho paradas. En cada una decides, dudas, revisas. Ganas <b>sentidos</b> por justificar, por corregirte y por ajustar tu confianza. No por atinar a la primera.</p>
 
-    <label for="seudonimo">Tu seudónimo (no uses tu nombre real)</label>
-    <input type="text" id="seudonimo" placeholder="por ejemplo: zorro07" maxlength="24" autocomplete="off">
+    <div class="tarjeta" style="margin-top:22px">
+      <label for="seudonimo" style="margin-top:0">Tu seudónimo <span class="suave peq">(no uses tu nombre real)</span></label>
+      <input type="text" id="seudonimo" placeholder="por ejemplo: zorro07" maxlength="24" autocomplete="off">
 
-    <label>Tu equipo</label>
-    <div class="equipos" id="equipos"></div>
+      <label>Tu equipo</label>
+      <div class="equipos" id="equipos"></div>
 
-    <div class="acciones">
-      <button class="btn btn-primario" id="entrar" disabled>Empezar la expedición</button>
+      <div class="acciones">
+        <button class="btn btn-primario" id="entrar" disabled>Empezar la expedición</button>
+      </div>
     </div>
 
     <div class="aviso">
@@ -35,27 +37,29 @@
 
   <!-- Mapa -->
   <section id="mapa-seccion" class="oculto">
-    <div class="tarjeta" style="margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
-        <div>
-          <h1>Mapa de la expedición</h1>
-          <p class="suave">Elige una misión y abre uno de sus casos. Los casos con <span style="color:var(--acento)">•</span> son nuevos y todavía los está revisando tu maestro.</p>
-        </div>
-        <div class="racha" id="racha"></div>
+    <div class="mapa-cab">
+      <div>
+        <h1>El mapa</h1>
+        <p class="suave" style="margin:0">Abre una parada y elige un caso. Los marcados como <em>nuevo</em> los está revisando tu maestro.</p>
       </div>
-      <div class="acciones" style="margin-top:8px">
-        <a class="btn btn-secundario" href="insignias.html">🏅 Mis insignias</a>
-        <a class="btn btn-secundario" href="tablero.html">📊 Tablero de equipos</a>
-      </div>
+      <div class="racha" id="racha"></div>
     </div>
-    <div class="mapa" id="mapa"></div>
-    <div class="detective" id="detective"></div>
+    <div class="enlaces">
+      <a class="btn btn-secundario" href="insignias.html">Mis insignias</a>
+      <a class="btn btn-secundario" href="tablero.html">Tablero de equipos</a>
+    </div>
+    <div class="sendero" id="sendero"></div>
   </section>
 </div>
 
+<script src="assets/js/iconos.js"></script>
 <script src="assets/js/api.js"></script>
 <script>
 (async function () {
+  document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
+  // iconos en enlaces
+  document.querySelectorAll('.enlaces .btn').forEach((a, i) => { a.innerHTML = `<span style="width:20px;height:20px;display:inline-block">${i === 0 ? ICONO.medalla : ICONO.tablero}</span>` + a.textContent.trim(); });
+
   const alumno = Sesion.leer();
   const meta = await api('/meta');
 
@@ -64,14 +68,9 @@
   let equipoElegido = null;
   meta.equipos.forEach(e => {
     const b = document.createElement('button');
-    b.className = 'equipo-btn';
+    b.className = 'equipo-btn'; b.type = 'button';
     b.innerHTML = `<span class="ficha-equipo ${e}"></span>${e}`;
-    b.onclick = () => {
-      equipoElegido = e;
-      [...cajaEquipos.children].forEach(x => x.classList.remove('activo'));
-      b.classList.add('activo');
-      validar();
-    };
+    b.onclick = () => { equipoElegido = e; [...cajaEquipos.children].forEach(x => x.classList.remove('activo')); b.classList.add('activo'); validar(); };
     cajaEquipos.appendChild(b);
   });
   const inp = document.getElementById('seudonimo');
@@ -79,11 +78,8 @@
   function validar() { btnEntrar.disabled = !(inp.value.trim().length >= 3 && equipoElegido); }
   inp.oninput = validar;
   btnEntrar.onclick = async () => {
-    try {
-      const a = await api('/alumno', 'POST', { seudonimo: inp.value.trim(), equipo: equipoElegido });
-      Sesion.guardar(a);
-      mostrarMapa(a);
-    } catch (e) { toast(e.message); }
+    try { const a = await api('/alumno', 'POST', { seudonimo: inp.value.trim(), equipo: equipoElegido }); Sesion.guardar(a); mostrarMapa(a); }
+    catch (e) { toast(e.message); }
   };
 
   // ---- Mapa ----
@@ -93,62 +89,85 @@
     const [casos, prog] = await Promise.all([api('/casos'), api(`/alumno/${a.seudonimo}/progreso`)]);
     pintarCabecera(a, prog.sentidos_total);
 
-    // Racha
-    const r = document.getElementById('racha');
-    const llamas = Array.from({ length: prog.racha_para_detective }, (_, k) => `<span class="${k < prog.racha ? 'on' : ''}">🔥</span>`).join('');
-    r.innerHTML = `<div class="racha-num">${prog.racha}</div><div><div class="peq suave">racha de casos bien revisados</div><div class="llamas">${llamas}</div></div>`;
+    const puntos = Array.from({ length: prog.racha_para_detective }, (_, k) => `<i class="${k < prog.racha ? 'on' : ''}"></i>`).join('');
+    document.getElementById('racha').innerHTML = `<span class="racha-num">${prog.racha}</span><span class="peq">en racha <span class="racha-puntos">${puntos}</span></span>`;
 
-    // Caso del detective (aparte del mapa, bloqueado hasta la racha)
     const todos = Object.values(casos).flat();
     const det = todos.find(c => c.especial === 'detective');
-    const cajaDet = document.getElementById('detective');
-    if (det) {
-      const hecho = prog.casos[det.id];
-      const abiertoDet = prog.detective_desbloqueado;
-      cajaDet.innerHTML = `
-        <div class="mision ${abiertoDet ? 'actual' : 'bloqueada'} ${hecho ? 'completa' : ''}">
-          <div class="numero">${hecho ? '✓' : '🔎'}</div>
-          <div>
-            <div class="nombre">${det.titulo}</div>
-            <div class="desc">${abiertoDet
-              ? 'Desbloqueado. Un caso especial para resolver con tu equipo y presentar al grupo.'
-              : `Se desbloquea con una racha de ${prog.racha_para_detective} casos bien revisados (acertar sin pista o corregir después de la pista).`}</div>
-            ${abiertoDet ? `<div class="casos-chips"><a class="chip ${hecho ? 'hecho' : 'pendiente'}" href="caso.html?id=${det.id}">${hecho ? 'Resuelto' : 'Abrir el caso'}</a></div>` : ''}
-          </div>
-          <div class="ir peq suave">${abiertoDet ? '' : '🔒'}</div>
-        </div>`;
-    }
-
-    const mapa = document.getElementById('mapa');
-    mapa.innerHTML = '';
+    const send = document.getElementById('sendero');
+    send.innerHTML = '';
     let primeraPendiente = null;
+    const paradas = [];
+
     meta.misiones.forEach(m => {
       const lista = (casos[m.n] || []).filter(c => !c.especial);
       const hechos = lista.filter(c => prog.casos[c.id]).length;
       const completa = lista.length > 0 && hechos === lista.length;
       const vacia = lista.length === 0;
       if (!completa && !vacia && primeraPendiente === null) primeraPendiente = m.n;
+      paradas.push({ m, lista, hechos, completa, vacia });
+    });
 
+    paradas.forEach(({ m, lista, hechos, completa, vacia }) => {
       const el = document.createElement('div');
-      el.className = 'mision' + (completa ? ' completa' : '') + (vacia ? ' bloqueada' : '');
+      el.className = 'parada' + (completa ? ' completa' : '') + (vacia ? ' bloqueada' : '') + (m.n === primeraPendiente ? ' actual' : '');
       el.innerHTML = `
-        <div class="numero">${completa ? '✓' : m.n}</div>
+        <div class="marca">${m.n}</div>
         <div>
-          <div class="nombre">${m.nombre}</div>
+          <div class="nombre">${m.nombre}${vacia ? '' : `<span class="avance">${hechos} de ${lista.length}</span>`}</div>
           <div class="desc">${m.descripcion}</div>
-          <div class="casos-chips">
-            ${vacia ? '<span class="chip">próximamente</span>' : lista.map(c => {
+          <div class="pins">
+            ${vacia ? '<span class="pin hecho">próximamente</span>' : lista.map(c => {
               const h = prog.casos[c.id];
-              return `<a class="chip ${h ? 'hecho' : 'pendiente'} ${c.provisional ? 'provisional' : ''}"
-                        href="caso.html?id=${c.id}">${c.titulo}${h ? ` · ${h.sentidos.length}/3` : ''}</a>`;
+              return `<a class="pin ${h ? 'hecho' : 'pendiente'} ${c.provisional ? 'provisional' : ''}" href="caso.html?id=${c.id}">${c.titulo}${h ? `<span class="n">${h.sentidos.length}/3</span>` : ''}</a>`;
             }).join('')}
           </div>
         </div>
-        <div class="ir peq suave">${vacia ? '' : `${hechos}/${lista.length}`}</div>`;
-      mapa.appendChild(el);
+        ${completa ? `<div class="sello">${ICONO.sello}</div>` : ''}`;
+      send.appendChild(el);
     });
-    if (primeraPendiente !== null) mapa.children[primeraPendiente - 1].classList.add('actual');
+
+    if (det) {
+      const hecho = prog.casos[det.id];
+      const abierto = prog.detective_desbloqueado;
+      const el = document.createElement('div');
+      el.className = 'parada detective' + (abierto ? ' actual' : ' bloqueada') + (hecho ? ' completa' : '');
+      el.innerHTML = `
+        <div class="marca"><span style="width:26px;height:26px;display:block">${abierto ? ICONO.lupa : ICONO.candado}</span></div>
+        <div>
+          <div class="nombre">${det.titulo}</div>
+          <div class="desc">${abierto ? 'Abierto. Un caso para resolver con tu equipo y presentar al grupo.' : `Se abre con ${prog.racha_para_detective} casos seguidos bien revisados: atinar sin pista, o corregirte después de la pista.`}</div>
+          ${abierto ? `<div class="pins"><a class="pin ${hecho ? 'hecho' : 'pendiente'}" href="caso.html?id=${det.id}">${hecho ? 'Resuelto' : 'Abrir el caso'}</a></div>` : ''}
+        </div>
+        ${hecho ? `<div class="sello">${ICONO.sello}</div>` : ''}`;
+      send.appendChild(el);
+    }
+    dibujarSendero();
   }
+
+  // Línea que une las marcas de las paradas
+  function dibujarSendero() {
+    const send = document.getElementById('sendero');
+    const viejo = send.querySelector('svg.trazo'); if (viejo) viejo.remove();
+    const marcas = [...send.querySelectorAll('.parada .marca')];
+    if (marcas.length < 2) return;
+    const base = send.getBoundingClientRect();
+    const pts = marcas.map(mk => { const r = mk.getBoundingClientRect(); return [r.left - base.left + r.width / 2, r.top - base.top + r.height / 2]; });
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+      const dx = (i % 2 ? 26 : -26);
+      d += ` C ${x0 + dx} ${y0 + (y1 - y0) * .5}, ${x1 + dx} ${y0 + (y1 - y0) * .5}, ${x1} ${y1}`;
+    }
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'trazo');
+    svg.setAttribute('viewBox', `0 0 ${base.width} ${send.scrollHeight}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.innerHTML = `<path d="${d}" fill="none" stroke="#1F2A44" stroke-width="3" stroke-dasharray="8 7" stroke-linecap="round"/>`;
+    send.prepend(svg);
+  }
+  window.addEventListener('resize', () => { if (!document.getElementById('mapa-seccion').classList.contains('oculto')) dibujarSendero(); });
+  document.fonts && document.fonts.ready.then(() => { if (!document.getElementById('mapa-seccion').classList.contains('oculto')) dibujarSendero(); });
 
   if (alumno) mostrarMapa(alumno);
 })();

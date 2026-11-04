@@ -7,23 +7,22 @@
 <link rel="stylesheet" href="assets/css/estilo.css">
 <style>
   .contenedor { max-width: 1100px; }
-  .tablero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .equipo-card { border-radius: var(--radio); padding: 20px; border: 2px solid var(--linea); background: var(--panel); position: relative; overflow: hidden; }
-  .equipo-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 8px; background: var(--c); }
+  .tablero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 18px; }
+  .equipo-card { border: var(--trazo) solid var(--tinta); border-radius: var(--r); padding: 18px 18px 16px; background: #fff; position: relative; }
   .equipo-card.rojo { --c: var(--rojo); } .equipo-card.azul { --c: var(--azul); }
   .equipo-card.verde { --c: var(--verde); } .equipo-card.amarillo { --c: var(--amarillo); }
-  .equipo-card.lider { border-color: var(--c); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 25%, transparent); }
-  .equipo-nombre { font-weight: 800; font-size: 22px; text-transform: capitalize; display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .equipo-card.lider { background: var(--ambar-claro); }
+  .equipo-nombre { font-family: var(--serif); font-weight: 700; font-size: 24px; text-transform: capitalize; display: flex; align-items: center; gap: 10px; }
   .equipo-nombre .ficha-equipo { width: 18px; height: 18px; }
-  .corona { font-size: 18px; }
-  .gran-numero { font-size: 56px; font-weight: 800; line-height: 1; color: var(--c); margin: 10px 0 2px; }
-  .gran-numero small { font-size: 14px; color: var(--texto-suave); font-weight: 700; margin-left: 6px; }
-  .barra { height: 10px; border-radius: 5px; background: var(--panel-2); overflow: hidden; margin: 10px 0 14px; }
+  .corona { width: 22px; height: 22px; margin-left: auto; color: var(--sello); }
+  .gran-numero { font-family: var(--serif); font-weight: 900; font-size: 64px; line-height: 1; color: var(--c); margin: 10px 0 2px; }
+  .gran-numero small { font-family: var(--sans); font-size: 14px; color: var(--tinta-suave); font-weight: 400; margin-left: 6px; }
+  .barra { height: 10px; border: 2px solid var(--tinta); border-radius: 5px; background: var(--papel); overflow: hidden; margin: 10px 0 14px; }
   .barra > div { height: 100%; background: var(--c); transition: width .6s ease; }
-  .detalle { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 13px; color: var(--texto-suave); }
-  .detalle b { display: block; color: var(--texto); font-size: 18px; }
-  .pie { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; color: var(--texto-suave); font-size: 13px; }
-  .leyenda { display: flex; gap: 14px; flex-wrap: wrap; }
+  .detalle { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 13px; color: var(--tinta-suave); }
+  .detalle b { display: block; color: var(--tinta); font-size: 20px; font-family: var(--serif); }
+  .detalle .ic { width: 18px; height: 18px; display: block; margin-bottom: 2px; }
+  .pie { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; color: var(--tinta-suave); font-size: 13px; }
   @media (max-width: 900px) { .tablero { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 500px) { .tablero { grid-template-columns: 1fr; } }
 </style>
@@ -31,25 +30,22 @@
 <body>
 <div class="contenedor">
   <header class="cabecera">
-    <a class="logo" href="index.html" style="text-decoration:none;color:inherit"><span class="ojo">👁</span> Sexto Sentido</a>
+    <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Sexto Sentido</a>
     <div class="jugador"><a class="btn btn-secundario" href="index.html">Volver al mapa</a></div>
   </header>
 
-  <div class="tarjeta" style="margin-bottom:16px">
-    <h1>Tablero de la expedición</h1>
-    <p class="suave">Sentidos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.</p>
-  </div>
+  <h1>Tablero de la expedición</h1>
+  <p class="suave" style="margin:0">Sentidos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.</p>
 
   <div class="tablero" id="tablero"></div>
 
-  <div class="pie">
-    <div class="leyenda"><span>✍️ Justificar</span><span>🔁 Revisar</span><span>🎯 Calibrar</span><span>🏅 Insignias</span></div>
-    <div id="hora"></div>
-  </div>
+  <div class="pie"><div id="hora"></div></div>
 </div>
 
+<script src="assets/js/iconos.js"></script>
 <script src="assets/js/api.js"></script>
 <script>
+document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
 async function pintar() {
   const t = await api('/tablero');
   const equipos = Object.keys(t);
@@ -60,18 +56,18 @@ async function pintar() {
     const lider = tope > 0 && d.sentidos === tope;
     return `
       <div class="equipo-card ${e} ${lider ? 'lider' : ''}">
-        <div class="equipo-nombre"><span class="ficha-equipo ${e}"></span>${e} ${lider ? '<span class="corona">👑</span>' : ''}</div>
+        <div class="equipo-nombre"><span class="ficha-equipo ${e}"></span>${e} ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>
         <div class="gran-numero">${d.sentidos}<small>sentidos</small></div>
         <div class="barra"><div style="width:${Math.round(100 * d.sentidos / max)}%"></div></div>
         <div class="detalle">
-          <div>✍️<b>${d.justificar}</b></div>
-          <div>🔁<b>${d.revisar}</b></div>
-          <div>🎯<b>${d.calibrar}</b></div>
+          <div><span class="ic">${ICONO.justificar}</span>Justificar<b>${d.justificar}</b></div>
+          <div><span class="ic">${ICONO.revisar}</span>Revisar<b>${d.revisar}</b></div>
+          <div><span class="ic">${ICONO.calibrar}</span>Calibrar<b>${d.calibrar}</b></div>
         </div>
-        <div class="detalle" style="margin-top:10px">
+        <div class="detalle" style="margin-top:12px">
           <div>Casos<b>${d.casos}</b></div>
           <div>Jugadores<b>${d.alumnos}</b></div>
-          <div>🏅<b>${d.insignias}</b></div>
+          <div>Insignias<b>${d.insignias}</b></div>
         </div>
       </div>`;
   }).join('');

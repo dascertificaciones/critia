@@ -6,46 +6,47 @@
 <title>Sexto Sentido · Insignias</title>
 <link rel="stylesheet" href="assets/css/estilo.css">
 <style>
-  .vitrina { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-  .insignia { background: var(--panel); border: 1px solid var(--linea); border-radius: var(--radio); padding: 16px 12px; text-align: center; position: relative; }
-  .insignia .img { width: 96px; height: 96px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center; background: var(--panel-2); border: 3px solid var(--linea); overflow: hidden; }
+  .vitrina { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 18px; }
+  .insignia { border: var(--trazo) solid var(--tinta); border-radius: var(--r); padding: 16px 12px 14px; text-align: center; position: relative; background: #fff; }
+  .insignia .img { width: 96px; height: 96px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center; border: 3px solid var(--tinta); overflow: hidden; background: var(--papel-2); }
   .insignia .img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .insignia .img .num { font-size: 34px; font-weight: 800; color: var(--texto-suave); }
-  .insignia.obtenida .img { border-color: var(--acento); box-shadow: 0 0 0 5px rgba(255,204,77,.18); }
-  .insignia:not(.obtenida) .img img { filter: grayscale(1) brightness(.5); }
-  .insignia .corto { font-weight: 800; font-size: 15px; }
-  .insignia .nombre { font-size: 12px; color: var(--texto-suave); margin-top: 4px; min-height: 32px; }
-  .insignia .avance { margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--acento-2); }
-  .insignia .puntos { display: flex; gap: 4px; justify-content: center; margin-top: 6px; }
-  .insignia .puntos span { width: 10px; height: 10px; border-radius: 50%; background: var(--linea); }
-  .insignia .puntos span.on { background: var(--acento-2); }
-  .insignia.obtenida .puntos span { background: var(--acento); }
-  .candado { position: absolute; top: 10px; right: 12px; font-size: 14px; opacity: .6; }
+  .insignia .img .num { font-family: var(--serif); font-size: 36px; font-weight: 900; color: var(--tinta-suave); }
+  .insignia.obtenida .img { border-color: var(--sello); box-shadow: 0 0 0 4px var(--ambar-claro); }
+  .insignia:not(.obtenida) { background: transparent; border-style: dashed; }
+  .insignia:not(.obtenida) .img img { filter: grayscale(1) opacity(.35); }
+  .insignia .corto { font-family: var(--serif); font-weight: 700; font-size: 17px; }
+  .insignia .nombre { font-size: 13px; color: var(--tinta-suave); margin-top: 4px; min-height: 36px; }
+  .insignia .avance { margin-top: 10px; font-size: 13px; font-weight: 700; }
+  .insignia .puntos { display: flex; gap: 5px; justify-content: center; margin-top: 6px; }
+  .insignia .puntos span { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--tinta-suave); }
+  .insignia .puntos span.on { background: var(--hierba); border-color: var(--hierba); }
+  .insignia.obtenida .puntos span { background: var(--sello); border-color: var(--sello); }
+  .candado { position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; color: var(--tinta-suave); }
   @media (max-width: 700px) { .vitrina { grid-template-columns: repeat(2, 1fr); } }
 </style>
 </head>
 <body>
 <div class="contenedor">
   <header class="cabecera">
-    <a class="logo" href="index.html" style="text-decoration:none;color:inherit"><span class="ojo">👁</span> Sexto Sentido</a>
+    <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Sexto Sentido</a>
     <div class="jugador" id="jugador"></div>
   </header>
 
-  <div class="tarjeta" style="margin-bottom:16px">
-    <h1>Tus insignias</h1>
-    <p class="suave">Una por cada postulado del pensamiento crítico. Se gana cuando aplicas el postulado en <b id="meta-n">2</b> casos distintos <b>sin necesitar la pista</b>. Tu maestro o maestra la confirma.</p>
-    <div class="acciones" style="margin-top:8px">
-      <a class="btn btn-secundario" href="index.html">Volver al mapa</a>
-      <a class="btn btn-secundario" href="tablero.html">Ver tablero</a>
-    </div>
+  <h1>Tus insignias</h1>
+  <p class="suave" style="max-width:60ch">Una por cada postulado del pensamiento crítico. Se gana cuando aplicas el postulado en <b id="meta-n">2</b> casos distintos sin necesitar la pista. Tu maestro o maestra la confirma.</p>
+  <div class="acciones" style="margin-top:8px">
+    <a class="btn btn-secundario" href="index.html">Volver al mapa</a>
+    <a class="btn btn-secundario" href="tablero.html">Ver tablero</a>
   </div>
 
   <div class="vitrina" id="vitrina"></div>
 </div>
 
+<script src="assets/js/iconos.js"></script>
 <script src="assets/js/api.js"></script>
 <script>
 (async function () {
+  document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
   const alumno = Sesion.leer();
   if (!alumno) { location.href = 'index.html'; return; }
   const [prog, lista] = await Promise.all([api(`/alumno/${alumno.seudonimo}/progreso`), api(`/insignias/${alumno.seudonimo}`)]);
@@ -56,7 +57,7 @@
     const puntos = Array.from({ length: i.meta }, (_, k) => `<span class="${k < i.avance ? 'on' : ''}"></span>`).join('');
     return `
       <div class="insignia ${i.obtenida ? 'obtenida' : ''}" title="${i.nombre}">
-        ${i.obtenida ? '' : '<span class="candado">🔒</span>'}
+        ${i.obtenida ? '' : `<span class="candado">${ICONO.candado}</span>`}
         <div class="img">
           <img src="${i.imagen}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'num',textContent:'${i.n}'}))">
         </div>

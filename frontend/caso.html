@@ -9,7 +9,7 @@
 <body>
 <div class="contenedor">
   <header class="cabecera">
-    <a class="logo" href="index.html" style="text-decoration:none;color:inherit"><span class="ojo">👁</span> Sexto Sentido</a>
+    <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Sexto Sentido</a>
     <div class="jugador" id="jugador"></div>
   </header>
 
@@ -32,19 +32,19 @@
       <div class="escala"><span>Nada seguro</span><span>Totalmente seguro</span></div>
     </div>
 
-    <label for="just">¿Por qué? <span class="suave peq">(una línea; te da un sentido)</span></label>
+    <label for="just">¿Por qué? <span class="suave peq">(una línea; cuenta como un sentido)</span></label>
     <input type="text" id="just" placeholder="Elegí esto porque..." maxlength="200">
 
     <div class="acciones">
       <button class="btn btn-primario" id="enviar" disabled>Decidir</button>
-      <button class="btn btn-enlace" id="duda" title="Si crees que el caso está mal planteado">¿El caso está mal?</button>
+      <button class="btn btn-enlace" id="duda" title="Si crees que el caso está mal planteado">Creo que este caso está mal</button>
     </div>
   </section>
 
   <!-- Paso 2: pista -->
   <section id="pista-seccion" class="oculto">
     <div class="tutor">
-      <div class="avatar">👁</div>
+      <div class="avatar" id="av1"></div>
       <div>
         <div class="dice" id="tutor-dice"></div>
         <div class="motivo" id="tutor-motivo"></div>
@@ -55,8 +55,8 @@
 
   <!-- Paso 3: revisar -->
   <section id="revisar" class="tarjeta oculto">
-    <h2>Ahora que lo pensaste de nuevo, ¿qué decides?</h2>
-    <p class="suave peq">Puedes mantener tu respuesta o cambiarla. Lo que cuenta es que lo revises.</p>
+    <h2>Piénsalo otra vez. ¿Qué decides?</h2>
+    <p class="suave">Puedes quedarte con tu respuesta o cambiarla. Lo que cuenta es que la revises.</p>
     <div class="opciones" id="opciones2"></div>
     <div class="confianza">
       <div class="confianza-cab"><label for="conf2" style="margin:0">¿Y ahora qué tan seguro estás?</label><span class="confianza-valor" id="conf2-valor">50</span></div>
@@ -69,7 +69,7 @@
   <!-- Paso 4: cierre -->
   <section id="cierre" class="tarjeta oculto">
     <div class="tutor" style="margin-top:0">
-      <div class="avatar">👁</div>
+      <div class="avatar" id="av2"></div>
       <div><div class="dice" id="cierre-dice"></div><div class="motivo" id="cierre-motivo"></div></div>
     </div>
     <div class="sentidos-ganados" id="sentidos"></div>
@@ -86,9 +86,13 @@
   </section>
 </div>
 
+<script src="assets/js/iconos.js"></script>
 <script src="assets/js/api.js"></script>
 <script>
 (async function () {
+  document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
+  document.getElementById('av1').innerHTML = ICONO.ojo;
+  document.getElementById('av2').innerHTML = ICONO.ojo;
   const alumno = Sesion.leer();
   if (!alumno) { location.href = 'index.html'; return; }
   const id = new URLSearchParams(location.search).get('id');
@@ -194,10 +198,9 @@
     setPaso(4);
     $('cierre-dice').textContent = r2.texto_accion;
     $('cierre-motivo').textContent = 'Motivo: ' + r2.texto_motivo;
-    const iconos = { justificar: '✍️', revisar: '🔁', calibrar: '🎯' };
     $('sentidos').innerHTML = meta.sentidos.map(s => `
       <div class="sentido ${r2.sentidos.includes(s.clave) ? 'ganado' : ''}" title="${s.descripcion}">
-        <div class="icono">${iconos[s.clave] || '★'}</div><div class="nombre">${s.nombre}</div>
+        <span class="icono">${ICONO[s.clave] || ''}</span><div class="nombre">${s.nombre}</div>
       </div>`).join('');
     $('explicacion').textContent = r2.explicacion;
     if (r2.reflexion && !esAbierta) { $('reflexion-pregunta').textContent = r2.reflexion; }
