@@ -4,7 +4,10 @@
 # Variables en .env: DOMINIO, DOCENTE_TOKEN
 services:
   sexto:
-    build: .
+    build:
+      context: .
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
     container_name: sexto-sentido
     restart: unless-stopped
     ports:

@@ -2,7 +2,10 @@
 # Cuando haya dominio, cambiar a la versión con Traefik (docker-compose.traefik.yml).
 services:
   sexto:
-    build: .
+    build:
+      context: .
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
     container_name: sexto-sentido
     restart: unless-stopped
     ports:

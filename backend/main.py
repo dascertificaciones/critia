@@ -24,6 +24,7 @@ BASE = Path(__file__).parent
 FRONT = BASE.parent / "frontend"
 DOCENTE_TOKEN = os.environ.get("DOCENTE_TOKEN", "docente")
 META = json.loads((BASE / "misiones.json").read_text(encoding="utf-8"))
+VERSION = os.environ.get("APP_VERSION", "dev")
 
 app = FastAPI(title="Sexto Sentido", version="0.4")
 
@@ -313,16 +314,25 @@ def docente_alertas(x_docente: str = Header(default="")):
 if FRONT.exists():
     app.mount("/assets", StaticFiles(directory=FRONT / "assets"), name="assets")
 
+    from fastapi.responses import HTMLResponse
+
+    def _html(f: Path):
+        """Sirve el HTML sin caché y con la versión en los assets, para que el navegador baje CSS/JS nuevos."""
+        html = f.read_text(encoding="utf-8").replace("assets/css/estilo.css", f"assets/css/estilo.css?v={VERSION}") \
+                                             .replace("assets/js/iconos.js", f"assets/js/iconos.js?v={VERSION}") \
+                                             .replace("assets/js/api.js", f"assets/js/api.js?v={VERSION}")
+        return HTMLResponse(html, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
+
     @app.get("/")
     def index():
         f = FRONT / "index.html"
         if not f.exists():
             return {"mensaje": "API de Sexto Sentido activa. La interfaz aún no está construida. Documentación en /docs"}
-        return FileResponse(f)
+        return _html(f)
 
     @app.get("/{pagina}.html")
     def pagina(pagina: str):
         f = FRONT / f"{pagina}.html"
         if not f.exists():
             raise HTTPException(404)
-        return FileResponse(f)
+        return _html(f)
