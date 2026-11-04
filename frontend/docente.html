@@ -72,8 +72,8 @@
   let META = null;
 
   const PESTANAS = [
-    ['resumen', 'Resumen'], ['reflexiones', 'Reflexiones'], ['insignias', 'Insignias'],
-    ['alertas', 'Alertas'], ['casos', 'Casos'], ['alumnos', 'Alumnos'],
+    ['resumen', 'Resumen'], ['generar', '✨ Generar casos'], ['casos', 'Casos'], ['reflexiones', 'Reflexiones'],
+    ['insignias', 'Insignias'], ['alertas', 'Alertas'], ['alumnos', 'Alumnos'],
   ];
   let activa = 'resumen';
 
@@ -103,7 +103,99 @@
     await VISTAS[activa]();
   }
 
+  const NIVEL = { 1: ['Automático', 'ok'], 2: ['Aprobación rápida', 'aviso'], 3: ['Lectura completa', 'mal'] };
+  function tarjetaCaso(c) {
+    return `<div class="reflexion-card caso-edit" data-id="${esc(c.id)}">
+      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center">
+        <div><span class="tag">${esc(c.id)}</span> <span class="tag ${NIVEL[c.nivel_revision]?.[1] || ''}">${NIVEL[c.nivel_revision]?.[0] || ''}</span> ${c.provisional ? '<span class="tag aviso">provisional</span>' : '<span class="tag ok">aprobado</span>'}</div>
+        <div class="peq suave">Misión ${c.mision} · postulado ${c.postulado}${c.tema ? ' · tema: ' + esc(c.tema) : ''}</div>
+      </div>
+      <label>Título</label><input type="text" class="f-titulo" value="${esc(c.titulo)}">
+      <label>Situación</label><textarea class="f-situacion">${esc(c.situacion)}</textarea>
+      <label>Pregunta</label><input type="text" class="f-pregunta" value="${esc(c.pregunta)}">
+      <label>Opciones <span class="peq suave">(marca la correcta)</span></label>
+      ${(c.opciones || []).map((o, i) => `<div style="display:flex;gap:8px;align-items:center;margin:4px 0">
+        <input type="radio" name="ok-${esc(c.id)}" value="${i}" ${o.correcta ? 'checked' : ''}>
+        <b>${o.clave}</b><input type="text" class="f-op" data-i="${i}" value="${esc(o.texto)}" style="flex:1">
+      </div>`).join('')}
+      <label>Pista</label><input type="text" class="f-pista" value="${esc(c.pista)}">
+      <label>Explicación</label><textarea class="f-explicacion">${esc(c.explicacion)}</textarea>
+      <label>Reflexión</label><input type="text" class="f-reflexion" value="${esc(c.reflexion || '')}">
+      <div class="fila-acciones">
+        <button class="btn btn-secundario btn-peq guardar-caso">Guardar cambios</button>
+        ${c.provisional ? '<button class="btn btn-primario btn-peq aprobar-caso">Aprobar</button>' : ''}
+        <button class="btn btn-enlace btn-peq borrar-caso" style="color:var(--mal)">Descartar</button>
+      </div></div>`;
+  }
+  function leerTarjeta(card) {
+    const ops = [...card.querySelectorAll('.f-op')].map((inp, i) => ({ clave: 'ABC'[i], texto: inp.value, correcta: false, tipo_error: null }));
+    const sel = card.querySelector('input[type=radio]:checked');
+    const ci = sel ? +sel.value : 1;
+    ops.forEach((o, i) => { o.correcta = i === ci; });
+    return { titulo: card.querySelector('.f-titulo').value, situacion: card.querySelector('.f-situacion').value,
+             pregunta: card.querySelector('.f-pregunta').value, pista: card.querySelector('.f-pista').value,
+             explicacion: card.querySelector('.f-explicacion').value, reflexion: card.querySelector('.f-reflexion').value, opciones: ops };
+  }
+  function enlazarTarjetas() {
+    [...document.querySelectorAll('.caso-edit')].forEach(card => {
+      const id = card.dataset.id;
+      const guardar = async () => {
+        // conserva tipo_error de las incorrectas si existían
+        const actual = (await api('/docente/casos', 'GET', null, H())).find(c => c.id === id);
+        const cambios = leerTarjeta(card);
+        cambios.opciones.forEach((o, i) => { if (!o.correcta) o.tipo_error = (actual?.opciones?.[i]?.tipo_error) || actual?.familia_error || 'acepta_sin_evidencia'; });
+        await api(`/docente/casos/${id}`, 'PUT', { cambios }, H());
+      };
+      card.querySelector('.guardar-caso').onclick = async () => { try { await guardar(); toast('Guardado'); } catch (e) { toast(e.message); } };
+      const ap = card.querySelector('.aprobar-caso');
+      if (ap) ap.onclick = async () => { try { await guardar(); await api(`/docente/casos/${id}/aprobar`, 'POST', null, H()); toast('Caso aprobado: ya lo ven los alumnos'); card.querySelector('.tag.aviso').outerHTML = '<span class="tag ok">aprobado</span>'; ap.remove(); } catch (e) { toast(e.message); } };
+      card.querySelector('.borrar-caso').onclick = async () => { try { await api(`/docente/casos/${id}`, 'DELETE', null, H()); card.remove(); toast('Descartado'); } catch (e) { toast(e.message); } };
+    });
+  }
+
   const VISTAS = {
+    async generar() {
+      const est = await api('/docente/generador/estado', 'GET', null, H());
+      const misionDe = n => (META.misiones.find(m => m.postulados.includes(n)) || {}).nombre || '';
+      $('contenido').innerHTML = `<h2>Generar casos desde un tema</h2>
+        <p class="suave peq">Escribe el tema de tu clase. El sistema redacta casos con el modelo <b>${esc(est.modelo)}</b>, los pasa por filtros automáticos (estructura, una sola correcta, cuentas, datos personales, segunda opinión ciega) y los deja como <b>provisionales</b> para que los revises y apruebes en la pestaña Casos. Nada llega a los alumnos sin tu aprobación.</p>
+        ${est.configurado ? '' : '<p class="tag mal" style="display:inline-block;margin-bottom:10px">El servidor no tiene clave del modelo (LLM_API_KEY). Pídele al administrador que la configure.</p>'}
+        <label for="g-tema">Tema</label>
+        <input type="text" id="g-tema" placeholder="por ejemplo: porcentajes y descuentos, la Independencia de México, alimentación" maxlength="120" style="width:100%;background:#0f1527;color:var(--texto);border:1px solid var(--linea);border-radius:12px;padding:12px 14px;font-size:16px">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
+          <div><label for="g-post">Postulado a practicar</label>
+            <select id="g-post" style="width:100%;padding:12px;border-radius:12px;background:#0f1527;color:var(--texto);border:1px solid var(--linea);font-size:15px">
+              ${META.postulados.map(p => `<option value="${p.n}">${p.n}. ${esc(p.corto)} · misión: ${esc(misionDe(p.n))}</option>`).join('')}
+            </select></div>
+          <div><label for="g-grado">Grado</label>
+            <select id="g-grado" style="width:100%;padding:12px;border-radius:12px;background:#0f1527;color:var(--texto);border:1px solid var(--linea);font-size:15px">
+              <option>1° de secundaria</option><option selected>2° de secundaria</option><option>3° de secundaria</option><option>bachillerato</option>
+            </select></div>
+          <div><label for="g-n">Cuántos</label>
+            <select id="g-n" style="width:100%;padding:12px;border-radius:12px;background:#0f1527;color:var(--texto);border:1px solid var(--linea);font-size:15px">
+              <option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option>
+            </select></div>
+        </div>
+        <div class="acciones"><button class="btn btn-primario" id="g-go" ${est.configurado ? '' : 'disabled'}>Generar</button><span id="g-estado" class="suave peq"></span></div>
+        <div id="g-resultado"></div>`;
+      $('g-go').onclick = async () => {
+        const tema = $('g-tema').value.trim();
+        if (tema.length < 3) { toast('Escribe un tema'); return; }
+        $('g-go').disabled = true; $('g-estado').textContent = 'Generando y revisando... esto tarda entre 20 y 60 segundos.';
+        try {
+          const r = await api('/docente/generar', 'POST', { tema, grado: $('g-grado').value, postulado: +$('g-post').value, n: +$('g-n').value }, H());
+          $('g-estado').textContent = '';
+          $('g-resultado').innerHTML = `
+            <h2 style="font-size:16px;margin-top:20px">${r.aceptados.length} caso(s) listos para revisar · ${r.rechazados.length} descartado(s) por los filtros</h2>
+            ${r.aceptados.map(c => tarjetaCaso(c)).join('')}
+            ${r.rechazados.length ? `<details style="margin-top:12px"><summary class="suave">Ver descartados y por qué</summary>${r.rechazados.map(x => `<div class="reflexion-card"><b>${esc(x.caso.titulo || 'sin título')}</b><div class="peq suave">${x.motivos.map(esc).join(' · ')}</div></div>`).join('')}</details>` : ''}`;
+          enlazarTarjetas();
+          $('g-tema').value = '';
+        } catch (e) { $('g-estado').textContent = ''; toast(e.message, 6000); }
+        $('g-go').disabled = false;
+      };
+    },
+
     async resumen() {
       const r = await api('/docente/resumen', 'GET', null, H());
       const t = r.totales;
@@ -187,10 +279,15 @@
 
     async casos() {
       const lista = await api('/docente/casos', 'GET', null, H());
-      const niv = { 1: ['Automático', 'ok'], 2: ['Aprobación rápida', 'aviso'], 3: ['Lectura completa', 'mal'] };
-      $('contenido').innerHTML = `<h2>Banco de casos</h2><p class="suave peq">${lista.length} casos. Los provisionales vienen de la carpeta <code>docente/</code> (n8n) y los alumnos los ven marcados hasta que los apruebes.</p>
+      const niv = NIVEL;
+      const prov = lista.filter(c => c.provisional);
+      const resto = lista.filter(c => !c.provisional);
+      $('contenido').innerHTML = `<h2>Casos por aprobar <span class="tag aviso">${prov.length}</span></h2>
+        <p class="suave peq">Generados desde un tema. Revisa, corrige lo que haga falta y aprueba. Los alumnos los ven con un punto amarillo hasta entonces.</p>
+        ${prov.length ? prov.map(tarjetaCaso).join('') : '<div class="vacio">No hay casos pendientes. Genera algunos en la pestaña Generar.</div>'}
+        <h2 style="margin-top:24px">Banco aprobado <span class="tag ok">${resto.length}</span></h2>
         <table><thead><tr><th>ID</th><th>Título</th><th>Misión</th><th>Nivel</th><th>Estado</th><th></th></tr></thead><tbody>
-        ${lista.map(c => `<tr>
+        ${resto.map(c => `<tr>
           <td class="peq">${esc(c.id)}</td>
           <td><details><summary>${esc(c.titulo)}</summary><div class="caso-detalle"><b>Situación:</b> ${esc(c.situacion)}\n\n<b>Pregunta:</b> ${esc(c.pregunta)}\n${(c.opciones || []).map(o => `\n${o.clave}) ${esc(o.texto)} ${o.correcta ? '✓' : ''}`).join('')}\n\n<b>Pista:</b> ${esc(c.pista)}\n\n<b>Explicación:</b> ${esc(c.explicacion)}</div></details></td>
           <td>${c.mision}</td>
@@ -198,9 +295,7 @@
           <td>${c.provisional ? '<span class="tag aviso">provisional</span>' : '<span class="tag ok">aprobado</span>'}</td>
           <td>${c.provisional ? `<button class="btn btn-primario btn-peq" data-id="${esc(c.id)}">Aprobar</button>` : ''}</td></tr>`).join('')}
         </tbody></table>`;
-      [...$('contenido').querySelectorAll('button[data-id]')].forEach(b => b.onclick = async () => {
-        try { await api(`/docente/casos/${b.dataset.id}/aprobar`, 'POST', null, H()); toast('Caso aprobado'); VISTAS.casos(); } catch (e) { toast(e.message); }
-      });
+      enlazarTarjetas();
     },
 
     async alumnos() {

@@ -15,6 +15,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+import generador
 import historial
 import motor
 import sesion
@@ -70,6 +71,18 @@ class RevisionIn(BaseModel):
 class InsigniaIn(BaseModel):
     seudonimo: str
     postulado: int
+
+
+class GenerarIn(BaseModel):
+    tema: str
+    grado: str = "secundaria (12-15 años)"
+    postulado: int
+    formato: str = "tres_opciones"
+    n: int = 2
+
+
+class CasoEditIn(BaseModel):
+    cambios: dict
 
 
 # ---------- Público / alumno ----------
@@ -250,6 +263,44 @@ def docente_alumno(seudonimo: str, x_docente: str = Header(default="")):
     for i in h:
         i["titulo"] = todos.get(i["caso_id"], {}).get("titulo", i["caso_id"])
     return h
+
+
+@app.get("/api/docente/generador/estado")
+def generador_estado(x_docente: str = Header(default="")):
+    _docente(x_docente)
+    return {"configurado": bool(os.environ.get("LLM_API_KEY")), "modelo": generador.MODEL, "base_url": generador.BASE_URL}
+
+
+@app.post("/api/docente/generar")
+def docente_generar(d: GenerarIn, x_docente: str = Header(default="")):
+    _docente(x_docente)
+    if not 1 <= d.n <= 5:
+        raise HTTPException(400, "n debe estar entre 1 y 5")
+    if d.postulado not in generador.POSTULADOS:
+        raise HTTPException(400, "postulado inválido")
+    try:
+        return generador.generar(d.tema.strip(), d.grado, d.postulado, d.formato, d.n)
+    except RuntimeError as e:
+        raise HTTPException(400, str(e))
+    except Exception as e:
+        raise HTTPException(502, f"Error llamando al modelo: {e}")
+
+
+@app.put("/api/docente/casos/{caso_id}")
+def docente_editar_caso(caso_id: str, d: CasoEditIn, x_docente: str = Header(default="")):
+    _docente(x_docente)
+    try:
+        return generador.actualizar_caso(caso_id, d.cambios)
+    except KeyError:
+        raise HTTPException(404, "Solo se pueden editar casos de la carpeta docente")
+
+
+@app.delete("/api/docente/casos/{caso_id}")
+def docente_borrar_caso(caso_id: str, x_docente: str = Header(default="")):
+    _docente(x_docente)
+    if not generador.eliminar_caso(caso_id):
+        raise HTTPException(404, "Solo se pueden borrar casos de la carpeta docente")
+    return {"ok": True}
 
 
 @app.get("/api/docente/alertas")
