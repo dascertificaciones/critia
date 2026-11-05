@@ -1,6 +1,6 @@
 # Critia · La expedición
 
-Acompañante gamificado para aprender a usar la IA de forma crítica y responsable mientras se hace cualquier tarea de investigación, para estudiantes de 11 a 17 años. Hack4Edu 2026 · Reto 04 "Un tutor que no te da la respuesta".
+Acompañante gamificado para aprender a usar la IA de forma crítica y responsable mientras se hace cualquier tarea de investigación, para estudiantes de 11 a 17 años. Hack4Edu 2026.
 
 **Cómo se usa en clase:** al dejar una investigación, el docente define el mapa según su tema; los alumnos practican con respuestas de IA como las que encontrarán, reciben pistas (nunca la solución), ganan la insignia y aplican esa forma de revisar en la tarea real, con una nota de uso de IA. El docente ve en qué conceptos necesita apoyo cada estudiante.
 
