@@ -31,17 +31,32 @@ POSTULADO_CFG = {
     10: ("comparte_datos", 3), 11: ("no_consulta", 3), 12: ("entrega_como_propio", 2),
 }
 
-PROMPT_SISTEMA = """Eres un diseñador de ejercicios de pensamiento crítico para estudiantes mexicanos de secundaria (12 a 15 años).
+HABILIDADES = {h["clave"]: h for h in META.get("marco_teorico", {}).get("habilidades", [])}
+NIVELES = {n["n"]: n for n in META.get("marco_teorico", {}).get("niveles", [])}
+
+GUIA_NIVEL = {
+    1: "NIVEL 1 (11 a 12 años): la IA responde en UNA o DOS oraciones con un dato concreto. El fallo se descubre con una cuenta o una comparación simple. Vocabulario cotidiano, frases cortas, sin tecnicismos.",
+    2: "NIVEL 2 (13 a 14 años): la IA responde en DOS o TRES oraciones con una explicación o una cita. El fallo está en el razonamiento o en la fuente (una referencia inventada, una generalización, un supuesto no dicho), no en el dato aislado.",
+    3: "NIVEL 3 (15 a 17 años): la IA responde en UN PÁRRAFO con cifras, referencias y recomendaciones, mezclando afirmaciones ciertas con otras inventadas o exageradas. El alumno debe verificar afirmación por afirmación. Admite matices (una fuente real que no dice lo que la IA afirma, un supuesto presentado como normal).",
+}
+
+PROMPT_SISTEMA = """Eres un diseñador de ejercicios de pensamiento crítico sobre el uso responsable de la inteligencia artificial, para estudiantes mexicanos de 11 a 17 años.
+REGLA CENTRAL: el objeto de análisis es SIEMPRE una respuesta textual de una IA. La situación tiene tres partes, en este orden:
+1) "Le pediste a una IA: ..." (lo que el alumno preguntó),
+2) "La IA respondió:" seguido de la respuesta COMPLETA entre comillas, escrita como la escribiría un asistente real (segura, amable, fluida), con el fallo dentro,
+3) una línea de contexto o la decisión que debe tomar el alumno.
+NUNCA describas el error como algo que hizo un compañero, un amigo o un tercero ("un niño dijo..."); el fallo está en la respuesta de la IA o en cómo se usaría.
 Escribes en español neutro, claro y breve. Todos los nombres, datos, empresas, apps y estudios que menciones son FICTICIOS y no deben coincidir con personas o marcas reales.
 Nunca incluyes datos personales reales, direcciones, teléfonos ni estereotipos sobre grupos de personas (salvo que el ejercicio sea para detectarlos, y entonces el estereotipo aparece como algo a cuestionar).
 Devuelves SOLO un JSON válido, sin comentarios ni texto alrededor."""
 
 
-def _prompt_usuario(tema, grado, postulado, formato, n, familia):
+def _prompt_usuario(tema, nivel, postulado, formato, n, familia):
     p = POSTULADOS[postulado]
+    h = HABILIDADES.get(p.get("habilidad"), {})
     ejemplo = {
         "titulo": "Título corto",
-        "situacion": "Situación que lee el alumno. Si hay una respuesta de IA, inclúyela entre comillas. Máximo 90 palabras.",
+        "situacion": "Le pediste a una IA: \"...\"\n\nLa IA respondió:\n\"...respuesta completa con el fallo dentro...\"\n\n(contexto o decisión). Máximo 120 palabras.",
         "pregunta": "¿Qué deberías hacer / decidir?",
         "opciones": [
             {"clave": "A", "texto": "Opción incorrecta que comete el error de la familia indicada", "correcta": False, "tipo_error": familia},
@@ -53,8 +68,11 @@ def _prompt_usuario(tema, grado, postulado, formato, n, familia):
         "reflexion": "Pregunta abierta de cierre que el alumno responde con sus palabras.",
         "rubrica_reflexion": ["criterio observable 1", "criterio observable 2"],
     }
-    return f"""Genera {n} casos distintos sobre el tema "{tema}" para {grado}.
+    return f"""Genera {n} casos distintos sobre el tema "{tema}".
+{GUIA_NIVEL.get(nivel, GUIA_NIVEL[2])}
 Postulado de pensamiento crítico a practicar: {p['n']}. {p['nombre']}.
+Habilidad del marco teórico que debe quedar en evidencia: {h.get('nombre', '')} ({h.get('autor', '')}): {h.get('definicion', '')}
+La opción correcta debe ser exactamente lo que haría alguien que ejerce esa habilidad frente a la respuesta de la IA.
 Familia de error principal que debe aparecer en una opción incorrecta: "{familia}".
 Formato: {formato} (tres opciones A, B, C; exactamente UNA correcta; la posición de la correcta debe variar entre casos).
 Las opciones incorrectas deben ser plausibles, no absurdas.
@@ -120,14 +138,16 @@ def segunda_opinion(caso, api_key=None):
     return elegida == correcta
 
 
-def generar(tema, grado, postulado, formato="tres_opciones", n=2, mision=None, docente="docente", api_key=None):
-    """Genera, valida y guarda. Devuelve {aceptados: [...], rechazados: [{caso, motivos}]}."""
+def generar(tema, nivel_cog, postulado, formato="tres_opciones", n=2, mision=None, docente="docente", api_key=None):
+    """Genera, valida y guarda. Devuelve {aceptados: [...], rechazados: [{caso, motivos}]}.
+    nivel_cog: 1, 2 o 3 (madurez cognitiva por edad, ver misiones.json → marco_teorico.niveles)."""
+    nivel_cog = int(nivel_cog) if str(nivel_cog) in ("1", "2", "3") else 2
     casos_existentes, familias = motor.cargar_casos()
     familia, nivel = POSTULADO_CFG.get(postulado, ("acepta_sin_evidencia", 2))
     mision = mision or next((m["n"] for m in META["misiones"] if postulado in m["postulados"]), 1)
 
     contenido = _llamar([{"role": "system", "content": PROMPT_SISTEMA},
-                         {"role": "user", "content": _prompt_usuario(tema, grado, postulado, formato, n, familia)}],
+                         {"role": "user", "content": _prompt_usuario(tema, nivel_cog, postulado, formato, n, familia)}],
                         api_key=api_key)
     try:
         lote = json.loads(contenido).get("casos", [])
@@ -158,7 +178,8 @@ def generar(tema, grado, postulado, formato="tres_opciones", n=2, mision=None, d
         c.update({
             "id": f"{prefijo}-{siguiente:03d}", "mision": mision, "postulado": postulado,
             "familia_error": familia, "formato": formato, "nivel_revision": max(nivel_final, 2 if motivos else nivel_final),
-            "provisional": True, "tema": tema, "grado": grado, "generado_por": MODEL,
+            "provisional": True, "tema": tema, "nivel": nivel_cog,
+            "habilidad": POSTULADOS[postulado].get("habilidad"), "generado_por": MODEL,
             "generado_el": datetime.now().isoformat(timespec="seconds"), "docente": docente,
         })
         siguiente += 1

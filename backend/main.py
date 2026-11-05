@@ -114,7 +114,7 @@ class InsigniaIn(BaseModel):
 
 class GenerarIn(BaseModel):
     tema: str
-    grado: str = "secundaria (12-15 años)"
+    nivel: int = 2
     postulado: int
     formato: str = "tres_opciones"
     n: int = 2
@@ -145,6 +145,7 @@ class PasswordIn(BaseModel):
 
 class GrupoIn(BaseModel):
     nombre: str
+    nivel: Optional[int] = None
 
 
 # =====================================================================
@@ -156,15 +157,18 @@ def meta():
 
 
 def _casos_visibles(seudonimo=None):
-    """Banco base + casos generados aprobados para el grupo del alumno."""
+    """Banco base del nivel del grupo + casos generados aprobados para el grupo del alumno.
+    Sin seudónimo (vista previa) se muestra todo el banco base."""
     todos, _ = motor.cargar_casos()
     codigo = historial.grupo_de_alumno(seudonimo) if seudonimo else None
+    nivel = historial.nivel_de_alumno(seudonimo) if seudonimo else None
     permitidos = historial.casos_del_grupo(codigo) if codigo else set()
     out = {}
     for cid, c in todos.items():
         es_generado = "generado_por" in c or c.get("origen")
         if not es_generado:
-            out[cid] = c
+            if nivel is None or c.get("nivel", 2) == nivel or c.get("especial"):
+                out[cid] = c
         elif not c.get("provisional") and cid in permitidos:
             out[cid] = c
     return out
@@ -185,7 +189,7 @@ def grupo_publico(codigo: str):
     g = historial.grupo(codigo)
     if not g:
         raise HTTPException(404, "Ese código de grupo no existe")
-    return {"codigo": g["codigo"], "nombre": g["nombre"]}
+    return {"codigo": g["codigo"], "nombre": g["nombre"], "nivel": g.get("nivel") or 2}
 
 
 @app.post("/api/alumno")
@@ -292,7 +296,7 @@ def crear_grupo(d: GrupoIn, x_admin: str = Header(default=""), x_sesion: str = H
         raise HTTPException(400, "El administrador no tiene grupos propios; inicia sesión como docente")
     if len(d.nombre.strip()) < 1:
         raise HTTPException(400, "Escribe un nombre")
-    return historial.crear_grupo(q.usuario, d.nombre)
+    return historial.crear_grupo(q.usuario, d.nombre, d.nivel or 2)
 
 
 @app.put("/api/docente/grupos/{codigo}")
@@ -300,7 +304,7 @@ def renombrar_grupo(codigo: str, d: GrupoIn, x_admin: str = Header(default=""), 
     q = _quien(x_admin, x_sesion)
     if not q.puede_grupo(codigo):
         raise HTTPException(403, "Ese grupo no es tuyo")
-    historial.renombrar_grupo(codigo, d.nombre)
+    historial.renombrar_grupo(codigo, d.nombre, d.nivel)
     return {"ok": True}
 
 
@@ -438,7 +442,7 @@ def docente_generar(d: GenerarIn, x_admin: str = Header(default=""), x_sesion: s
     if d.postulado not in generador.POSTULADOS:
         raise HTTPException(400, "postulado inválido")
     try:
-        return generador.generar(d.tema.strip(), d.grado, d.postulado, d.formato, d.n, docente=q.usuario)
+        return generador.generar(d.tema.strip(), d.nivel, d.postulado, d.formato, d.n, docente=q.usuario)
     except RuntimeError as e:
         raise HTTPException(400, str(e))
     except Exception as e:

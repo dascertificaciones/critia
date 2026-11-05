@@ -1,31 +1,310 @@
 {
   "misiones": [
-    {"n": 1, "nombre": "El sentido de la duda", "postulados": [1, 2], "descripcion": "Que algo suene claro y seguro no lo hace cierto. Aprende a pedir evidencia."},
-    {"n": 2, "nombre": "La fuente fantasma", "postulados": [3], "descripcion": "Una cita con buen formato puede no existir. Aprende a comprobar fuentes."},
-    {"n": 3, "nombre": "Lo que falta", "postulados": [1, 7], "descripcion": "Las respuestas sin contexto no sirven. Aprende a preguntar mejor."},
-    {"n": 4, "nombre": "El termómetro", "postulados": [5, 6], "descripcion": "Tu confianza debe seguir a la evidencia. Aprende a calibrarla."},
-    {"n": 5, "nombre": "El criterio justo", "postulados": [8], "descripcion": "Las generalizaciones sobre personas necesitan pruebas. Aprende a detectar estereotipos."},
-    {"n": 6, "nombre": "La bóveda", "postulados": [10], "descripcion": "Tus datos y los de otros se protegen. Aprende a decir que no."},
-    {"n": 7, "nombre": "Mi nombre, mi trabajo", "postulados": [9, 12], "descripcion": "Usar herramientas no quita tu responsabilidad. Aprende a explicar y declarar."},
-    {"n": 8, "nombre": "El sexto sentido", "postulados": [4, 11], "descripcion": "Hay decisiones que necesitan a una persona. Aprende a reconocer el límite."}
+    {
+      "n": 1,
+      "nombre": "El sentido de la duda",
+      "postulados": [
+        1,
+        2
+      ],
+      "descripcion": "Que algo suene claro y seguro no lo hace cierto. Aprende a pedir evidencia."
+    },
+    {
+      "n": 2,
+      "nombre": "La fuente fantasma",
+      "postulados": [
+        3
+      ],
+      "descripcion": "Una cita con buen formato puede no existir. Aprende a comprobar fuentes."
+    },
+    {
+      "n": 3,
+      "nombre": "Lo que falta",
+      "postulados": [
+        1,
+        7
+      ],
+      "descripcion": "Las respuestas sin contexto no sirven. Aprende a preguntar mejor."
+    },
+    {
+      "n": 4,
+      "nombre": "El termómetro",
+      "postulados": [
+        5,
+        6
+      ],
+      "descripcion": "Tu confianza debe seguir a la evidencia. Aprende a calibrarla."
+    },
+    {
+      "n": 5,
+      "nombre": "El criterio justo",
+      "postulados": [
+        8
+      ],
+      "descripcion": "Las generalizaciones sobre personas necesitan pruebas. Aprende a detectar estereotipos."
+    },
+    {
+      "n": 6,
+      "nombre": "La bóveda",
+      "postulados": [
+        10
+      ],
+      "descripcion": "Tus datos y los de otros se protegen. Aprende a decir que no."
+    },
+    {
+      "n": 7,
+      "nombre": "Mi nombre, mi trabajo",
+      "postulados": [
+        9,
+        12
+      ],
+      "descripcion": "Usar herramientas no quita tu responsabilidad. Aprende a explicar y declarar."
+    },
+    {
+      "n": 8,
+      "nombre": "El sexto sentido",
+      "postulados": [
+        4,
+        11
+      ],
+      "descripcion": "Hay decisiones que necesitan a una persona. Aprende a reconocer el límite."
+    }
   ],
   "postulados": [
-    {"n": 1, "nombre": "Toda afirmación necesita evidencia", "corto": "Evidencia"},
-    {"n": 2, "nombre": "Que suene claro no significa que sea cierto", "corto": "Claridad no es verdad"},
-    {"n": 3, "nombre": "Las fuentes se verifican", "corto": "Fuentes"},
-    {"n": 4, "nombre": "Revisa si las premisas están completas", "corto": "Premisas"},
-    {"n": 5, "nombre": "La confianza sigue a la evidencia", "corto": "Calibración"},
-    {"n": 6, "nombre": "Cambiar de opinión con mejores razones", "corto": "Apertura"},
-    {"n": 7, "nombre": "Considera el contexto antes de generalizar", "corto": "Contexto"},
-    {"n": 8, "nombre": "Las generalizaciones sobre personas requieren criterios justos", "corto": "Justicia"},
-    {"n": 9, "nombre": "Explicar el propio razonamiento es parte de pensar bien", "corto": "Explicación"},
-    {"n": 10, "nombre": "La información personal se protege", "corto": "Privacidad"},
-    {"n": 11, "nombre": "Hay decisiones que requieren consultar a alguien", "corto": "Consulta"},
-    {"n": 12, "nombre": "Usar herramientas no quita la responsabilidad", "corto": "Responsabilidad"}
+    {
+      "n": 1,
+      "nombre": "Toda afirmación necesita evidencia",
+      "corto": "Evidencia",
+      "habilidad": "exactitud"
+    },
+    {
+      "n": 2,
+      "nombre": "Que suene claro no significa que sea cierto",
+      "corto": "Claridad no es verdad",
+      "habilidad": "exactitud"
+    },
+    {
+      "n": 3,
+      "nombre": "Las fuentes se verifican",
+      "corto": "Fuentes",
+      "habilidad": "evaluacion"
+    },
+    {
+      "n": 4,
+      "nombre": "Revisa si las premisas están completas",
+      "corto": "Premisas",
+      "habilidad": "analisis"
+    },
+    {
+      "n": 5,
+      "nombre": "La confianza sigue a la evidencia",
+      "corto": "Calibración",
+      "habilidad": "autorregulacion"
+    },
+    {
+      "n": 6,
+      "nombre": "Cambiar de opinión con mejores razones",
+      "corto": "Apertura",
+      "habilidad": "apertura"
+    },
+    {
+      "n": 7,
+      "nombre": "Considera el contexto antes de generalizar",
+      "corto": "Contexto",
+      "habilidad": "relevancia_amplitud"
+    },
+    {
+      "n": 8,
+      "nombre": "Las generalizaciones sobre personas requieren criterios justos",
+      "corto": "Justicia",
+      "habilidad": "justicia"
+    },
+    {
+      "n": 9,
+      "nombre": "Explicar el propio razonamiento es parte de pensar bien",
+      "corto": "Explicación",
+      "habilidad": "explicacion"
+    },
+    {
+      "n": 10,
+      "nombre": "La información personal se protege",
+      "corto": "Privacidad",
+      "habilidad": "juicio_consecuencias"
+    },
+    {
+      "n": 11,
+      "nombre": "Hay decisiones que requieren consultar a alguien",
+      "corto": "Consulta",
+      "habilidad": "limite_juicio"
+    },
+    {
+      "n": 12,
+      "nombre": "Usar herramientas no quita la responsabilidad",
+      "corto": "Responsabilidad",
+      "habilidad": "responsabilidad"
+    }
   ],
   "sentidos": [
-    {"clave": "justificar", "nombre": "Justificar", "descripcion": "Escribiste por qué elegiste tu respuesta."},
-    {"clave": "revisar", "nombre": "Revisar", "descripcion": "Después de la pista, cambiaste a la respuesta correcta."},
-    {"clave": "calibrar", "nombre": "Calibrar", "descripcion": "Tu confianza se movió en la dirección correcta."}
-  ]
+    {
+      "clave": "justificar",
+      "nombre": "Justificar",
+      "descripcion": "Escribiste por qué elegiste tu respuesta."
+    },
+    {
+      "clave": "revisar",
+      "nombre": "Revisar",
+      "descripcion": "Después de la pista, cambiaste a la respuesta correcta."
+    },
+    {
+      "clave": "calibrar",
+      "nombre": "Calibrar",
+      "descripcion": "Tu confianza se movió en la dirección correcta."
+    }
+  ],
+  "marco_teorico": {
+    "fuentes": [
+      {
+        "clave": "paul_elder",
+        "cita": "Paul, R. y Elder, L. (2005). Estándares de competencia para el pensamiento crítico. Fundación para el Pensamiento Crítico.",
+        "aporta": "Estándares intelectuales universales: claridad, exactitud, precisión, relevancia, profundidad, amplitud, lógica, justicia."
+      },
+      {
+        "clave": "facione",
+        "cita": "Facione, P. (1990). Critical Thinking: A Statement of Expert Consensus for Purposes of Educational Assessment and Instruction (Informe Delphi). American Philosophical Association.",
+        "aporta": "Seis habilidades cognitivas: interpretación, análisis, evaluación, inferencia, explicación, autorregulación; y las disposiciones del pensador crítico."
+      },
+      {
+        "clave": "ennis",
+        "cita": "Ennis, R. (1987). A taxonomy of critical thinking dispositions and abilities. En Baron y Sternberg (eds.), Teaching thinking skills. Freeman.",
+        "aporta": "Disposiciones: buscar razones, mantenerse bien informado, apertura a cambiar de opinión, juzgar la credibilidad de las fuentes."
+      },
+      {
+        "clave": "lipman",
+        "cita": "Lipman, M. (1991). Thinking in Education. Cambridge University Press.",
+        "aporta": "Comunidad de indagación; el juicio como práctica social; reconocer el límite del propio juicio."
+      }
+    ],
+    "habilidades": [
+      {
+        "clave": "exactitud",
+        "nombre": "Exactitud",
+        "autor": "Paul y Elder",
+        "definicion": "Comprobar que una afirmación es verdadera, no solo que suena bien.",
+        "postulados": [
+          1,
+          2
+        ]
+      },
+      {
+        "clave": "evaluacion",
+        "nombre": "Evaluación",
+        "autor": "Facione (Informe Delphi)",
+        "definicion": "Valorar la credibilidad de una fuente o afirmación y la solidez de un argumento.",
+        "postulados": [
+          3
+        ]
+      },
+      {
+        "clave": "analisis",
+        "nombre": "Análisis",
+        "autor": "Facione (Informe Delphi)",
+        "definicion": "Identificar las relaciones entre premisas y conclusión; detectar qué falta.",
+        "postulados": [
+          4
+        ]
+      },
+      {
+        "clave": "autorregulacion",
+        "nombre": "Autorregulación",
+        "autor": "Facione (Informe Delphi)",
+        "definicion": "Vigilar el propio razonamiento y ajustar la confianza según la evidencia.",
+        "postulados": [
+          5
+        ]
+      },
+      {
+        "clave": "apertura",
+        "nombre": "Apertura (disposición)",
+        "autor": "Ennis",
+        "definicion": "Cambiar de opinión cuando aparecen mejores razones.",
+        "postulados": [
+          6
+        ]
+      },
+      {
+        "clave": "relevancia_amplitud",
+        "nombre": "Relevancia y amplitud",
+        "autor": "Paul y Elder",
+        "definicion": "Considerar el contexto y otros puntos de vista antes de concluir.",
+        "postulados": [
+          7
+        ]
+      },
+      {
+        "clave": "justicia",
+        "nombre": "Justicia (imparcialidad)",
+        "autor": "Paul y Elder",
+        "definicion": "Aplicar los mismos criterios a todas las personas; detectar sesgos y estereotipos.",
+        "postulados": [
+          8
+        ]
+      },
+      {
+        "clave": "explicacion",
+        "nombre": "Explicación",
+        "autor": "Facione (Informe Delphi)",
+        "definicion": "Presentar el propio razonamiento de forma que otros puedan seguirlo y revisarlo.",
+        "postulados": [
+          9
+        ]
+      },
+      {
+        "clave": "juicio_consecuencias",
+        "nombre": "Juicio sobre consecuencias",
+        "autor": "Ennis",
+        "definicion": "Decidir considerando lo que puede pasar, en especial con la información personal.",
+        "postulados": [
+          10
+        ]
+      },
+      {
+        "clave": "limite_juicio",
+        "nombre": "Reconocer el límite del propio juicio",
+        "autor": "Lipman",
+        "definicion": "Saber cuándo una decisión excede lo que uno (o una IA) puede resolver y requiere a otra persona.",
+        "postulados": [
+          11
+        ]
+      },
+      {
+        "clave": "responsabilidad",
+        "nombre": "Responsabilidad intelectual (disposición)",
+        "autor": "Facione (Informe Delphi)",
+        "definicion": "Hacerse cargo de lo que uno presenta como propio, aunque haya usado herramientas.",
+        "postulados": [
+          12
+        ]
+      }
+    ],
+    "niveles": [
+      {
+        "n": 1,
+        "nombre": "Nivel 1",
+        "edad": "11 a 12 años",
+        "descripcion": "La IA responde en una o dos oraciones con un dato concreto. El error se descubre con una cuenta o una comparación simple."
+      },
+      {
+        "n": 2,
+        "nombre": "Nivel 2",
+        "edad": "13 a 14 años",
+        "descripcion": "La IA responde en dos o tres oraciones con una explicación o una cita. El error está en el razonamiento o en la fuente, no en el dato aislado."
+      },
+      {
+        "n": 3,
+        "nombre": "Nivel 3",
+        "edad": "15 a 17 años",
+        "descripcion": "La IA responde en un párrafo con cifras, referencias y recomendaciones, mezclando lo cierto con lo inventado. Hay que verificar afirmación por afirmación."
+      }
+    ]
+  }
 }

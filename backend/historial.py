@@ -345,6 +345,9 @@ def _migrar():
         cols = [r[1] for r in con.execute("PRAGMA table_info(alumnos)")]
         if "grupo" not in cols:
             con.execute("ALTER TABLE alumnos ADD COLUMN grupo TEXT")
+        cols = [r[1] for r in con.execute("PRAGMA table_info(grupos)")]
+        if "nivel" not in cols:
+            con.execute("ALTER TABLE grupos ADD COLUMN nivel INTEGER DEFAULT 2")
 
 
 _migrar()
@@ -420,14 +423,16 @@ def _codigo_grupo():
     return "".join(secrets.choice(alfabeto) for _ in range(6))
 
 
-def crear_grupo(docente, nombre):
+def crear_grupo(docente, nombre, nivel=2):
+    nivel = int(nivel) if int(nivel) in (1, 2, 3) else 2
     with conectar() as con:
         for _ in range(10):
             cod = _codigo_grupo()
             if not con.execute("SELECT 1 FROM grupos WHERE codigo=?", (cod,)).fetchone():
                 break
-        con.execute("INSERT INTO grupos VALUES (?,?,?,?)", (cod, nombre.strip(), docente, ahora()))
-        return {"codigo": cod, "nombre": nombre.strip(), "docente": docente}
+        con.execute("INSERT INTO grupos (codigo, nombre, docente, creado, nivel) VALUES (?,?,?,?,?)",
+                    (cod, nombre.strip(), docente, ahora(), nivel))
+        return {"codigo": cod, "nombre": nombre.strip(), "docente": docente, "nivel": nivel}
 
 
 def grupos_de(docente):
@@ -442,9 +447,11 @@ def grupo(codigo):
         return dict(r) if r else None
 
 
-def renombrar_grupo(codigo, nombre):
+def renombrar_grupo(codigo, nombre, nivel=None):
     with conectar() as con:
         con.execute("UPDATE grupos SET nombre=? WHERE codigo=?", (nombre.strip(), codigo))
+        if nivel in (1, 2, 3):
+            con.execute("UPDATE grupos SET nivel=? WHERE codigo=?", (int(nivel), codigo))
 
 
 # ---------- Alumno ↔ grupo ----------
@@ -457,6 +464,7 @@ def registrar_alumno_en_grupo(seudonimo, equipo, codigo):
         con.execute("UPDATE alumnos SET grupo=? WHERE seudonimo=?", (g["codigo"], seudonimo))
     a["grupo"] = g["codigo"]
     a["grupo_nombre"] = g["nombre"]
+    a["nivel"] = g.get("nivel") or 2
     return a
 
 
@@ -464,6 +472,13 @@ def grupo_de_alumno(seudonimo):
     with conectar() as con:
         r = con.execute("SELECT grupo FROM alumnos WHERE seudonimo=?", (seudonimo,)).fetchone()
         return r["grupo"] if r else None
+
+
+def nivel_de_alumno(seudonimo):
+    """Nivel cognitivo del grupo del alumno (1, 2 o 3). None si no tiene grupo."""
+    cod = grupo_de_alumno(seudonimo)
+    g = grupo(cod) if cod else None
+    return (g.get("nivel") or 2) if g else None
 
 
 # ---------- Casos ↔ grupo ----------

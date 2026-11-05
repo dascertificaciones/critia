@@ -124,12 +124,18 @@
     await VISTAS[activa]();
   }
 
+  function habDe(c) {
+    const clave = c.habilidad || (META.postulados.find(p => p.n === c.postulado) || {}).habilidad;
+    return (META.marco_teorico?.habilidades || []).find(h => h.clave === clave);
+  }
+  function habTxt(c) { const h = habDe(c); return h ? `${esc(h.nombre)} <span class="suave">(${esc(h.autor)})</span>` : ''; }
+  const nivelEdad = n => ((META?.marco_teorico?.niveles || []).find(x => x.n === n) || {}).edad || '';
   const NIVEL = { 1: ['Automático', 'ok'], 2: ['Aprobación rápida', 'aviso'], 3: ['Lectura completa', 'mal'] };
   function tarjetaCaso(c) {
     return `<div class="reflexion-card caso-edit" data-id="${esc(c.id)}">
       <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center">
         <div><span class="tag">${esc(c.id)}</span> <span class="tag ${NIVEL[c.nivel_revision]?.[1] || ''}">${NIVEL[c.nivel_revision]?.[0] || ''}</span> ${c.provisional ? '<span class="tag aviso">provisional</span>' : '<span class="tag ok">aprobado</span>'}</div>
-        <div class="peq suave">Misión ${c.mision} · postulado ${c.postulado}${c.tema ? ' · tema: ' + esc(c.tema) : ''}</div>
+        <div class="peq suave">Misión ${c.mision} · postulado ${c.postulado} · ${habTxt(c)}${c.nivel ? ' · <b>nivel ' + c.nivel + '</b>' : ''}${c.tema ? ' · tema: ' + esc(c.tema) : ''}</div>
       </div>
       <label>Título</label><input type="text" class="f-titulo" value="${esc(c.titulo)}">
       <label>Situación</label><textarea class="f-situacion">${esc(c.situacion)}</textarea>
@@ -188,15 +194,22 @@
       const yo = await api('/docente/yo', 'GET', null, H()); YO = yo;
       $('contenido').innerHTML = `<h2>Mis grupos</h2>
         <p class="suave" style="max-width:60ch">Cada grupo tiene un código de 6 letras. Dáselo a tus alumnos: lo escriben al entrar y así solo ven los casos que apruebes para ese grupo.</p>
-        <div class="fila-acciones" style="max-width:520px"><input type="text" id="g-nombre" placeholder="Nombre del grupo, por ejemplo 2°A" maxlength="40"><button class="btn btn-primario btn-peq" id="g-crear">Crear grupo</button></div>
-        ${yo.grupos.length ? `<table style="margin-top:18px"><thead><tr><th>Grupo</th><th>Código</th><th>Alumnos</th><th></th></tr></thead><tbody>
-          ${yo.grupos.map(g => `<tr><td><b>${esc(g.nombre)}</b></td><td><span style="font-family:var(--serif);font-weight:900;font-size:22px;letter-spacing:3px">${esc(g.codigo)}</span></td><td>${g.alumnos}</td>
+        <p class="suave peq" style="max-width:60ch">El <b>nivel</b> decide qué versión de los casos ven: ${(META.marco_teorico?.niveles || []).map(n => `<b>${n.n}</b> = ${esc(n.edad)}`).join(' · ')}. Los tres niveles trabajan las mismas habilidades, con respuestas de IA de distinta complejidad.</p>
+        <div class="fila-acciones" style="max-width:640px"><input type="text" id="g-nombre" placeholder="Nombre del grupo, por ejemplo 2°A" maxlength="40">
+          <select id="g-nivel" style="width:auto">${(META.marco_teorico?.niveles || []).map(n => `<option value="${n.n}" ${n.n === 2 ? 'selected' : ''}>Nivel ${n.n} · ${esc(n.edad)}</option>`).join('')}</select>
+          <button class="btn btn-primario btn-peq" id="g-crear">Crear grupo</button></div>
+        ${yo.grupos.length ? `<table style="margin-top:18px"><thead><tr><th>Grupo</th><th>Código</th><th>Nivel</th><th>Alumnos</th><th></th></tr></thead><tbody>
+          ${yo.grupos.map(g => `<tr><td><b>${esc(g.nombre)}</b></td><td><span style="font-family:var(--serif);font-weight:900;font-size:22px;letter-spacing:3px">${esc(g.codigo)}</span></td>
+            <td><select class="g-nivel-sel" data-c="${esc(g.codigo)}" data-n="${esc(g.nombre)}" style="width:auto;padding:4px 8px">${[1, 2, 3].map(n => `<option value="${n}" ${(g.nivel || 2) === n ? 'selected' : ''}>${n} · ${esc(nivelEdad(n))}</option>`).join('')}</select></td><td>${g.alumnos}</td>
             <td><a class="btn btn-secundario btn-peq" href="tablero.html?grupo=${esc(g.codigo)}" target="_blank">Tablero</a></td></tr>`).join('')}
           </tbody></table>` : '<div class="vacio">Todavía no tienes grupos.</div>'}`;
       $('g-crear').onclick = async () => {
         const n = $('g-nombre').value.trim(); if (!n) return;
-        try { const g = await api('/docente/grupos', 'POST', { nombre: n }, H()); toast(`Grupo creado. Código: ${g.codigo}`, 6000); VISTAS.grupos(); } catch (e) { toast(e.message); }
+        try { const g = await api('/docente/grupos', 'POST', { nombre: n, nivel: +$('g-nivel').value }, H()); toast(`Grupo creado. Código: ${g.codigo}`, 6000); VISTAS.grupos(); } catch (e) { toast(e.message); }
       };
+      [...$('contenido').querySelectorAll('.g-nivel-sel')].forEach(sel => sel.onchange = async () => {
+        try { await api(`/docente/grupos/${sel.dataset.c}`, 'PUT', { nombre: sel.dataset.n, nivel: +sel.value }, H()); toast('Nivel actualizado'); } catch (e) { toast(e.message); }
+      });
     },
 
     async profesores() {
@@ -229,18 +242,18 @@
       const est = await api('/docente/generador/estado', 'GET', null, H());
       const misionDe = n => (META.misiones.find(m => m.postulados.includes(n)) || {}).nombre || '';
       $('contenido').innerHTML = `<h2>Generar casos desde un tema</h2>
-        <p class="suave peq">Escribe el tema de tu clase. El sistema redacta casos con el modelo <b>${esc(est.modelo)}</b>, los pasa por filtros automáticos (estructura, una sola correcta, cuentas, datos personales, segunda opinión ciega) y los deja como <b>provisionales</b> para que los revises y apruebes en la pestaña Casos. Nada llega a los alumnos sin tu aprobación.</p>
+        <p class="suave peq">Escribe el tema de tu clase. Cada caso presenta <b>una respuesta de IA</b> con un fallo que el alumno debe detectar, redactada para el nivel que elijas. El sistema redacta los casos con el modelo <b>${esc(est.modelo)}</b>, los pasa por filtros automáticos (estructura, una sola correcta, cuentas, datos personales, segunda opinión ciega) y los deja como <b>provisionales</b> para que los revises y apruebes en la pestaña Casos. Nada llega a los alumnos sin tu aprobación.</p>
         ${est.configurado ? '' : '<p class="tag mal" style="display:inline-block;margin-bottom:10px">El servidor no tiene clave del modelo (LLM_API_KEY). Pídele al administrador que la configure.</p>'}
         <label for="g-tema">Tema</label>
         <input type="text" id="g-tema" placeholder="por ejemplo: porcentajes y descuentos, la Independencia de México, alimentación" maxlength="120">
         <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
           <div><label for="g-post">Postulado a practicar</label>
             <select id="g-post">
-              ${META.postulados.map(p => `<option value="${p.n}">${p.n}. ${esc(p.corto)} · misión: ${esc(misionDe(p.n))}</option>`).join('')}
+              ${META.postulados.map(p => { const h = (META.marco_teorico?.habilidades || []).find(x => x.clave === p.habilidad); return `<option value="${p.n}">${p.n}. ${esc(p.corto)}${h ? ' · ' + esc(h.nombre) + ' (' + esc(h.autor) + ')' : ''} · misión: ${esc(misionDe(p.n))}</option>`; }).join('')}
             </select></div>
-          <div><label for="g-grado">Grado</label>
-            <select id="g-grado">
-              <option>1° de secundaria</option><option selected>2° de secundaria</option><option>3° de secundaria</option><option>bachillerato</option>
+          <div><label for="g-nivel">Nivel</label>
+            <select id="g-nivel">
+              ${(META.marco_teorico?.niveles || []).map(n => `<option value="${n.n}" ${n.n === 2 ? 'selected' : ''}>${n.n} · ${esc(n.edad)}</option>`).join('')}
             </select></div>
           <div><label for="g-n">Cuántos</label>
             <select id="g-n">
@@ -254,7 +267,7 @@
         if (tema.length < 3) { toast('Escribe un tema'); return; }
         $('g-go').disabled = true; $('g-estado').textContent = 'Generando y revisando... esto tarda entre 20 y 60 segundos.';
         try {
-          const r = await api('/docente/generar', 'POST', { tema, grado: $('g-grado').value, postulado: +$('g-post').value, n: +$('g-n').value }, H());
+          const r = await api('/docente/generar', 'POST', { tema, nivel: +$('g-nivel').value, postulado: +$('g-post').value, n: +$('g-n').value }, H());
           $('g-estado').textContent = '';
           $('g-resultado').innerHTML = `
             <h2 style="font-size:16px;margin-top:20px">${r.aceptados.length} caso(s) listos para revisar · ${r.rechazados.length} descartado(s) por los filtros</h2>
@@ -357,11 +370,13 @@
         <p class="suave peq">Generados desde un tema. Revisa, corrige lo que haga falta y aprueba. Los alumnos los ven con un punto amarillo hasta entonces.</p>
         ${prov.length ? prov.map(tarjetaCaso).join('') : '<div class="vacio">No hay casos pendientes. Genera algunos en la pestaña Generar.</div>'}
         <h2 style="margin-top:24px">Banco aprobado <span class="tag ok">${resto.length}</span></h2>
-        <table><thead><tr><th>ID</th><th>Título</th><th>Misión</th><th>Nivel</th><th>Estado</th><th></th></tr></thead><tbody>
+        <table><thead><tr><th>ID</th><th>Título</th><th>Misión</th><th>Nivel (edad)</th><th>Habilidad</th><th>Revisión</th><th>Estado</th><th></th></tr></thead><tbody>
         ${resto.map(c => `<tr>
           <td class="peq">${esc(c.id)}</td>
           <td><details><summary>${esc(c.titulo)}</summary><div class="caso-detalle"><b>Situación:</b> ${esc(c.situacion)}\n\n<b>Pregunta:</b> ${esc(c.pregunta)}\n${(c.opciones || []).map(o => `\n${o.clave}) ${esc(o.texto)} ${o.correcta ? '✓' : ''}`).join('')}\n\n<b>Pista:</b> ${esc(c.pista)}\n\n<b>Explicación:</b> ${esc(c.explicacion)}</div></details></td>
           <td>${c.mision}</td>
+          <td class="peq">${c.nivel ? `<b>${c.nivel}</b> · ${esc(nivelEdad(c.nivel))}` : '—'}</td>
+          <td class="peq">${habTxt(c)}</td>
           <td><span class="tag ${niv[c.nivel_revision]?.[1] || ''}">${niv[c.nivel_revision]?.[0] || c.nivel_revision}</span></td>
           <td>${c.provisional ? '<span class="tag aviso">provisional</span>' : '<span class="tag ok">aprobado</span>'}</td>
           <td>${c.provisional ? `<button class="btn btn-primario btn-peq" data-id="${esc(c.id)}">Aprobar</button>` : ''}</td></tr>`).join('')}

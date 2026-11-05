@@ -12,6 +12,7 @@ from pathlib import Path
 BASE = Path(__file__).parent
 ASP_DIR = BASE / "asp"
 CASOS_DIR = BASE / "casos"
+META = json.loads((BASE / "misiones.json").read_text(encoding="utf-8"))
 
 # ---------- Textos que ve el alumno ----------
 TEXTO_ACCION = {
@@ -74,12 +75,24 @@ def cargar_casos():
     return casos, familias
 
 
+def habilidad_de(caso):
+    """Habilidad de pensamiento crítico (clave, nombre, autor) que trabaja el caso."""
+    clave = caso.get("habilidad")
+    if not clave:
+        post = next((p for p in META["postulados"] if p["n"] == caso.get("postulado")), None)
+        clave = post.get("habilidad") if post else None
+    h = next((h for h in META.get("marco_teorico", {}).get("habilidades", []) if h["clave"] == clave), None)
+    return {"clave": clave, "nombre": h["nombre"], "autor": h["autor"]} if h else None
+
+
 def caso_para_alumno(caso):
     """Versión del caso sin la clave de respuesta."""
     return {
         "id": caso["id"],
         "mision": caso["mision"],
         "postulado": caso["postulado"],
+        "nivel": caso.get("nivel", 2),
+        "habilidad": habilidad_de(caso),
         "formato": caso["formato"],
         "titulo": caso["titulo"],
         "situacion": caso["situacion"],

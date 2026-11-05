@@ -75,6 +75,7 @@
     <div class="sentidos-ganados" id="sentidos"></div>
     <h2>Lo que había que ver</h2>
     <div class="explicacion" id="explicacion"></div>
+    <div class="habilidad-caja" id="habilidad"></div>
     <div id="reflexion-caja">
       <label for="reflexion" id="reflexion-pregunta"></label>
       <textarea id="reflexion" placeholder="Escribe con tus palabras..."></textarea>
@@ -204,6 +205,10 @@
         <span class="icono">${ICONO[s.clave] || ''}</span><div class="nombre">${s.nombre}</div>
       </div>`).join('');
     $('explicacion').textContent = r2.explicacion;
+    if (r2.habilidad) {
+      const hDef = (meta.marco_teorico?.habilidades || []).find(h => h.clave === r2.habilidad.clave) || {};
+      $('habilidad').innerHTML = `<span class="icono">${ICONO.lupa || ''}</span><div><b>Habilidad que practicaste:</b> ${r2.habilidad.nombre} <span class="suave">· ${r2.habilidad.autor}</span>${hDef.definicion ? `<div class="peq suave">${hDef.definicion}</div>` : ''}</div>`;
+    }
     if (r2.reflexion && !esAbierta) { $('reflexion-pregunta').textContent = r2.reflexion; }
     else { $('reflexion-caja').classList.add('oculto'); }
     $('cierre').classList.remove('oculto');

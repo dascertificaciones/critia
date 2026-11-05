@@ -59,7 +59,8 @@ def revisar(intento_id, clave, confianza):
         return {"accion": "cerrar_abierta", "motivo": "formato_abierto",
                 "texto_accion": "Gracias. Tu respuesta la leerá tu maestro o maestra.",
                 "texto_motivo": "Caso de reflexión abierta.", "explicacion": caso["explicacion"],
-                "sentidos": ["justificar"], "reflexion": None, "diagnosticos": []}
+                "sentidos": ["justificar"], "reflexion": None, "diagnosticos": [],
+                "habilidad": motor.habilidad_de(caso)}
 
     eval_, tipo = motor.evaluar_opcion(caso, clave.upper())
     inicial = {"clave": it["clave_ini"], "confianza": it["conf_ini"], "justificacion": it["just_ini"],
@@ -70,6 +71,7 @@ def revisar(intento_id, clave, confianza):
     historial.guardar_final(intento_id, clave.upper(), conf, eval_, tipo, r["accion"], r["motivo"], r["sentidos"], r["diagnosticos"])
     r["explicacion"] = caso["explicacion"]
     r["reflexion"] = caso["reflexion"]
+    r["habilidad"] = motor.habilidad_de(caso)
     r["hechos"] = hechos
     return r
 

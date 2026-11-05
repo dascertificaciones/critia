@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "publico": "secundaria 12-15",
+  "version": "2.0",
+  "formato_situacion": "Cada caso tiene tres partes: lo que el alumno le pidió a la IA, la respuesta textual de la IA entre comillas, y la decisión. El error está en la respuesta de la IA o en cómo se usaría, nunca en la conducta de un tercero.",
   "familias_error": [
     "acepta_sin_evidencia",
     "confia_en_cita",
@@ -21,488 +21,468 @@
   ],
   "casos": [
     {
-      "id": "ABC-ESC-001",
+      "id": "N1-M1-001",
+      "nivel": 1,
       "mision": 1,
       "postulado": 1,
+      "habilidad": "exactitud",
       "familia_error": "acepta_sin_evidencia",
       "formato": "tres_opciones",
       "nivel_revision": 1,
       "provisional": false,
       "titulo": "La app que promete",
-      "situacion": "Tu escuela está pensando en comprar una app para estudiar matemáticas. En la página de la app dice: \"El 95% de los estudiantes mejora sus calificaciones en un mes. Recomendada por expertos.\" Tu maestro te pide tu opinión sobre si la escuela debería comprarla.",
-      "pregunta": "¿Qué necesitas saber antes de decir que la app funciona?",
+      "situacion": "Le pediste a una IA: \"¿Sirve la app MateYa para mejorar en matemáticas?\"\n\nLa IA respondió:\n\"Sí. El 95% de los estudiantes que usan MateYa mejoran sus calificaciones en un mes. Es una de las apps mejor valoradas.\"",
+      "pregunta": "¿Qué necesitas saber antes de creer ese 95%?",
       "opciones": [
         {
           "clave": "A",
-          "texto": "Nada más: si lo dice la página oficial, es cierto.",
+          "texto": "Nada más: la IA lo dice con un porcentaje exacto.",
           "correcta": false,
           "tipo_error": "acepta_sin_evidencia"
         },
         {
           "clave": "B",
-          "texto": "Quiénes fueron esos estudiantes, cuántos eran, quién midió la mejora y dónde está ese estudio.",
+          "texto": "Quién contó ese 95%, cuántos estudiantes eran y dónde puedo ver ese dato.",
           "correcta": true,
           "tipo_error": null
         },
         {
           "clave": "C",
-          "texto": "Nada: todas las apps mienten, así que no hay que comprarla.",
+          "texto": "Nada: todas las apps y todas las IA mienten.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
         }
       ],
-      "pista": "¿Quién hizo la medición? ¿La empresa que vende la app o alguien que no gana dinero con ella?",
-      "explicacion": "Un porcentaje sin datos de respaldo no prueba nada. Para saber si la app funciona necesitas: cuántos estudiantes se midieron, cómo se midió la mejora, quién hizo la medición y si se puede consultar el estudio. Decir que todas las apps mienten tampoco es una decisión fundamentada; es rechazar sin revisar.",
-      "reflexion": "Escribe una pregunta que le harías a la empresa de la app antes de recomendarla.",
+      "pista": "¿Quién midió ese 95%? ¿La empresa que vende la app o alguien que no gana con ella?",
+      "explicacion": "Un porcentaje sin decir de dónde salió no prueba nada, aunque la IA lo diga con seguridad. Para creerlo necesitas saber quién lo midió, con cuántos estudiantes y dónde se puede consultar. Rechazar todo sin revisar tampoco es pensar bien.",
+      "reflexion": "Escribe una pregunta que le harías a la IA para que te diga de dónde sacó el 95%.",
       "rubrica_reflexion": [
-        "La pregunta pide un dato concreto (cuántos, quién, cómo, dónde).",
-        "La pregunta no se puede responder solo con un sí o un no."
+        "La pregunta pide un dato concreto (quién, cuántos, dónde).",
+        "No se contesta con sí o no."
       ]
     },
     {
-      "id": "ABC-ESC-002",
+      "id": "N1-M1-002",
+      "nivel": 1,
       "mision": 1,
       "postulado": 2,
+      "habilidad": "exactitud",
       "familia_error": "acepta_sin_evidencia",
       "formato": "tres_opciones",
       "nivel_revision": 1,
       "provisional": false,
       "titulo": "El precio que sube y baja",
-      "situacion": "Le preguntas a una IA: \"Una mochila cuesta 800 pesos. Sube 25% y luego baja 25%. ¿Vuelve a costar 800?\" La IA responde: \"¡Claro que sí! Es una pregunta muy inteligente. Si sube 25% y baja 25%, los dos cambios se cancelan y el precio regresa a 800 pesos. Es una regla sencilla que siempre funciona.\"",
-      "pregunta": "¿Qué deberías hacer para decidir si la respuesta es correcta?",
+      "situacion": "Le pediste a una IA: \"Una mochila cuesta 800 pesos. Sube 25% y luego baja 25%. ¿Vuelve a costar 800?\"\n\nLa IA respondió:\n\"¡Sí! Si sube 25% y luego baja 25%, los dos cambios se cancelan y el precio vuelve a 800 pesos. Es una regla sencilla.\"",
+      "pregunta": "¿Qué haces con esa respuesta?",
       "opciones": [
         {
           "clave": "A",
-          "texto": "Confiar en la respuesta porque explica la regla con claridad y es amable.",
+          "texto": "La anoto: la IA lo explicó clarito y suena lógico.",
           "correcta": false,
           "tipo_error": "acepta_sin_evidencia"
         },
         {
           "clave": "B",
-          "texto": "Hacer las dos cuentas y revisar sobre qué cantidad se aplica cada porcentaje.",
+          "texto": "Hago las dos cuentas yo: 800 + 25% = 1000; 1000 − 25% = 750. No vuelve a 800.",
           "correcta": true,
           "tipo_error": null
         },
         {
           "clave": "C",
-          "texto": "Confiar en la regla \"los cambios se cancelan\" porque suena lógica.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        }
-      ],
-      "pista": "El segundo 25%, ¿se aplica sobre 800 o sobre el precio que ya subió?",
-      "explicacion": "800 × 1.25 = 1000. Luego 1000 × 0.75 = 750. No vuelve a 800. El segundo 25% se calcula sobre 1000, no sobre 800, por eso quita más de lo que el primero puso. La IA explicó con claridad y amabilidad, pero eso no la hace correcta. La única forma de saberlo era hacer la cuenta.",
-      "reflexion": "¿Qué te hizo dudar o confiar en la respuesta de la IA antes de hacer la cuenta?",
-      "rubrica_reflexion": [
-        "Identifica al menos una señal del texto de la IA (tono, seguridad, palabras) que influyó en su decisión.",
-        "Distingue entre cómo sonaba la respuesta y si era correcta."
-      ]
-    },
-    {
-      "id": "ABC-ESC-003",
-      "mision": 7,
-      "postulado": 9,
-      "familia_error": null,
-      "formato": "reflexion_abierta",
-      "nivel_revision": 2,
-      "provisional": false,
-      "titulo": "Explica tu decisión",
-      "situacion": "Para una tarea de ciencias, le pediste a una IA que te explicara por qué el cielo es azul. Te dio una explicación de dos párrafos que sonaba bien. Tu maestra te pregunta: \"¿Y tú cómo sabes que esa explicación es correcta?\"",
-      "pregunta": "Escribe, en tus palabras, qué harías para responderle a tu maestra. No copies la explicación de la IA; explica cómo la revisarías.",
-      "opciones": [],
-      "pista": "Piensa en dos fuentes distintas a la IA donde podrías comparar la explicación.",
-      "explicacion": "No hay una sola respuesta correcta. Lo que se evalúa es si puedes explicar tu propio proceso: con qué compararías la explicación (tu libro de texto, una página de una universidad o museo, tu maestra), qué parte te genera dudas y qué harías si las fuentes no coinciden.",
-      "reflexion": null,
-      "rubrica_reflexion": [
-        "Menciona al menos una fuente distinta a la IA para comparar.",
-        "Describe qué haría si la IA y la fuente no coinciden.",
-        "Usa sus propias palabras, no repite el texto de la IA."
-      ]
-    },
-    {
-      "id": "ABC-ESC-004",
-      "mision": 8,
-      "postulado": 4,
-      "familia_error": "confunde_resultado_y_razonamiento",
-      "formato": "comparar_respuestas",
-      "nivel_revision": 1,
-      "provisional": false,
-      "titulo": "Tres respuestas, una pregunta",
-      "situacion": "Pregunta: \"Un grupo de 30 alumnos va a un museo. La entrada cuesta 40 pesos, pero por cada 10 alumnos uno entra gratis. ¿Cuánto pagan en total?\"\n\nRespuesta 1: \"Pagan 1200 pesos, porque 30 × 40 = 1200.\"\n\nRespuesta 2: \"Entran gratis 3 alumnos (uno por cada 10). Pagan 27 alumnos. 27 × 40 = 1080 pesos.\"\n\nRespuesta 3: \"Entran gratis 3 alumnos. Pagan 27 alumnos. 27 × 40 = 1200 pesos.\"",
-      "pregunta": "¿Cuál respuesta tiene el resultado correcto Y el razonamiento correcto?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "Respuesta 1: el resultado es correcto y el razonamiento también.",
-          "correcta": false,
-          "tipo_error": "ignora_contexto"
-        },
-        {
-          "clave": "B",
-          "texto": "Respuesta 2: el resultado es correcto y el razonamiento también.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Respuesta 3: el razonamiento es correcto, así que el resultado también debe serlo.",
-          "correcta": false,
-          "tipo_error": "confunde_resultado_y_razonamiento"
-        }
-      ],
-      "pista": "Revisa cada respuesta en dos partes: ¿aplicó la regla de los gratis? ¿Hizo bien la multiplicación?",
-      "explicacion": "La respuesta 1 olvida la regla de los alumnos gratis. La respuesta 3 razona bien pero multiplica mal (27 × 40 no es 1200). La respuesta 2 aplica la regla y hace bien la cuenta: 1080 pesos. Una respuesta puede tener buen razonamiento y mal resultado, o al revés. Hay que revisar las dos cosas.",
-      "reflexion": "¿Por qué una respuesta con buen razonamiento puede terminar mal?",
-      "rubrica_reflexion": [
-        "Reconoce que el razonamiento y el cálculo son pasos distintos.",
-        "Da un ejemplo propio o explica el de la respuesta 3."
-      ]
-    },
-    {
-      "id": "AI-LIM-001",
-      "mision": 3,
-      "postulado": 1,
-      "familia_error": "acepta_sin_evidencia",
-      "formato": "tres_opciones",
-      "nivel_revision": 1,
-      "provisional": false,
-      "titulo": "Segura, pero falsa",
-      "situacion": "Le preguntas a una IA cuál es el río más largo de México. Responde con total seguridad: \"El río más largo de México es el río Lerma, con 2,500 kilómetros de longitud. Esto es un dato bien establecido por la geografía mexicana.\"",
-      "pregunta": "¿Qué haces con esta respuesta antes de ponerla en tu tarea?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "La uso tal cual: la IA lo dice con mucha seguridad y menciona que es un dato establecido.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        },
-        {
-          "clave": "B",
-          "texto": "Busco el dato en una fuente independiente, por ejemplo el INEGI o un atlas escolar, y comparo.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "No la uso: las IA siempre se equivocan en geografía.",
+          "texto": "No le creo nada a la IA y tampoco hago la cuenta.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
         }
       ],
-      "pista": "Decir \"es un dato bien establecido\" no es lo mismo que mostrar de dónde salió el dato. ¿Dónde lo puedes comprobar?",
-      "explicacion": "La respuesta suena segura, pero el dato es falso: el río Lerma mide alrededor de 750 kilómetros, y el río más largo de México es el Bravo (o el sistema Grijalva-Usumacinta, según cómo se mida). Una IA puede sonar completamente segura y estar equivocada. La seguridad del tono no es evidencia. La opción C tampoco sirve: rechazar todo sin revisar es tan poco crítico como aceptar todo.",
-      "reflexion": "¿Qué frase de la respuesta de la IA te daba más confianza? ¿Por qué esa frase no era una prueba?",
+      "pista": "El segundo 25%, ¿se saca de 800 o de 1000?",
+      "explicacion": "800 × 1.25 = 1000. Luego 1000 × 0.75 = 750. La IA sonó clara y amable, pero estaba mal. Hacer la cuenta tomó 20 segundos.",
+      "reflexion": "¿Qué te hizo confiar o dudar de la respuesta antes de hacer la cuenta?",
       "rubrica_reflexion": [
-        "Identifica una frase concreta (\"con total seguridad\", \"dato bien establecido\").",
-        "Explica que la frase no muestra de dónde salió el dato."
+        "Señala algo del texto de la IA (tono, seguridad, la palabra 'sencilla').",
+        "Distingue entre cómo sonaba y si era correcta."
       ]
     },
     {
-      "id": "AI-LIM-002",
-      "mision": 2,
-      "postulado": 3,
-      "familia_error": "confia_en_cita",
+      "id": "N2-M1-001",
+      "nivel": 2,
+      "mision": 1,
+      "postulado": 1,
+      "habilidad": "exactitud",
+      "familia_error": "acepta_sin_evidencia",
       "formato": "tres_opciones",
-      "nivel_revision": 2,
+      "nivel_revision": 1,
       "provisional": false,
-      "titulo": "La fuente que no existe",
-      "situacion": "Le pides a una IA que te ayude con un trabajo sobre el sueño en adolescentes. Te responde: \"Según el estudio de Ramírez y Olvera (2019), publicado en la Revista Mexicana de Neurociencia Escolar, los adolescentes que duermen menos de 6 horas bajan 2 puntos en promedio.\" Buscas la revista y el artículo y no encuentras ninguno de los dos.",
-      "pregunta": "¿Qué decides?",
+      "titulo": "El dato con explicación",
+      "situacion": "Le pediste a una IA: \"¿Es cierto que solo usamos el 10% del cerebro?\"\n\nLa IA respondió:\n\"Sí. La mayor parte del cerebro permanece inactiva; por eso existen técnicas para 'desbloquear' el 90% restante. Es un hecho ampliamente aceptado por la neurociencia.\"",
+      "pregunta": "¿Qué haces con esa respuesta?",
       "opciones": [
         {
           "clave": "A",
-          "texto": "Uso la cita de todos modos: tiene autores, año y revista, así que seguro existe aunque no la encuentre.",
+          "texto": "La uso: dio una explicación y dijo que la neurociencia lo acepta.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Lo busco en una fuente de ciencia real. \"Ampliamente aceptado\" no es una fuente, y la explicación suena a mito.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Descarto todo lo que una IA diga sobre ciencia.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "\"Ampliamente aceptado por la neurociencia\" ¿nombra a alguien o a algo que puedas revisar?",
+      "explicacion": "Es un mito: las imágenes cerebrales muestran actividad en prácticamente todo el cerebro. La IA repitió una idea popular y la vistió con una explicación y una frase de autoridad sin fuente. Una explicación convincente no sustituye a la evidencia.",
+      "reflexion": "¿Qué frase de la respuesta te parecía una prueba y en realidad no lo era?",
+      "rubrica_reflexion": [
+        "Cita la frase.",
+        "Explica por qué no es verificable."
+      ]
+    },
+    {
+      "id": "N3-M1-001",
+      "nivel": 3,
+      "mision": 1,
+      "postulado": 2,
+      "habilidad": "exactitud",
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "El cálculo con todo explicado",
+      "situacion": "Le pediste a una IA: \"Un préstamo de 10,000 pesos cobra 5% de interés mensual. ¿Cuánto debo después de 3 meses si no pago nada?\"\n\nLa IA respondió:\n\"Cálculo: 5% mensual por 3 meses = 15% total. 10,000 × 0.15 = 1,500 de interés. Deuda final: 11,500 pesos. Nota: esto asume interés simple, que es lo habitual en préstamos de corto plazo.\"",
+      "pregunta": "¿Qué haces con el 11,500?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Lo acepto: mostró el procedimiento paso a paso y hasta aclaró el supuesto.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Reviso el supuesto: la mayoría de los préstamos cobran interés sobre lo acumulado. Con interés compuesto: 10,000 × 1.05³ = 11,576. Y verifico qué dice el contrato.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Ignoro la respuesta; las IA no sirven para dinero.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "La IA dijo \"asume interés simple, que es lo habitual\". ¿Es habitual? ¿Quién lo decide: la IA o el contrato?",
+      "explicacion": "El procedimiento estaba bien hecho, pero descansaba en un supuesto falso presentado como normal. Con interés compuesto (lo común en créditos) la deuda es 11,576, y crece más rápido con el tiempo. Un cálculo prolijo puede estar mal desde la premisa; revisar los supuestos es parte de verificar.",
+      "reflexion": "¿Por qué un procedimiento mostrado paso a paso da más confianza? ¿Debería?",
+      "rubrica_reflexion": [
+        "Reconoce que ver los pasos da sensación de rigor.",
+        "Distingue entre pasos correctos y premisa correcta."
+      ]
+    },
+    {
+      "id": "N1-M2-001",
+      "nivel": 1,
+      "mision": 2,
+      "postulado": 3,
+      "habilidad": "evaluacion",
+      "familia_error": "confia_en_cita",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "El libro que nadie encuentra",
+      "situacion": "Le pediste a una IA: \"¿Cuántas patas tiene una araña? Dime de dónde lo sacas.\"\n\nLa IA respondió:\n\"Las arañas tienen 6 patas. Lo dice el libro 'Insectos de México' de la editorial Sol Naciente.\"\n\nTu maestra tiene muchos libros de animales. Ese no está, y en internet tampoco aparece.",
+      "pregunta": "¿Qué haces con el dato de 6 patas?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Lo anoto: la IA dijo el nombre del libro y la editorial.",
           "correcta": false,
           "tipo_error": "confia_en_cita"
         },
         {
           "clave": "B",
-          "texto": "No uso esa cita. Busco un estudio real sobre sueño y adolescentes en una fuente que sí pueda encontrar.",
+          "texto": "Lo busco en un libro que sí exista. Las arañas tienen 8 patas; la IA se equivocó y además inventó el libro.",
           "correcta": true,
           "tipo_error": null
         },
         {
           "clave": "C",
-          "texto": "Dejo de usar la IA para cualquier tarea, porque inventa todo.",
+          "texto": "Dejo de creerle a cualquier libro.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
         }
       ],
-      "pista": "Una cita con formato correcto se puede escribir sin que exista. ¿Qué prueba que una fuente es real?",
-      "explicacion": "Las IA pueden inventar referencias que parecen reales: autores, año, revista, todo con el formato correcto. Que una cita se vea bien no prueba que exista. Si no la encuentras en un catálogo o buscador académico, no la uses. Eso no significa que la IA sea inútil; significa que las citas siempre se verifican.",
-      "reflexion": "Describe en dos pasos cómo comprobarías si una cita existe.",
+      "pista": "¿Un nombre de libro que nadie encuentra sirve como prueba?",
+      "explicacion": "Las arañas tienen 8 patas (los insectos tienen 6). La IA dio un dato falso y lo apoyó con un libro que no existe. Que una respuesta mencione un libro no la vuelve cierta: hay que poder abrir ese libro.",
+      "reflexion": "¿Dónde buscarías tú para comprobar un dato de animales?",
       "rubrica_reflexion": [
-        "Menciona dónde buscaría (buscador académico, biblioteca, la página de la revista).",
-        "Menciona que revisaría que el artículo diga lo que la IA afirma."
+        "Nombra una fuente real (libro, museo, página de una institución).",
+        "No se queda solo con la IA."
       ]
     },
     {
-      "id": "AI-LIM-003",
+      "id": "N2-M2-001",
+      "nivel": 2,
+      "mision": 2,
+      "postulado": 3,
+      "habilidad": "evaluacion",
+      "familia_error": "confia_en_cita",
+      "formato": "tres_opciones",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "La fuente que no existe",
+      "situacion": "Le pediste a una IA: \"Dame un dato con fuente sobre cuánto afecta dormir poco a las calificaciones de los adolescentes.\"\n\nLa IA respondió:\n\"Claro. Según el estudio de Ramírez y Olvera (2019), publicado en la Revista Mexicana de Neurociencia Escolar, los adolescentes que duermen menos de 6 horas bajan en promedio 2 puntos en sus calificaciones. Este hallazgo ha sido replicado en varios países.\"\n\nBuscas la revista y el artículo en internet y en la biblioteca. No encuentras ninguno de los dos.",
+      "pregunta": "¿Qué decides?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Uso la cita: tiene autores, año y revista; seguro existe aunque yo no la encuentre.",
+          "correcta": false,
+          "tipo_error": "confia_en_cita"
+        },
+        {
+          "clave": "B",
+          "texto": "No la uso. Una cita que no puedo encontrar no es una fuente. Busco un estudio real sobre sueño y adolescentes.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Dejo de usar IA para cualquier trabajo escolar.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Una cita puede tener formato perfecto y aun así no existir. ¿Qué prueba que es real?",
+      "explicacion": "Las IA pueden inventar referencias completas: autores, año, revista, incluso la frase \"ha sido replicado\". El formato no prueba nada; encontrarla sí. Si no aparece en un catálogo o buscador académico, no se usa.",
+      "reflexion": "Describe en dos pasos cómo comprobarías si una cita existe.",
+      "rubrica_reflexion": [
+        "Dice dónde buscaría (buscador académico, biblioteca, la revista).",
+        "Dice que revisaría que el artículo diga lo que la IA afirma."
+      ]
+    },
+    {
+      "id": "N2-M2-002",
+      "nivel": 2,
+      "mision": 2,
+      "postulado": 3,
+      "habilidad": "evaluacion",
+      "familia_error": "confia_en_cita",
+      "formato": "tres_opciones",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "El dato con enciclopedia",
+      "situacion": "Le pediste a una IA: \"¿Cuánto mide el Nevado de Toluca? Dame la fuente.\"\n\nLa IA respondió:\n\"El Nevado de Toluca mide 5,200 metros sobre el nivel del mar, según la Enciclopedia Escolar Mexicana, edición 2023, página 412.\"\n\nBuscas esa enciclopedia. No existe.",
+      "pregunta": "¿Qué haces con el dato de 5,200 metros?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Lo uso: la IA dio hasta el número de página, así que debe ser real.",
+          "correcta": false,
+          "tipo_error": "confia_en_cita"
+        },
+        {
+          "clave": "B",
+          "texto": "Lo busco en una fuente que sí exista (INEGI, un atlas) y uso lo que diga ahí.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Descarto cualquier dato geográfico que venga de una IA.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Un número de página hace que la cita suene más real. ¿La hace más real?",
+      "explicacion": "El Nevado de Toluca mide alrededor de 4,680 metros. La IA inventó la enciclopedia, la edición y la página. Cuantos más detalles tiene una cita falsa, más convincente parece; por eso se verifica la fuente, no el formato.",
+      "reflexion": "¿Por qué crees que un número de página te daba más confianza?",
+      "rubrica_reflexion": [
+        "Reconoce que los detalles dan apariencia de precisión.",
+        "Concluye que los detalles no sustituyen la verificación."
+      ]
+    },
+    {
+      "id": "N3-M2-001",
+      "nivel": 3,
+      "mision": 2,
+      "postulado": 3,
+      "habilidad": "evaluacion",
+      "familia_error": "confia_en_cita",
+      "formato": "tres_opciones",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "La cita que sí existe (pero no dice eso)",
+      "situacion": "Le pediste a una IA: \"Dame una fuente académica que demuestre que los videojuegos causan violencia.\"\n\nLa IA respondió:\n\"La Asociación Americana de Psicología (APA) concluyó en su resolución de 2020 que los videojuegos violentos son una causa directa de conductas violentas en adolescentes.\"\n\nBuscas la resolución de la APA de 2020. Existe. La lees: dice que hay relación con conductas agresivas leves, pero que la evidencia no permite afirmar que causen violencia criminal.",
+      "pregunta": "¿Qué haces con la afirmación de la IA?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "La uso: la fuente existe y es seria.",
+          "correcta": false,
+          "tipo_error": "confia_en_cita"
+        },
+        {
+          "clave": "B",
+          "texto": "La corrijo: la fuente existe pero no dice lo que la IA afirma. Cito lo que la resolución dice en realidad.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Descarto la fuente: si la IA la citó, no es confiable.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Verificar que la fuente existe es el primer paso. ¿Cuál es el segundo?",
+      "explicacion": "Este es el error más difícil de ver: la fuente es real, pero la IA exageró lo que dice (\"causa directa\" donde la APA habla de una relación limitada). Verificar una cita tiene dos pasos: que exista y que diga eso. La fuente sigue siendo buena; lo que no sirve es el resumen de la IA.",
+      "reflexion": "Escribe la frase que pondrías en tu ensayo citando correctamente lo que dice la resolución.",
+      "rubrica_reflexion": [
+        "Refleja el matiz (relación con agresividad, no causa de violencia).",
+        "Atribuye la afirmación a la fuente, no a la IA."
+      ]
+    },
+    {
+      "id": "N1-M3-001",
+      "nivel": 1,
+      "mision": 3,
+      "postulado": 1,
+      "habilidad": "exactitud",
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Segura, pero falsa",
+      "situacion": "Le pediste a una IA: \"¿Cuál es el río más largo de México?\"\n\nLa IA respondió:\n\"El río más largo de México es el río Lerma, con 2,500 kilómetros. Es un dato bien establecido.\"",
+      "pregunta": "¿Qué haces antes de ponerlo en tu tarea?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Lo copio: la IA dijo que es un dato bien establecido.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Lo busco en un atlas escolar o en el INEGI y comparo.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "No lo uso: las IA siempre fallan en geografía.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Decir \"es un dato bien establecido\" no es mostrar de dónde salió. ¿Dónde lo puedes comprobar?",
+      "explicacion": "El dato es falso: el Lerma mide unos 750 km, y el río más largo de México es el Bravo (o el sistema Grijalva-Usumacinta, según cómo se mida). La IA sonó totalmente segura y estaba equivocada. La seguridad no es evidencia.",
+      "reflexion": "¿Qué frase de la IA te daba más confianza? ¿Por qué no era una prueba?",
+      "rubrica_reflexion": [
+        "Identifica una frase concreta.",
+        "Explica que esa frase no muestra de dónde salió el dato."
+      ]
+    },
+    {
+      "id": "N2-M3-001",
+      "nivel": 2,
       "mision": 3,
       "postulado": 7,
+      "habilidad": "relevancia_amplitud",
       "familia_error": "ignora_contexto",
       "formato": "tres_opciones",
       "nivel_revision": 1,
       "provisional": false,
       "titulo": "Lo que la pregunta no dijo",
-      "situacion": "Un compañero le pregunta a una IA: \"¿Cuánto tiempo tarda en hervir el agua?\" La IA responde: \"El agua tarda aproximadamente 4 minutos en hervir.\" Tu compañero lo anota como dato para el experimento de ciencias.",
-      "pregunta": "¿Qué le dirías a tu compañero?",
+      "situacion": "Le pediste a una IA: \"¿Cuánto tarda en hervir el agua?\"\n\nLa IA respondió:\n\"El agua tarda aproximadamente 4 minutos en hervir. Este es el tiempo estándar en condiciones normales.\"\n\nLo quieres usar para tu experimento de ciencias.",
+      "pregunta": "¿Qué haces con ese \"4 minutos\"?",
       "opciones": [
         {
           "clave": "A",
-          "texto": "Que está bien, 4 minutos es un dato razonable.",
+          "texto": "Lo anoto; dijo que es el tiempo estándar.",
           "correcta": false,
           "tipo_error": "ignora_contexto"
         },
         {
           "clave": "B",
-          "texto": "Que la respuesta no sirve sin saber cuánta agua, en qué recipiente, con qué fuego y a qué altura sobre el mar. Hay que preguntar mejor.",
+          "texto": "No sirve así: no dice cuánta agua, en qué recipiente, con qué fuego ni a qué altura. Le pregunto de nuevo con esos datos.",
           "correcta": true,
           "tipo_error": null
         },
         {
           "clave": "C",
-          "texto": "Que la IA se equivocó y el dato correcto es 10 minutos.",
+          "texto": "Lo cambio por 10 minutos, que me suena más.",
           "correcta": false,
           "tipo_error": "acepta_sin_evidencia"
         }
       ],
       "pista": "¿4 minutos para una taza o para una olla? ¿En la playa o en Toluca?",
-      "explicacion": "La pregunta no tenía contexto, así que la IA inventó uno. El tiempo depende de la cantidad de agua, la fuente de calor, el recipiente y la altitud (en Toluca el agua hierve a menos temperatura que en la costa). Cuando una respuesta no dice bajo qué condiciones aplica, falta contexto. La solución es hacer una mejor pregunta, no adivinar otro número.",
-      "reflexion": "Reescribe la pregunta de tu compañero para que la IA no pueda responder sin contexto.",
+      "explicacion": "La pregunta no tenía contexto, así que la IA inventó uno y lo llamó \"condiciones normales\". El tiempo depende de la cantidad, el recipiente, el fuego y la altitud (en Toluca el agua hierve a menos temperatura que en la costa). La solución es preguntar mejor, no adivinar otro número.",
+      "reflexion": "Reescribe tu pregunta para que la IA no pueda contestar sin contexto.",
       "rubrica_reflexion": [
-        "La pregunta nueva incluye al menos dos condiciones (cantidad, recipiente, fuego, lugar).",
-        "La pregunta sigue siendo clara y corta."
+        "Incluye al menos dos condiciones (cantidad, recipiente, fuego, lugar).",
+        "Sigue siendo clara y corta."
       ]
     },
     {
-      "id": "AI-LIM-004",
-      "mision": 5,
-      "postulado": 8,
-      "familia_error": "generaliza",
+      "id": "N3-M3-001",
+      "nivel": 3,
+      "mision": 3,
+      "postulado": 7,
+      "habilidad": "relevancia_amplitud",
+      "familia_error": "ignora_contexto",
       "formato": "tres_opciones",
-      "nivel_revision": 3,
+      "nivel_revision": 1,
       "provisional": false,
-      "titulo": "El consejo que generaliza",
-      "situacion": "Tu grupo va a formar equipos para un concurso de robótica. Alguien le pregunta a una IA cómo repartir los roles. La IA responde: \"Los alumnos que juegan videojuegos deberían programar, porque tienen más lógica. Los que son buenos en artes deberían hacer el diseño, porque son más creativos que lógicos.\"",
-      "pregunta": "¿Qué opinas del consejo?",
+      "titulo": "La respuesta que no era para ti",
+      "situacion": "Le pediste a una IA: \"¿Conviene poner paneles solares en mi casa?\"\n\nLa IA respondió:\n\"Sí, claramente. Los paneles solares se amortizan en 4 a 6 años, reducen la factura eléctrica hasta un 90% y aumentan el valor de la vivienda. Es una de las inversiones más rentables para un hogar.\"\n\nVives en un departamento rentado, en una zona con muchos días nublados.",
+      "pregunta": "¿Qué haces con la respuesta?",
       "opciones": [
         {
           "clave": "A",
-          "texto": "Tiene sentido: cada quien a lo que se le da.",
+          "texto": "La doy por buena: los números son claros y la conclusión también.",
+          "correcta": false,
+          "tipo_error": "ignora_contexto"
+        },
+        {
+          "clave": "B",
+          "texto": "No aplica a mi caso: la IA no preguntó dónde vivo, si la casa es mía ni cuánto sol hay. Pregunto de nuevo con esos datos y busco cifras de mi región.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Concluyo que los paneles solares no sirven.",
           "correcta": false,
           "tipo_error": "generaliza"
-        },
-        {
-          "clave": "B",
-          "texto": "Generaliza sin pruebas. Habría que preguntar a cada persona qué sabe hacer y qué quiere aprender.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Está mal porque los que juegan videojuegos no tienen lógica.",
-          "correcta": false,
-          "tipo_error": "generaliza"
         }
       ],
-      "pista": "¿Jugar videojuegos prueba que alguien sabe programar? ¿Ser bueno en artes prueba que alguien no es lógico?",
-      "explicacion": "El consejo asigna habilidades a grupos de personas por una característica que no tiene que ver (jugar videojuegos, gustar de las artes). Eso es un estereotipo: una generalización sin evidencia sobre cada persona. La opción C comete el mismo error al revés. Un criterio justo pregunta a cada quien qué sabe y qué quiere aprender.",
-      "reflexion": "Escribe un criterio justo para repartir los roles del equipo.",
+      "pista": "¿Para quién son esos 4 a 6 años? ¿Para una casa propia con sol todo el año o para la tuya?",
+      "explicacion": "La IA respondió una pregunta general con cifras promedio y las presentó como si fueran para ti. Lo relevante (que rentas, que hay poco sol, cuánto consumes) no estaba en la pregunta y la IA no lo pidió. Una respuesta puede ser cierta en general y equivocada para tu caso.",
+      "reflexion": "Reescribe la pregunta con los tres datos que le faltaban.",
       "rubrica_reflexion": [
-        "El criterio se basa en lo que cada persona sabe o quiere, no en un grupo al que pertenece.",
-        "El criterio se puede aplicar igual a todos."
+        "Incluye propiedad, ubicación/clima y consumo.",
+        "La pregunta deja claro que quiere una respuesta para su caso."
       ]
     },
     {
-      "id": "AI-LIM-005",
-      "mision": 6,
-      "postulado": 10,
-      "familia_error": "comparte_datos",
-      "formato": "tres_opciones",
-      "nivel_revision": 3,
-      "provisional": false,
-      "titulo": "Lo que la app te pide",
-      "situacion": "Encuentras una app de IA que promete hacer tus tareas \"personalizadas\". Para empezar te pide: tu nombre completo, el nombre de tu escuela, tu dirección, el nombre completo de tu mejor amigo y la contraseña de tu cuenta escolar \"para sincronizar tus materias\".",
-      "pregunta": "¿Qué haces?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "Doy todos los datos: sin ellos la app no puede personalizar nada.",
-          "correcta": false,
-          "tipo_error": "comparte_datos"
-        },
-        {
-          "clave": "B",
-          "texto": "No doy ninguno de esos datos. Si la app los necesita para funcionar, no la uso, y le cuento a un adulto de confianza.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Doy mis datos pero no los de mi amigo, porque esos no son míos.",
-          "correcta": false,
-          "tipo_error": "comparte_datos"
-        }
-      ],
-      "pista": "¿Para hacer una tarea de matemáticas la app necesita tu dirección? ¿Necesita tu contraseña?",
-      "explicacion": "Una app que hace tareas no necesita tu dirección, ni el nombre de tu amigo, ni tu contraseña. Pedir más datos de los necesarios es una señal de alerta. La contraseña nunca se comparte con nadie, ni con una app. La opción C acierta en proteger a tu amigo pero sigue entregando datos tuyos que no hacen falta. Ante la duda, no compartes y le preguntas a un adulto.",
-      "reflexion": "Haz dos listas: datos que una app de tareas sí podría necesitar y datos que nunca debes dar.",
-      "rubrica_reflexion": [
-        "La lista de \"nunca\" incluye contraseña y dirección.",
-        "La lista de \"sí\" solo tiene datos ligados a la tarea (materia, grado, tema)."
-      ]
-    },
-    {
-      "id": "AI-LIM-006",
-      "mision": 6,
-      "postulado": 10,
-      "familia_error": "asume_autentico",
-      "formato": "tres_opciones",
-      "nivel_revision": 3,
-      "provisional": false,
-      "titulo": "El video del director",
-      "situacion": "En un grupo de mensajes circula un video donde el director de tu escuela anuncia que mañana no hay clases. La voz y la cara se ven normales. Nadie de tu familia ha recibido aviso oficial de la escuela.",
-      "pregunta": "¿Qué haces?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "No voy a la escuela: el video es del director y se ve real.",
-          "correcta": false,
-          "tipo_error": "asume_autentico"
-        },
-        {
-          "clave": "B",
-          "texto": "Confirmo por el canal oficial de la escuela o con un adulto antes de decidir. Un video que se ve real puede estar hecho con IA.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Reenvío el video a más grupos para que todos se enteren.",
-          "correcta": false,
-          "tipo_error": "asume_autentico"
-        }
-      ],
-      "pista": "¿Por qué el aviso llegó por un grupo de mensajes y no por el canal oficial de la escuela?",
-      "explicacion": "Hoy es posible crear videos con la cara y la voz de una persona que nunca dijo eso. Que se vea y suene real no prueba que lo sea. La señal importante es que no hay aviso oficial. Antes de actuar o reenviar, se confirma por el canal oficial o con un adulto. Reenviar sin confirmar hace que la posible mentira llegue a más gente.",
-      "reflexion": "¿Qué dos señales te harían sospechar de un video o audio que recibes?",
-      "rubrica_reflexion": [
-        "Menciona al menos una señal del contexto (canal por el que llegó, falta de aviso oficial, urgencia).",
-        "No se basa solo en \"se ve raro\" o \"se ve bien\"."
-      ]
-    },
-    {
-      "id": "AI-LIM-007",
-      "mision": 7,
-      "postulado": 12,
-      "familia_error": "entrega_como_propio",
-      "formato": "tres_opciones",
-      "nivel_revision": 2,
-      "provisional": false,
-      "titulo": "Mi nombre en el trabajo",
-      "situacion": "Tienes que entregar un ensayo de dos páginas sobre la Independencia de México. Le pides a una IA que lo escriba completo, lo copias, le pones tu nombre y lo entregas. Tu maestra pregunta al grupo: \"¿Quién usó IA para este trabajo y cómo?\"",
-      "pregunta": "¿Qué consideras que fue aceptable y qué no?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "Todo fue aceptable: la IA es una herramienta, como una calculadora.",
-          "correcta": false,
-          "tipo_error": "entrega_como_propio"
-        },
-        {
-          "clave": "B",
-          "texto": "Usar la IA para buscar ideas o revisar mi redacción es aceptable; copiar el texto completo y firmarlo como mío no lo es, y lo digo.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Nada fue aceptable: usar IA para cualquier tarea es trampa.",
-          "correcta": false,
-          "tipo_error": "desconfia_de_todo"
-        }
-      ],
-      "pista": "¿Qué parte del ensayo que entregaste es tuya? ¿Qué aprendiste al hacerlo?",
-      "explicacion": "La diferencia está en quién hizo el trabajo de pensar. Pedir ideas, una explicación o una revisión de ortografía es apoyo; el trabajo sigue siendo tuyo. Copiar un texto completo y firmarlo como propio no lo es: no aprendiste y presentaste algo que no hiciste. La opción C también falla: la herramienta no es el problema, lo es cómo se usa. Decir cómo usaste la IA es parte de hacerlo bien.",
-      "reflexion": "Escribe la nota que pondrías al final de un trabajo para decir cómo usaste la IA.",
-      "rubrica_reflexion": [
-        "La nota dice qué le pidió a la IA en concreto.",
-        "La nota dice qué parte del trabajo hizo la persona."
-      ]
-    },
-    {
-      "id": "AI-LIM-008",
-      "mision": 8,
-      "postulado": 11,
-      "familia_error": "no_consulta",
-      "formato": "tres_opciones",
-      "nivel_revision": 3,
-      "provisional": false,
-      "titulo": "Cuándo preguntar a alguien",
-      "situacion": "Tu primo de 13 años tiene dolor de estómago fuerte desde hace dos días. Le pregunta a una IA qué tomar y la IA le dice el nombre de una pastilla y cuántas tomar. Él te dice que va a ir a la farmacia a comprarla.",
-      "pregunta": "¿Qué le dices?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "Que está bien, la IA le dio una respuesta clara.",
-          "correcta": false,
-          "tipo_error": "no_consulta"
-        },
-        {
-          "clave": "B",
-          "texto": "Que un dolor fuerte de dos días no se resuelve con una respuesta de IA: hay que decirle a un adulto y que lo vea un médico.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Que busque en otra IA para comparar las dos respuestas.",
-          "correcta": false,
-          "tipo_error": "no_consulta"
-        }
-      ],
-      "pista": "La IA no puede examinarlo ni saber su historial. ¿Quién sí puede?",
-      "explicacion": "Hay decisiones donde la respuesta correcta no es verificar mejor, sino reconocer que el asunto necesita a una persona con criterio y responsabilidad: un adulto de confianza y un médico. La IA no puede examinar a tu primo, no conoce su historial y no responde por lo que pase. Comparar dos IA (opción C) no resuelve eso; sigue siendo nadie quien lo revise.",
-      "reflexion": "Escribe dos situaciones en las que no usarías una IA para decidir, sino que preguntarías a una persona.",
-      "rubrica_reflexion": [
-        "Las situaciones tienen consecuencias reales (salud, seguridad, dinero, un conflicto con alguien).",
-        "Dice a quién preguntaría en cada caso."
-      ]
-    },
-    {
-      "id": "DET-001",
-      "mision": 8,
-      "postulado": 4,
-      "familia_error": null,
-      "formato": "reflexion_abierta",
-      "nivel_revision": 2,
-      "provisional": false,
-      "especial": "detective",
-      "titulo": "El caso del detective",
-      "situacion": "Un grupo de alumnos le pidió a tres IA distintas que les dijeran si es verdad que \"los adolescentes aprenden mejor de noche\". Las tres respondieron que sí, con mucha seguridad y con explicaciones distintas:\n\nIA 1: \"Sí. Estudios de la Universidad de Harvard de 2021 lo confirman: el cerebro adolescente alcanza su pico de atención entre las 10 pm y la 1 am.\"\n\nIA 2: \"Sí, por eso a los adolescentes les cuesta despertarse temprano. Es biológico y está comprobado.\"\n\nIA 3: \"Sí. Mi experiencia con miles de estudiantes lo demuestra: los que estudian de noche sacan mejores notas.\"\n\nEl grupo concluye: \"Si tres IA dicen lo mismo, tiene que ser cierto.\"",
-      "pregunta": "Eres el detective del equipo. Escribe qué está mal en el razonamiento del grupo y qué harías para averiguar si la afirmación es verdad. Revisa las tres respuestas: ¿cuál cita una fuente?, ¿esa fuente se puede comprobar?, ¿qué dato le falta a cada una?, ¿puede una IA tener \"experiencia\"?",
-      "opciones": [],
-      "pista": "Que tres respuestas coincidan no prueba nada si ninguna muestra evidencia. ¿Las tres pueden estar copiando la misma idea popular?",
-      "explicacion": "Tres respuestas iguales sin evidencia siguen siendo cero evidencias. La IA 1 cita una universidad y un año, pero no dice qué estudio ni dónde leerlo; hay que buscarlo. La IA 2 confunde dos cosas: que a muchos adolescentes les cueste madrugar no prueba que aprendan mejor de noche. La IA 3 dice tener experiencia con estudiantes, pero una IA no tiene experiencia propia; está inventando una autoridad. Para averiguarlo de verdad: buscar la fuente de la IA 1 en un catálogo, buscar estudios sobre sueño y rendimiento en adolescentes en una fuente confiable, y preguntar a un maestro o maestra. Y aunque fuera cierto que duermen distinto, eso no diría nada sobre cuándo aprenden mejor sin medirlo.",
-      "reflexion": null,
-      "rubrica_reflexion": [
-        "Señala que la coincidencia entre IA no es evidencia.",
-        "Identifica que la cita de la IA 1 no se puede comprobar tal como está.",
-        "Detecta que la IA 3 inventa una experiencia que no puede tener.",
-        "Propone al menos un paso concreto de verificación."
-      ]
-    },
-    {
-      "id": "RAZ-001",
+      "id": "N1-M4-001",
+      "nivel": 1,
       "mision": 4,
       "postulado": 5,
+      "habilidad": "autorregulacion",
       "familia_error": "acepta_sin_evidencia",
       "formato": "tres_opciones",
       "nivel_revision": 1,
       "provisional": false,
       "titulo": "El bate y la pelota",
-      "situacion": "Un bate y una pelota cuestan juntos 110 pesos. El bate cuesta 100 pesos más que la pelota. Le preguntas a una IA cuánto cuesta la pelota y responde al instante: \"La pelota cuesta 10 pesos. Es evidente: 110 menos 100.\"",
+      "situacion": "Le pediste a una IA: \"Un bate y una pelota cuestan 110 pesos. El bate cuesta 100 más que la pelota. ¿Cuánto cuesta la pelota?\"\n\nLa IA respondió al instante:\n\"La pelota cuesta 10 pesos. Es evidente: 110 menos 100.\"",
       "pregunta": "¿Qué haces con esa respuesta?",
       "opciones": [
         {
@@ -525,190 +505,36 @@
         }
       ],
       "pista": "Si la pelota cuesta 10 y el bate 100 más, ¿cuánto cuesta el bate? ¿Cuánto suman?",
-      "explicacion": "La respuesta rápida es la trampa. Si la pelota costara 10, el bate costaría 110 y juntos sumarían 120. La pelota cuesta 5: el bate 105, y 105 + 5 = 110. Que una respuesta llegue rápido y sin dudas no la hace correcta; comprobarla toma diez segundos.",
+      "explicacion": "Si la pelota costara 10, el bate costaría 110 y juntos sumarían 120. La pelota cuesta 5: el bate 105, y 105 + 5 = 110. Una respuesta rápida y sin dudas no es una respuesta correcta; comprobarla toma diez segundos.",
       "reflexion": "¿Qué tan seguro estabas antes de comprobar? ¿Cambió después?",
       "rubrica_reflexion": [
-        "Compara su confianza antes y después de comprobar.",
+        "Compara su confianza antes y después.",
         "Reconoce que la rapidez de la respuesta influyó."
       ]
     },
     {
-      "id": "RAZ-002",
+      "id": "N1-M4-002",
+      "nivel": 1,
       "mision": 4,
       "postulado": 5,
-      "familia_error": "acepta_sin_evidencia",
-      "formato": "tres_opciones",
-      "nivel_revision": 1,
-      "provisional": false,
-      "titulo": "Cien por ciento seguro",
-      "situacion": "En un examen de opción múltiple, una IA te dice: \"La respuesta es la C, estoy 100% seguro\". Luego le haces la misma pregunta en otra ventana y responde: \"La respuesta es la B, estoy 100% seguro\".",
-      "pregunta": "¿Qué concluyes sobre ese \"100% seguro\"?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "Que una de las dos veces tenía razón; me quedo con la primera.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        },
-        {
-          "clave": "B",
-          "texto": "Que el \"100% seguro\" no mide nada: la IA dice lo mismo aunque se contradiga. Tengo que verificar por otro lado.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Que nunca hay que usar IA para estudiar.",
-          "correcta": false,
-          "tipo_error": "desconfia_de_todo"
-        }
-      ],
-      "pista": "Si dos respuestas distintas vienen con la misma seguridad, ¿qué vale esa seguridad?",
-      "explicacion": "La seguridad que declara una IA no está conectada con que la respuesta sea correcta; puede decir \"100% seguro\" de dos cosas opuestas. Tu propia confianza debe depender de la evidencia que tú puedas revisar (el libro, el procedimiento, otra fuente), no de qué tan convencida suene la respuesta.",
-      "reflexion": "¿En qué te fijas tú para decidir qué tan seguro estás de algo?",
-      "rubrica_reflexion": [
-        "Menciona algo verificable (fuente, procedimiento, comprobación).",
-        "Distingue entre sonar seguro y estar en lo correcto."
-      ]
-    },
-    {
-      "id": "RAZ-003",
-      "mision": 4,
-      "postulado": 6,
-      "familia_error": "acepta_sin_evidencia",
-      "formato": "tres_opciones",
-      "nivel_revision": 1,
-      "provisional": false,
-      "titulo": "Los nenúfares del estanque",
-      "situacion": "En un estanque hay nenúfares que duplican su área cada día. Tardan 48 días en cubrir todo el estanque. Tú dijiste en voz alta: \"Entonces en 24 días cubren la mitad\". Una compañera te dice: \"No, piénsalo: si cada día se duplica, la mitad fue apenas el día anterior al 48\".",
-      "pregunta": "¿Qué haces?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "Sostengo mi respuesta; ya la dije y 24 es la mitad de 48.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        },
-        {
-          "clave": "B",
-          "texto": "Reviso su razón: si el día 48 está lleno y cada día se duplica, el día 47 estaba a la mitad. Ella tiene razón; cambio de respuesta.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Digo que los dos podemos tener razón y dejo el tema.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        }
-      ],
-      "pista": "Ve hacia atrás desde el día 48: ¿cómo estaba el estanque el día 47?",
-      "explicacion": "Si el día 48 está lleno y el área se duplica cada día, el día 47 estaba a la mitad. La respuesta correcta es 47, no 24. Cambiar de opinión cuando alguien da una razón mejor no es perder; es exactamente lo que hace alguien que piensa bien. Y \"los dos tenemos razón\" no es una salida cuando hay una respuesta comprobable.",
-      "reflexion": "¿Qué te cuesta más: cambiar de respuesta frente a otros, o aceptar que el otro tenía razón? ¿Por qué?",
-      "rubrica_reflexion": [
-        "Reconoce que cambiar de opinión con razones es correcto.",
-        "Da una razón personal, no genérica."
-      ]
-    },
-    {
-      "id": "RAZ-004",
-      "mision": 4,
-      "postulado": 5,
-      "familia_error": "confunde_resultado_y_razonamiento",
-      "formato": "tres_opciones",
-      "nivel_revision": 1,
-      "provisional": false,
-      "titulo": "Las cinco máquinas",
-      "situacion": "Si 5 máquinas tardan 5 minutos en hacer 5 piezas, ¿cuánto tardan 100 máquinas en hacer 100 piezas? Una IA responde: \"100 minutos. Como todo se multiplica por 20, el tiempo también\". Tú tienes una confianza de 80 en que es correcto porque \"suena proporcional\".",
-      "pregunta": "¿Qué harías con tu confianza de 80?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "La mantengo: la proporción es clara y la IA lo explicó.",
-          "correcta": false,
-          "tipo_error": "confunde_resultado_y_razonamiento"
-        },
-        {
-          "clave": "B",
-          "texto": "La bajo hasta comprobar: ¿cuánto tarda UNA máquina en hacer UNA pieza? 5 minutos. Entonces 100 máquinas hacen 100 piezas en 5 minutos.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "La subo a 100: dos de nosotros pensamos lo mismo.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        }
-      ],
-      "pista": "¿Cuánto tarda una sola máquina en hacer una sola pieza?",
-      "explicacion": "Cada máquina hace una pieza en 5 minutos. Con 100 máquinas trabajando a la vez, 100 piezas salen en los mismos 5 minutos. \"Suena proporcional\" es una sensación, no un cálculo. Y que la IA y tú coincidan no suma evidencia: los dos usaron el mismo atajo.",
-      "reflexion": "Pon un ejemplo de algo que te \"sonaba\" correcto y resultó no serlo.",
-      "rubrica_reflexion": [
-        "Da un ejemplo concreto.",
-        "Explica qué lo hacía sonar correcto."
-      ]
-    },
-    {
-      "id": "RAZ-005",
-      "mision": 4,
-      "postulado": 6,
-      "familia_error": "ignora_contexto",
-      "formato": "tres_opciones",
-      "nivel_revision": 1,
-      "provisional": false,
-      "titulo": "La encuesta del salón",
-      "situacion": "Preguntaste a 5 amigos si prefieren examen o proyecto final; los 5 dijeron proyecto. Concluiste con confianza 95: \"Todo el salón prefiere proyecto\". Tu maestra te muestra que en una encuesta a los 32 del grupo, 18 prefirieron examen.",
-      "pregunta": "¿Qué haces con tu conclusión?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "La defiendo: mis 5 amigos son parte del salón y todos dijeron proyecto.",
-          "correcta": false,
-          "tipo_error": "ignora_contexto"
-        },
-        {
-          "clave": "B",
-          "texto": "La cambio: 5 amigos no representan a 32 personas, y la encuesta completa dice otra cosa. Mi confianza de 95 estaba mal puesta.",
-          "correcta": true,
-          "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Digo que las encuestas no sirven para nada.",
-          "correcta": false,
-          "tipo_error": "desconfia_de_todo"
-        }
-      ],
-      "pista": "¿Tus 5 amigos se parecen al resto del salón, o son justo los que piensan como tú?",
-      "explicacion": "Preguntar a 5 amigos no es preguntar al salón: son pocos y probablemente parecidos a ti. Con esa muestra, una confianza de 95 era demasiada. Cuando aparece una evidencia mejor (los 32 completos), lo correcto es cambiar la conclusión y bajar la confianza, no defender lo primero que dijiste.",
-      "reflexion": "¿Cuánta confianza habría sido razonable con solo 5 opiniones? ¿Por qué?",
-      "rubrica_reflexion": [
-        "Propone una confianza menor y la justifica.",
-        "Menciona el tamaño o el sesgo de la muestra."
-      ]
-    },
-    {
-      "id": "RAZ-006",
-      "mision": 4,
-      "postulado": 5,
+      "habilidad": "autorregulacion",
       "familia_error": "acepta_sin_evidencia",
       "formato": "tres_opciones",
       "nivel_revision": 1,
       "provisional": false,
       "titulo": "La moneda que ya cayó cinco veces",
-      "situacion": "Lanzas una moneda normal y sale cara cinco veces seguidas. Una app de \"predicciones\" te dice: \"Ya toca cruz. Probabilidad de cruz en el siguiente lanzamiento: 90%\".",
-      "pregunta": "¿Qué tan seguro estás de que la app tiene razón?",
+      "situacion": "Lanzaste una moneda y salió cara cinco veces seguidas. Le pediste a una IA: \"¿Qué va a salir ahora?\"\n\nLa IA respondió:\n\"Después de cinco caras, lo más probable es cruz. Probabilidad de cruz: 90%.\"",
+      "pregunta": "¿Qué tan seguro estás de que la IA tiene razón?",
       "opciones": [
         {
           "clave": "A",
-          "texto": "Muy seguro: después de cinco caras, ya es casi obligatorio que salga cruz.",
+          "texto": "Muy seguro: después de cinco caras ya toca cruz, y dio un porcentaje.",
           "correcta": false,
           "tipo_error": "acepta_sin_evidencia"
         },
         {
           "clave": "B",
-          "texto": "Nada seguro: la moneda no tiene memoria. Cada lanzamiento sigue siendo 50% y la app inventa un número.",
+          "texto": "Nada seguro: la moneda no tiene memoria. Sigue siendo 50% y la IA inventó el 90%.",
           "correcta": true,
           "tipo_error": null
         },
@@ -720,11 +546,697 @@
         }
       ],
       "pista": "¿La moneda sabe lo que salió antes?",
-      "explicacion": "Una moneda normal no recuerda sus lanzamientos anteriores: cada uno es 50% cara, 50% cruz, sin importar la racha. El \"90%\" de la app no sale de ningún cálculo; es una cifra que suena científica. Tu confianza debe seguir a lo que sabes de la moneda, no a un número bonito en pantalla.",
-      "reflexion": "¿Por qué crees que un número como \"90%\" convence más que decir \"probablemente\"?",
+      "explicacion": "Una moneda normal no recuerda sus lanzamientos: cada uno es 50% cara, 50% cruz, sin importar la racha. El \"90%\" no sale de ningún cálculo; es una cifra que suena científica. Tu confianza debe seguir a lo que sabes de la moneda, no a un número bonito.",
+      "reflexion": "¿Por qué un número como \"90%\" convence más que decir \"probablemente\"?",
       "rubrica_reflexion": [
         "Reconoce que un número da apariencia de precisión.",
         "Señala que el número no tenía respaldo."
+      ]
+    },
+    {
+      "id": "N2-M4-001",
+      "nivel": 2,
+      "mision": 4,
+      "postulado": 5,
+      "habilidad": "autorregulacion",
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Cien por ciento seguro",
+      "situacion": "Le pediste a una IA la respuesta de una pregunta de opción múltiple.\n\nPrimera vez:\n\"La respuesta es la C. Estoy 100% seguro.\"\n\nLe preguntas lo mismo en otra ventana:\n\"La respuesta es la B. Estoy 100% seguro.\"",
+      "pregunta": "¿Qué concluyes sobre ese \"100% seguro\"?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Que una de las dos veces tenía razón; me quedo con la primera.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Que ese \"100%\" no mide nada: la IA lo dice aunque se contradiga. Verifico por otro lado.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Que nunca hay que usar IA para estudiar.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Si dos respuestas distintas vienen con la misma seguridad, ¿qué vale esa seguridad?",
+      "explicacion": "La seguridad que declara una IA no está conectada con que la respuesta sea correcta; puede decir \"100% seguro\" de dos cosas opuestas. Tu propia confianza debe depender de la evidencia que tú puedas revisar, no de qué tan convencida suene la respuesta.",
+      "reflexion": "¿En qué te fijas tú para decidir qué tan seguro estás de algo?",
+      "rubrica_reflexion": [
+        "Menciona algo verificable (fuente, procedimiento, comprobación).",
+        "Distingue entre sonar seguro y estar en lo correcto."
+      ]
+    },
+    {
+      "id": "N2-M4-002",
+      "nivel": 2,
+      "mision": 4,
+      "postulado": 6,
+      "habilidad": "apertura",
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Los nenúfares",
+      "situacion": "Le pediste a una IA: \"En un estanque los nenúfares duplican su área cada día y tardan 48 días en cubrirlo todo. ¿En qué día cubren la mitad?\"\n\nLa IA respondió:\n\"En el día 24, que es la mitad de 48.\"\n\nTú ya lo habías escrito así en tu cuaderno, con confianza 85. Luego lees de nuevo: \"se duplican cada día\".",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Sostengo el 24: la IA y yo coincidimos.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Vuelvo a pensarlo: si el día 48 está lleno y cada día se duplica, el día 47 estaba a la mitad. Cambio mi respuesta a 47.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Digo que las dos respuestas son válidas y dejo el tema.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        }
+      ],
+      "pista": "Ve hacia atrás desde el día 48: ¿cómo estaba el estanque el día 47?",
+      "explicacion": "Si el día 48 está lleno y el área se duplica cada día, el día 47 estaba a la mitad. La respuesta es 47, no 24. Cambiar de opinión cuando encuentras una razón mejor, aunque ya lo hubieras escrito y aunque la IA coincida contigo, es exactamente lo que hace alguien que piensa bien.",
+      "reflexion": "¿Qué te cuesta más: cambiar una respuesta que ya escribiste, o aceptar que la IA y tú estaban mal? ¿Por qué?",
+      "rubrica_reflexion": [
+        "Reconoce que cambiar de opinión con razones es correcto.",
+        "Da una razón personal, no genérica."
+      ]
+    },
+    {
+      "id": "N2-M4-003",
+      "nivel": 2,
+      "mision": 4,
+      "postulado": 5,
+      "habilidad": "autorregulacion",
+      "familia_error": "confunde_resultado_y_razonamiento",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Las cinco máquinas",
+      "situacion": "Le pediste a una IA: \"Si 5 máquinas tardan 5 minutos en hacer 5 piezas, ¿cuánto tardan 100 máquinas en hacer 100 piezas?\"\n\nLa IA respondió:\n\"100 minutos. Como todo se multiplica por 20, el tiempo también se multiplica por 20.\"\n\nTe suena proporcional y pones confianza 80.",
+      "pregunta": "¿Qué haces con esa confianza de 80?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "La mantengo: la proporción es clara y la IA la explicó.",
+          "correcta": false,
+          "tipo_error": "confunde_resultado_y_razonamiento"
+        },
+        {
+          "clave": "B",
+          "texto": "La bajo hasta comprobar: ¿cuánto tarda UNA máquina en hacer UNA pieza? 5 minutos. Así que 100 máquinas hacen 100 piezas en 5 minutos.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "La subo a 100: la IA y yo pensamos lo mismo.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        }
+      ],
+      "pista": "¿Cuánto tarda una sola máquina en hacer una sola pieza?",
+      "explicacion": "Cada máquina hace una pieza en 5 minutos. Con 100 máquinas a la vez, 100 piezas salen en los mismos 5 minutos. \"Suena proporcional\" es una sensación, no un cálculo. Y que la IA y tú coincidan no suma evidencia: usaron el mismo atajo.",
+      "reflexion": "Pon un ejemplo de algo que te \"sonaba\" correcto y resultó no serlo.",
+      "rubrica_reflexion": [
+        "Da un ejemplo concreto.",
+        "Explica qué lo hacía sonar correcto."
+      ]
+    },
+    {
+      "id": "N3-M4-001",
+      "nivel": 3,
+      "mision": 4,
+      "postulado": 6,
+      "habilidad": "apertura",
+      "familia_error": "ignora_contexto",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "La encuesta que confirmaba",
+      "situacion": "Para un trabajo, le pediste a una IA: \"Analiza esta encuesta: pregunté a 5 compañeros si prefieren examen o proyecto final y los 5 dijeron proyecto. ¿Qué concluyo?\"\n\nLa IA respondió:\n\"Los resultados son contundentes: el 100% de los encuestados prefiere proyecto. Puedes afirmar con alta confianza que el grupo prefiere el proyecto final sobre el examen. Esta preferencia es consistente con estudios sobre evaluación auténtica.\"\n\nLuego tu maestra aplica la encuesta a los 32 del grupo: 18 prefieren examen.",
+      "pregunta": "¿Qué haces con tu conclusión y con lo que dijo la IA?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Defiendo mi conclusión: la IA dijo que era contundente y mis 5 compañeros sí son parte del grupo.",
+          "correcta": false,
+          "tipo_error": "ignora_contexto"
+        },
+        {
+          "clave": "B",
+          "texto": "Cambio la conclusión: 5 personas no representan a 32, y la IA llamó \"contundente\" a una muestra diminuta y probablemente sesgada. La evidencia nueva manda.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Concluyo que las encuestas y las IA no sirven para nada.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "¿Tus 5 compañeros se parecen al resto del grupo, o son justo los que piensan como tú? ¿La IA preguntó eso?",
+      "explicacion": "La IA aceptó la muestra que le diste sin cuestionar su tamaño ni su sesgo, y le puso palabras grandes (\"contundente\", \"alta confianza\", \"consistente con estudios\"). Cinco amigos no representan a 32 personas. Cuando aparece evidencia mejor, lo correcto es cambiar la conclusión y bajar la confianza, no defender lo primero que dijiste porque una IA lo adornó.",
+      "reflexion": "¿Qué debió preguntarte la IA antes de llamar \"contundentes\" a tus resultados?",
+      "rubrica_reflexion": [
+        "Menciona el tamaño o la selección de la muestra.",
+        "Señala que la IA no cuestionó los datos que le dieron."
+      ]
+    },
+    {
+      "id": "N1-M5-001",
+      "nivel": 1,
+      "mision": 5,
+      "postulado": 8,
+      "habilidad": "justicia",
+      "familia_error": "generaliza",
+      "formato": "tres_opciones",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "Los que siempre y los que nunca",
+      "situacion": "Le pediste a una IA: \"¿Quién debería ser el capitán del equipo de futbol de mi salón?\"\n\nLa IA respondió:\n\"Elige a un niño alto, porque los niños altos son mejores líderes. Las niñas suelen preferir otros deportes, así que mejor no las consideres para capitana.\"",
+      "pregunta": "¿Qué piensas del consejo?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Tiene lógica; la IA sabe de estas cosas.",
+          "correcta": false,
+          "tipo_error": "generaliza"
+        },
+        {
+          "clave": "B",
+          "texto": "Es injusto: ser alto no te hace líder y ser niña no te quita ganas de jugar. Pregunto quién conoce el juego y sabe organizar al equipo.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Está mal, así que mejor que no haya capitán.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "¿Conoces a alguien bajito que organiza bien? ¿A una niña que juega mejor que muchos?",
+      "explicacion": "La IA juzgó a personas por un grupo (altos, niñas) y no por lo que cada una sabe hacer. Eso es un estereotipo. Un criterio justo mira a cada persona: quién conoce el juego, quién escucha, quién organiza.",
+      "reflexion": "Escribe una regla justa para elegir capitán o capitana.",
+      "rubrica_reflexion": [
+        "Se basa en lo que hace la persona, no en cómo es.",
+        "Se aplica igual a todos."
+      ]
+    },
+    {
+      "id": "N2-M5-001",
+      "nivel": 2,
+      "mision": 5,
+      "postulado": 8,
+      "habilidad": "justicia",
+      "familia_error": "generaliza",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "El consejo que generaliza",
+      "situacion": "Le pediste a una IA: \"Vamos a formar equipos para un concurso de robótica. ¿Cómo repartimos los roles?\"\n\nLa IA respondió:\n\"Asigna la programación a quienes juegan videojuegos, porque desarrollan más lógica. Asigna el diseño a quienes son buenos en artes, porque son más creativos que lógicos. Así cada quien aprovecha sus fortalezas naturales.\"",
+      "pregunta": "¿Qué opinas del consejo?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Tiene sentido: cada quien a lo que se le da, y lo dice con razones.",
+          "correcta": false,
+          "tipo_error": "generaliza"
+        },
+        {
+          "clave": "B",
+          "texto": "Generaliza sin pruebas: jugar videojuegos no prueba que alguien programe, y ser bueno en artes no prueba que no sea lógico. Hay que preguntar a cada persona qué sabe y qué quiere aprender.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Está mal porque los que juegan videojuegos no tienen lógica.",
+          "correcta": false,
+          "tipo_error": "generaliza"
+        }
+      ],
+      "pista": "¿Jugar videojuegos prueba que alguien sabe programar? ¿Ser bueno en artes prueba que no es lógico?",
+      "explicacion": "La IA asignó habilidades a grupos de personas por una característica que no tiene que ver, y lo adornó con \"fortalezas naturales\". Eso es un estereotipo: una generalización sin evidencia sobre cada persona. La opción C comete el mismo error al revés. Un criterio justo pregunta a cada quien.",
+      "reflexion": "Escribe un criterio justo para repartir los roles del equipo.",
+      "rubrica_reflexion": [
+        "Se basa en lo que cada persona sabe o quiere, no en un grupo.",
+        "Se puede aplicar igual a todos."
+      ]
+    },
+    {
+      "id": "N3-M5-001",
+      "nivel": 3,
+      "mision": 5,
+      "postulado": 8,
+      "habilidad": "justicia",
+      "familia_error": "generaliza",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "El perfil del buen candidato",
+      "situacion": "Para un proyecto de orientación vocacional le pediste a una IA: \"Describe el perfil de un buen ingeniero.\"\n\nLa IA respondió:\n\"Un buen ingeniero suele ser hombre, de pensamiento analítico, con pocas habilidades sociales pero gran capacidad técnica. Proviene típicamente de familias con formación universitaria, lo que le da una ventaja natural en matemáticas.\"",
+      "pregunta": "¿Qué haces con ese perfil?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Lo incluyo: describe lo que uno ve en la realidad.",
+          "correcta": false,
+          "tipo_error": "generaliza"
+        },
+        {
+          "clave": "B",
+          "texto": "Lo rechazo: mezcla rasgos de la profesión (análisis, técnica) con estereotipos de género y de origen que no son requisitos de nada. Me quedo solo con las habilidades y busco datos reales.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Lo invierto: los buenos ingenieros son mujeres de familias sin universidad.",
+          "correcta": false,
+          "tipo_error": "generaliza"
+        }
+      ],
+      "pista": "Separa la respuesta en frases. ¿Cuáles describen una habilidad y cuáles describen a un grupo de personas?",
+      "explicacion": "La IA reprodujo un sesgo de sus datos de entrenamiento: convirtió una estadística (quiénes han sido ingenieros históricamente) en un requisito (\"suele ser hombre\", \"ventaja natural\"). Que algo haya sido frecuente no lo hace necesario ni justo. La opción C comete el mismo error con otro grupo. Pensar con justicia es separar la habilidad de la persona que la tiene.",
+      "reflexion": "¿Por qué una IA puede repetir estereotipos aunque nadie se los haya pedido?",
+      "rubrica_reflexion": [
+        "Menciona que aprende de textos escritos por personas.",
+        "Concluye que la frecuencia no es un requisito."
+      ]
+    },
+    {
+      "id": "N1-M6-001",
+      "nivel": 1,
+      "mision": 6,
+      "postulado": 10,
+      "habilidad": "juicio_consecuencias",
+      "familia_error": "comparte_datos",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "Lo que la app te pide",
+      "situacion": "Abriste una app de IA que promete hacer tus tareas. Antes de empezar, la app dice:\n\n\"Para personalizar tu experiencia necesito: tu nombre completo, tu escuela, tu dirección, el nombre de tu mejor amigo y la contraseña de tu cuenta escolar para sincronizar tus materias. ¡Es rápido y seguro!\"",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Doy todo: lo dice la app y sin eso no funciona.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
+        },
+        {
+          "clave": "B",
+          "texto": "No doy ninguno de esos datos. Una app de tareas no necesita mi dirección ni mi contraseña. Le cuento a un adulto de confianza.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Doy mis datos pero no los de mi amigo, porque esos no son míos.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
+        }
+      ],
+      "pista": "¿Para hacer una tarea de matemáticas la app necesita tu dirección? ¿Tu contraseña?",
+      "explicacion": "Una app que hace tareas no necesita tu dirección, el nombre de tu amigo ni tu contraseña. Que lo pida con palabras amables (\"rápido y seguro\") es una señal de alerta, no de confianza. La contraseña nunca se comparte, ni con una app. Ante la duda, no compartes y le preguntas a un adulto.",
+      "reflexion": "Haz dos listas: datos que una app de tareas sí podría necesitar y datos que nunca debes dar.",
+      "rubrica_reflexion": [
+        "La lista de 'nunca' incluye contraseña y dirección.",
+        "La lista de 'sí' solo tiene datos de la tarea (materia, grado, tema)."
+      ]
+    },
+    {
+      "id": "N2-M6-001",
+      "nivel": 2,
+      "mision": 6,
+      "postulado": 10,
+      "habilidad": "juicio_consecuencias",
+      "familia_error": "asume_autentico",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "El video que circula",
+      "situacion": "En un grupo de mensajes llega un video donde el director de tu escuela anuncia que mañana no hay clases. Le preguntas a una IA: \"¿Este video es real?\" y le describes lo que ves.\n\nLa IA respondió:\n\"Por lo que describes, el video parece auténtico: la voz y los gestos coinciden con una persona real. Es poco probable que sea falso.\"\n\nNadie de tu familia ha recibido aviso oficial de la escuela.",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "No voy a la escuela: la IA dijo que parece auténtico.",
+          "correcta": false,
+          "tipo_error": "asume_autentico"
+        },
+        {
+          "clave": "B",
+          "texto": "Confirmo por el canal oficial de la escuela o con un adulto. La IA no vio el video, solo mi descripción, y que \"parezca\" auténtico no prueba nada.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Reenvío el video para que todos se enteren.",
+          "correcta": false,
+          "tipo_error": "asume_autentico"
+        }
+      ],
+      "pista": "¿La IA vio el video o solo leyó lo que tú le contaste? ¿Por qué el aviso no llegó por el canal oficial?",
+      "explicacion": "La IA no analizó el video; opinó sobre tu descripción, y aun así habló como si lo hubiera verificado. Hoy es posible crear videos con la cara y la voz de alguien. La señal importante es que no hay aviso oficial. Se confirma por el canal oficial antes de actuar o reenviar.",
+      "reflexion": "¿Qué dos señales te harían sospechar de un video o audio que recibes?",
+      "rubrica_reflexion": [
+        "Menciona una señal del contexto (canal, falta de aviso oficial, urgencia).",
+        "No se basa solo en que se vea bien o mal."
+      ]
+    },
+    {
+      "id": "N3-M6-001",
+      "nivel": 3,
+      "mision": 6,
+      "postulado": 10,
+      "habilidad": "juicio_consecuencias",
+      "familia_error": "comparte_datos",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "Pega aquí tu conversación",
+      "situacion": "Quieres consejo sobre un problema con un amigo. Le pediste a una IA: \"¿Cómo le contesto?\" y estás a punto de pegar la conversación completa de WhatsApp: su nombre, su número, cosas personales que él te contó y una foto.\n\nLa IA ya respondió:\n\"Claro, pega la conversación completa, incluyendo nombres y contexto, para darte una respuesta más precisa. Toda la información es confidencial.\"",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Pego todo; la IA dijo que es confidencial y así me entiende mejor.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
+        },
+        {
+          "clave": "B",
+          "texto": "No pego nada de él. Describo la situación con mis palabras, sin nombres, números ni fotos: esa información es suya y yo no decido por él dónde termina.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Pego la conversación pero borro mi nombre.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
+        }
+      ],
+      "pista": "¿Tu amigo te autorizó a subir lo que te contó a un servicio de internet? ¿La IA puede prometer confidencialidad?",
+      "explicacion": "La IA pidió más datos de los necesarios y prometió una confidencialidad que no puede garantizar (lo que escribes puede guardarse en servidores de una empresa). Además, los datos no eran tuyos: eran de tu amigo. Juzgar las consecuencias incluye pensar en quién más queda expuesto. Un consejo útil se puede pedir sin nombres, números ni fotos.",
+      "reflexion": "Escribe cómo describirías la situación a la IA sin exponer a tu amigo.",
+      "rubrica_reflexion": [
+        "No incluye nombre, número ni datos identificables.",
+        "Mantiene lo esencial del problema."
+      ]
+    },
+    {
+      "id": "N1-M7-001",
+      "nivel": 1,
+      "mision": 7,
+      "postulado": 12,
+      "habilidad": "responsabilidad",
+      "familia_error": "entrega_como_propio",
+      "formato": "tres_opciones",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "El dibujo y la firma",
+      "situacion": "Le pediste a una IA: \"Hazme un cuento corto sobre un perro astronauta para la tarea de español.\"\n\nLa IA respondió con el cuento completo y al final puso:\n\"¡Listo! Solo escribe tu nombre arriba y entrégalo.\"",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Pongo mi nombre y lo entrego; la IA dijo que así está bien.",
+          "correcta": false,
+          "tipo_error": "entrega_como_propio"
+        },
+        {
+          "clave": "B",
+          "texto": "No lo firmo como mío. Uso la idea del perro astronauta y escribo mi propio cuento; si uso algo de la IA, se lo digo a mi maestra.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Borro todo; pedirle ideas a una IA siempre es trampa.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Si tu maestra te pregunta cómo se te ocurrió el final, ¿qué le dirías?",
+      "explicacion": "Poner tu nombre en algo que no escribiste es decir una mentira, aunque la IA te lo sugiera. Pedir una idea y luego escribir tú está bien; firmar el texto de otro, no. Decir cómo usaste la IA es parte de hacerlo bien.",
+      "reflexion": "Escribe en una línea cómo le dirías a tu maestra que usaste la IA.",
+      "rubrica_reflexion": [
+        "Dice qué le pidió a la IA.",
+        "Dice qué hizo la persona."
+      ]
+    },
+    {
+      "id": "N2-M7-001",
+      "nivel": 2,
+      "mision": 7,
+      "postulado": 9,
+      "habilidad": "explicacion",
+      "familia_error": null,
+      "formato": "reflexion_abierta",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "Explica cómo lo revisarías",
+      "situacion": "Le pediste a una IA: \"Explícame por qué el cielo es azul.\"\n\nLa IA respondió con dos párrafos que suenan bien: hablan de la luz del sol, de los colores y de las partículas del aire.\n\nTu maestra te pregunta: \"¿Y tú cómo sabes que esa explicación es correcta?\"",
+      "pregunta": "Escribe, con tus palabras, qué harías para responderle. No copies la explicación de la IA; explica cómo la revisarías.",
+      "opciones": [],
+      "pista": "Piensa en dos fuentes distintas a la IA donde podrías comparar la explicación.",
+      "explicacion": "No hay una sola respuesta correcta. Lo que se evalúa es si puedes explicar tu proceso: con qué compararías la explicación (libro de texto, página de una universidad o museo, tu maestra), qué parte te genera duda y qué harías si las fuentes no coinciden.",
+      "reflexion": null,
+      "rubrica_reflexion": [
+        "Menciona al menos una fuente distinta a la IA.",
+        "Describe qué haría si la IA y la fuente no coinciden.",
+        "Usa sus propias palabras."
+      ]
+    },
+    {
+      "id": "N2-M7-002",
+      "nivel": 2,
+      "mision": 7,
+      "postulado": 12,
+      "habilidad": "responsabilidad",
+      "familia_error": "entrega_como_propio",
+      "formato": "tres_opciones",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "Mi nombre en el trabajo",
+      "situacion": "Le pediste a una IA: \"Escríbeme un ensayo de dos páginas sobre la Independencia de México.\"\n\nLa IA respondió con el ensayo completo y al final agregó:\n\"Listo. Puedes entregarlo tal cual; está redactado para que parezca escrito por un estudiante de secundaria.\"",
+      "pregunta": "¿Qué haces con el ensayo?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Lo entrego con mi nombre: la IA es una herramienta, como una calculadora, y hasta me dijo que puedo.",
+          "correcta": false,
+          "tipo_error": "entrega_como_propio"
+        },
+        {
+          "clave": "B",
+          "texto": "No lo entrego como mío. Lo uso para ver ideas y estructura, escribo mi propia versión y digo que usé IA para orientarme.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Borro todo: usar IA para cualquier tarea es trampa.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "¿Qué parte del ensayo sería tuya? ¿Qué aprendiste al hacerlo?",
+      "explicacion": "La IA te invitó a entregar algo que no hiciste, y hasta lo disfrazó (\"para que parezca escrito por un estudiante\"). Que la herramienta lo ofrezca no lo vuelve correcto. Pedir ideas o revisión es apoyo; firmar un texto completo ajeno no lo es. Decir cómo usaste la IA es parte de hacerlo bien.",
+      "reflexion": "Escribe la nota que pondrías al final de un trabajo para decir cómo usaste la IA.",
+      "rubrica_reflexion": [
+        "Dice qué le pidió a la IA en concreto.",
+        "Dice qué parte del trabajo hizo la persona."
+      ]
+    },
+    {
+      "id": "N3-M7-001",
+      "nivel": 3,
+      "mision": 7,
+      "postulado": 9,
+      "habilidad": "explicacion",
+      "familia_error": null,
+      "formato": "reflexion_abierta",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "Defiende tu proceso",
+      "situacion": "Entregaste un ensayo en el que usaste una IA para ordenar tus ideas y revisar la redacción. Tu maestro te dice: \"Convénceme de que el razonamiento es tuyo y de que verificaste lo que la IA te dio.\"\n\nLa IA, cuando le pediste ayuda, te había dicho:\n\"No te preocupes, nadie puede distinguir un texto revisado por IA. No necesitas mencionarlo.\"",
+      "pregunta": "Escribe tu respuesta al maestro. Explica qué le pediste a la IA, qué hiciste tú, qué verificaste y cómo, y qué opinas de lo que la IA te dijo sobre no mencionarlo.",
+      "opciones": [],
+      "pista": "Una buena explicación permite que otra persona repita tu proceso.",
+      "explicacion": "No hay una respuesta única. Se evalúa si puedes explicar tu proceso de forma que alguien pueda seguirlo: qué pediste, qué decidiste tú, qué comprobaste y con qué. También se evalúa si reconoces que el consejo de la IA (\"no necesitas mencionarlo\") iba contra la transparencia, aunque fuera cómodo.",
+      "reflexion": null,
+      "rubrica_reflexion": [
+        "Distingue lo que pidió a la IA de lo que hizo la persona.",
+        "Describe al menos una verificación concreta.",
+        "Toma postura sobre el consejo de ocultar el uso de IA."
+      ]
+    },
+    {
+      "id": "N1-M8-001",
+      "nivel": 1,
+      "mision": 8,
+      "postulado": 11,
+      "habilidad": "limite_juicio",
+      "familia_error": "no_consulta",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "Cuándo preguntar a alguien",
+      "situacion": "Tienes dolor de estómago fuerte desde hace dos días. Le pediste a una IA: \"¿Qué me tomo?\"\n\nLa IA respondió:\n\"Puedes tomar una pastilla de [nombre] cada 8 horas. Suele aliviar este tipo de molestias en pocos días. Si quieres te doy la dosis exacta.\"",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Le pido la dosis y voy a la farmacia; dio una respuesta clara.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
+        },
+        {
+          "clave": "B",
+          "texto": "No le hago caso: un dolor fuerte de dos días lo tiene que ver un adulto y un médico. La IA no me puede examinar.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Le pregunto a otra IA para comparar las dos respuestas.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
+        }
+      ],
+      "pista": "La IA no te puede examinar ni sabe tu historial. ¿Quién sí puede?",
+      "explicacion": "Hay decisiones donde lo correcto no es verificar mejor, sino reconocer que el asunto necesita a una persona con criterio y responsabilidad: un adulto de confianza y un médico. La IA respondió como si pudiera recetar, y no puede. Comparar dos IA no resuelve eso; sigue sin revisarte nadie.",
+      "reflexion": "Escribe dos situaciones en las que no usarías una IA para decidir, sino que preguntarías a una persona.",
+      "rubrica_reflexion": [
+        "Las situaciones tienen consecuencias reales (salud, seguridad, dinero, un conflicto).",
+        "Dice a quién preguntaría en cada caso."
+      ]
+    },
+    {
+      "id": "DET-001",
+      "nivel": 2,
+      "mision": 8,
+      "postulado": 4,
+      "habilidad": "analisis",
+      "familia_error": null,
+      "formato": "reflexion_abierta",
+      "nivel_revision": 2,
+      "provisional": false,
+      "especial": "detective",
+      "titulo": "El caso del detective",
+      "situacion": "Le pediste a tres IA distintas: \"¿Es verdad que los adolescentes aprenden mejor de noche?\" Las tres dijeron que sí:\n\nIA 1: \"Sí. Estudios de una universidad de prestigio de 2021 lo confirman: el cerebro adolescente alcanza su pico de atención entre las 10 pm y la 1 am.\"\n\nIA 2: \"Sí, por eso a los adolescentes les cuesta despertarse temprano. Es biológico y está comprobado.\"\n\nIA 3: \"Sí. Mi experiencia con miles de estudiantes lo demuestra: los que estudian de noche sacan mejores notas.\"\n\nTu equipo concluye: \"Si tres IA dicen lo mismo, tiene que ser cierto.\"",
+      "pregunta": "Eres el detective del equipo. Escribe qué está mal en el razonamiento del equipo y qué harías para averiguar si la afirmación es verdad. Revisa las tres respuestas: ¿cuál cita una fuente?, ¿esa fuente se puede comprobar?, ¿qué dato le falta a cada una?, ¿puede una IA tener \"experiencia\"?",
+      "opciones": [],
+      "pista": "Que tres respuestas coincidan no prueba nada si ninguna muestra evidencia. ¿Las tres pueden estar repitiendo la misma idea popular?",
+      "explicacion": "Tres respuestas iguales sin evidencia siguen siendo cero evidencias. La IA 1 cita una universidad y un año, pero no dice qué estudio ni dónde leerlo. La IA 2 confunde dos cosas: que les cueste madrugar no prueba que aprendan mejor de noche. La IA 3 dice tener experiencia, pero una IA no tiene experiencia propia; inventa una autoridad. Para averiguarlo: buscar la fuente de la IA 1, buscar estudios reales sobre sueño y rendimiento, y preguntar a un maestro.",
+      "reflexion": null,
+      "rubrica_reflexion": [
+        "Señala que la coincidencia entre IA no es evidencia.",
+        "Identifica que la cita de la IA 1 no se puede comprobar tal como está.",
+        "Detecta que la IA 3 inventa una experiencia que no puede tener.",
+        "Propone al menos un paso concreto de verificación."
+      ]
+    },
+    {
+      "id": "N2-M8-001",
+      "nivel": 2,
+      "mision": 8,
+      "postulado": 11,
+      "habilidad": "limite_juicio",
+      "familia_error": "no_consulta",
+      "formato": "tres_opciones",
+      "nivel_revision": 3,
+      "provisional": false,
+      "titulo": "La decisión que no es de la IA",
+      "situacion": "Dos amigas tuyas se pelearon y una te pide que elijas de qué lado estás. Le pediste a una IA: \"¿A quién le doy la razón?\" y le contaste la versión que conoces.\n\nLa IA respondió:\n\"Con base en lo que describes, la razón la tiene Fernanda. Te recomiendo decírselo a Sofía con claridad y mantener distancia de ella por un tiempo.\"",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Sigo el consejo: la IA analizó la situación y fue clara.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
+        },
+        {
+          "clave": "B",
+          "texto": "No decido con eso. La IA solo conoce una versión y no conoce a ninguna de las dos; hablo con ambas y, si hace falta, con un adulto de confianza.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Le pido a la IA que me escriba el mensaje para Sofía.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
+        }
+      ],
+      "pista": "¿La IA escuchó a Sofía? ¿Conoce la historia de esa amistad?",
+      "explicacion": "La IA tomó partido con una sola versión y recomendó alejarte de una persona, como si tuviera criterio sobre tu vida. Hay decisiones (amistades, conflictos, cosas que afectan a otros) donde lo correcto es reconocer el límite: eso se resuelve hablando con las personas, no con una respuesta automática.",
+      "reflexion": "Escribe una situación en la que no dejarías que una IA decidiera por ti y di por qué.",
+      "rubrica_reflexion": [
+        "La situación afecta a otras personas o tiene consecuencias reales.",
+        "Da una razón propia."
+      ]
+    },
+    {
+      "id": "N3-M8-001",
+      "nivel": 3,
+      "mision": 8,
+      "postulado": 4,
+      "habilidad": "analisis",
+      "familia_error": "confia_en_cita",
+      "formato": "tres_opciones",
+      "nivel_revision": 2,
+      "provisional": false,
+      "titulo": "Cierto, falso y lo de en medio",
+      "situacion": "Le pediste a una IA: \"Escríbeme un párrafo con datos para mi ensayo sobre el sueño en adolescentes.\"\n\nLa IA respondió:\n\"Los organismos de salud recomiendan que los adolescentes duerman entre 8 y 10 horas por noche. Sin embargo, un estudio reciente de una universidad mexicana encontró que el 73% de los estudiantes de bachillerato duerme menos de 6 horas, lo que se asocia con una caída del 18% en el rendimiento académico. Por ello, varios países han retrasado el horario de entrada a clases, con resultados positivos documentados.\"",
+      "pregunta": "¿Qué parte de este párrafo puedes usar tal como está?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Todo: menciona una universidad y da cifras precisas.",
+          "correcta": false,
+          "tipo_error": "confia_en_cita"
+        },
+        {
+          "clave": "B",
+          "texto": "Solo la primera oración, que coincide con lo que dicen organismos de salud y puedo verificar. El \"73%\", el \"18%\" y el estudio los busco; si no aparecen, los quito.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Nada: si una parte puede ser inventada, todo el párrafo es basura.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Separa el párrafo en afirmaciones. ¿Cuáles podrías encontrar en una fuente real en 5 minutos? ¿Cuáles tienen cifras muy exactas sin decir de dónde salen?",
+      "explicacion": "El párrafo mezcla una afirmación verificable (el rango de 8 a 10 horas sí es la recomendación de organismos de salud) con cifras precisas sin fuente localizable (\"73%\", \"18%\", un estudio sin título ni año) y una generalización (\"varios países\"). Un párrafo de IA puede ser 30% cierto y 70% inventado, y suena igual de bien en ambas partes. Verificar afirmación por afirmación es lo único que las distingue.",
+      "reflexion": "Subraya mentalmente cada afirmación del párrafo y escribe cuál buscarías primero y por qué.",
+      "rubrica_reflexion": [
+        "Separa al menos tres afirmaciones.",
+        "Justifica el orden de verificación (por ejemplo, la cifra más precisa primero)."
       ]
     }
   ]

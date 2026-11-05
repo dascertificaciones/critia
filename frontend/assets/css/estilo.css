@@ -176,3 +176,9 @@ input[type=range] { width: 100%; accent-color: var(--ambar); margin: 10px 0 4px;
   .institucion { flex-direction: column; align-items: flex-start; gap: 8px; }
   .institucion img { width: 130px; }
 }
+
+/* Habilidad del marco teórico mostrada al cierre del caso */
+.habilidad-caja{display:flex;gap:12px;align-items:flex-start;margin:14px 0 6px;padding:12px 14px;border:1.5px dashed var(--hierba);border-radius:10px;background:rgba(79,122,74,.07);font-size:15px}
+.habilidad-caja .icono{width:26px;height:26px;flex:none;color:var(--hierba)}
+.habilidad-caja .icono svg{width:26px;height:26px}
+.habilidad-caja:empty{display:none}
