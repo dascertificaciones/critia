@@ -4,6 +4,10 @@ Tutor gamificado de pensamiento crítico y uso responsable de IA, para estudiant
 
 **Cómo se usa en clase:** antes de dejar una investigación, el docente define el mapa según su tema; los alumnos entrenan la habilidad de pensamiento crítico con respuestas de IA, reciben pistas (nunca la solución) y ganan la insignia; después entregan la tarea real. El docente ve en qué conceptos necesita apoyo cada estudiante.
 
+## Alcance
+
+Critia es un prototipo presentado en Hack4Edu 2026. No ha pasado por un piloto con estudiantes ni cuenta con evidencia de eficacia educativa. Registra el proceso de cada decisión (respuesta inicial, confianza, pista, revisión, reflexión) para que el docente lo consulte; que un alumno corrija tras la pista muestra revisión en ese caso, no transferencia a casos nuevos. El tutor no interpreta el razonamiento escrito, no verifica fuentes en internet, no detecta contenido manipulado y no sustituye al docente. Funciona con un servidor accesible por red (no es una aplicación sin conexión); la generación de casos requiere un proveedor externo.
+
 ## Correr en local
 
     cd backend
