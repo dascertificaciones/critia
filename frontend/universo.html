@@ -16,6 +16,10 @@
   .tot .cifras { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--tinta-suave); margin-top: 2px; }
   .tot .cifras b { display: block; font-family: var(--serif); font-size: 22px; color: var(--tinta); line-height: 1.1; }
   .tot .corona { position: absolute; top: 8px; right: 10px; width: 22px; height: 22px; color: var(--sello); }
+  .continente-caja { position: relative; margin-top: 18px; border: var(--trazo) solid var(--tinta); border-radius: var(--r); overflow: hidden; background: #E9DFC6; }
+  .continente-caja canvas { width: 100%; height: auto; display: block; cursor: crosshair; }
+  .tooltip { display: none; position: absolute; background: var(--tinta); color: var(--papel); font-size: 13px; padding: 6px 10px; border-radius: 6px; pointer-events: none; white-space: nowrap; z-index: 3; }
+  .resumen-regiones { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 14px; }
   .region { margin-top: 26px; border: var(--trazo) solid var(--tinta); border-radius: var(--r); background: var(--papel-2, #EAE2D0); padding: 16px 18px 18px; position: relative; }
   .region-cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
   .region-cab h2 { margin: 0; font-size: 24px; }
@@ -54,6 +58,10 @@
   <div class="leyenda"><span><i style="background:#fff;border-style:dashed"></i>Neutral</span><span><i style="background:repeating-linear-gradient(45deg,#fff 0 3px,#999 3px 5px)"></i>En disputa (empate)</span><span><i style="background:var(--azul)"></i>Conquistado</span></div>
 
   <div class="totales" id="totales"></div>
+  <div class="continente-caja">
+    <canvas id="continente"></canvas>
+    <div class="tooltip" id="tip"></div>
+  </div>
   <div id="regiones"></div>
   <div class="pie" style="margin-top:16px;color:var(--tinta-suave);font-size:13px" id="hora"></div>
   <div class="pie-inst"><img src="assets/img/udemex.png" alt="Universidad Digital del Estado de México"><span>Hack4Edu 2026</span></div>
@@ -86,6 +94,90 @@ function territorioSvg(i, dueno, disputa) {
   </svg>`;
 }
 const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+
+// ---------- Continente: una región por materia, 8 provincias por región ----------
+const IMG = {}; Object.keys(COLOR).forEach(e => { const i = new Image(); i.src = ESCUDO(e); IMG[e] = i; });
+function rng(seed) { let t = seed >>> 0; return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296; }; }
+const TINTE = { rojo: [200, 64, 47], azul: [47, 95, 168], verde: [79, 122, 74], violeta: [107, 45, 158] };
+let ULTIMO = null;
+function dibujarContinente(u, misNombre) {
+  const cv = document.getElementById('continente'); if (!u.mapas.length) { cv.style.display = 'none'; return; }
+  cv.style.display = 'block';
+  const W = 1100, H = 700, S = 2; cv.width = W * S; cv.height = H * S;
+  const ctx = cv.getContext('2d'); ctx.setTransform(S, 0, 0, S, 0, 0);
+  const N = u.mapas.length, cx = W / 2, cy = H / 2 + 6, R = Math.min(W, H) * 0.46;
+  const r0 = rng(u.grupo.codigo.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7));
+  const fa = r0() * 6.3, fb = r0() * 6.3, fc = r0() * 6.3;
+  // semillas de región: en círculo alrededor del centro (una sola región = centro)
+  const regiones = u.mapas.map((m, i) => { const rr = rng(m.id * 7919 + 13); const ang = (i / N) * Math.PI * 2 + fa; const d = N === 1 ? 0 : R * (0.42 + 0.1 * rr());
+    const sx = cx + Math.cos(ang) * d, sy = cy + Math.sin(ang) * d * 0.92;
+    const prov = []; const esc = N === 1 ? R : R * 0.5;
+    for (let k = 0; k < 3; k++) { const a2 = (k / 3) * Math.PI * 2 + rr() * 0.8; const dd = esc * (0.18 + 0.14 * rr()); prov.push([sx + Math.cos(a2) * dd, sy + Math.sin(a2) * dd * 0.9]); }
+    for (let k = 0; k < 5; k++) { const a2 = (k / 5) * Math.PI * 2 + 0.6 + rr() * 0.5; const dd = esc * (0.62 + 0.3 * rr()); prov.push([sx + Math.cos(a2) * dd, sy + Math.sin(a2) * dd * 0.9]); }
+    return { sx, sy, prov, m }; });
+  const warp = (x, y) => [x + 16 * Math.sin(y * 0.021 + fb) + 7 * Math.sin(y * 0.071 + fc), y + 16 * Math.sin(x * 0.019 + fc) + 7 * Math.cos(x * 0.063 + fa)];
+  const dentro = (x, y) => { const [wx, wy] = warp(x, y); const dx = (wx - cx) / 1.18, dy = wy - cy; const th = Math.atan2(dy, dx); const rad = R * (0.86 + 0.09 * Math.sin(3 * th + fa) + 0.06 * Math.sin(7 * th + fb) + 0.03 * Math.sin(13 * th + fc)); return Math.hypot(dx, dy) < rad; };
+  const img = ctx.createImageData(W, H), px = img.data;
+  const reg = new Int16Array(W * H).fill(-1), ter = new Int8Array(W * H).fill(-1);
+  const papel = [250, 246, 236];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, o = i * 4;
+    if (!dentro(x, y)) { px[o] = 233; px[o + 1] = 223; px[o + 2] = 198; px[o + 3] = 255; continue; }
+    const [wx, wy] = warp(x, y);
+    let bi = 0, bd = 1e12; regiones.forEach((r, k) => { const d = (wx - r.sx) ** 2 + (wy - r.sy) ** 2; if (d < bd) { bd = d; bi = k; } });
+    let bt = 0, btd = 1e12; regiones[bi].prov.forEach((p, k) => { const d = (wx - p[0]) ** 2 + (wy - p[1]) ** 2; if (d < btd) { btd = d; bt = k; } });
+    reg[i] = bi; ter[i] = bt;
+    const t = regiones[bi].m.territorios[bt]; const col = t.dueno ? TINTE[t.dueno] : papel;
+    const sh = t.dueno ? 0.82 + 0.14 * ((bt % 3) / 2) : 1; const ray = t.disputa && (((x + y) >> 2) % 3 === 0);
+    px[o] = ray ? 150 : col[0] * sh; px[o + 1] = ray ? 143 : col[1] * sh; px[o + 2] = ray ? 130 : col[2] * sh; px[o + 3] = 255;
+  }
+  // fronteras: gruesas entre regiones y costa, finas entre provincias
+  for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) {
+    const i = y * W + x, o = i * 4; const r = reg[i];
+    const n = [reg[i - 1], reg[i + 1], reg[i - W], reg[i + W], reg[i - 2], reg[i + 2], reg[i - 2 * W], reg[i + 2 * W]];
+    if (n.some(v => v !== r)) { px[o] = 31; px[o + 1] = 42; px[o + 2] = 68; }
+    else if (r >= 0) { const t = ter[i]; if ([ter[i - 1], ter[i + 1], ter[i - W], ter[i + W]].some(v => v !== t)) { px[o] = 52; px[o + 1] = 58; px[o + 2] = 80; } }
+  }
+  // tmp canvas para pintar la imagen a escala
+  const tmp = document.createElement('canvas'); tmp.width = W; tmp.height = H; tmp.getContext('2d').putImageData(img, 0, 0);
+  ctx.imageSmoothingEnabled = true; ctx.drawImage(tmp, 0, 0, W, H);
+  // sombra de costa
+  ctx.save(); ctx.globalAlpha = 0.25; ctx.strokeStyle = '#7a6a4a'; ctx.lineWidth = 6; ctx.setLineDash([2, 6]);
+  ctx.beginPath(); for (let a = 0; a <= 360; a += 2) { const th = a * Math.PI / 180; const rad = R * (0.86 + 0.09 * Math.sin(3 * th + fa) + 0.06 * Math.sin(7 * th + fb) + 0.03 * Math.sin(13 * th + fc)) + 10; const x = cx + Math.cos(th) * rad * 1.18, y = cy + Math.sin(th) * rad; a ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); ctx.restore();
+  // centroides de provincias y regiones
+  const cen = regiones.map(() => Array.from({ length: 8 }, () => [0, 0, 0]));
+  const rc = regiones.map(() => [0, 0, 0, H]);
+  for (let i = 0; i < W * H; i++) { const r = reg[i]; if (r < 0) continue; const x = i % W, y = (i / W) | 0; const c = cen[r][ter[i]]; c[0] += x; c[1] += y; c[2]++; rc[r][0] += x; rc[r][1] += y; rc[r][2]++; if (y < rc[r][3]) rc[r][3] = y; }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  regiones.forEach((r, k) => {
+    cen[k].forEach((c, t) => { if (!c[2]) return; const x = c[0] / c[2], y = c[1] / c[2]; const T = r.m.territorios[t];
+      ctx.fillStyle = T.dueno ? 'rgba(255,255,255,.92)' : '#1F2A44'; ctx.font = '700 13px "Atkinson Hyperlegible", sans-serif';
+      ctx.fillText(`Misión ${T.mision}`, x, y - 7); ctx.font = '400 11px "Atkinson Hyperlegible", sans-serif'; ctx.globalAlpha = .85; ctx.fillText(T.dueno ? `${cap(T.dueno)} · ${T.puntos[T.dueno]}` : (T.disputa ? 'en disputa' : (misNombre[T.mision] || '')), x, y + 7); ctx.globalAlpha = 1; });
+    if (!rc[k][2]) return; const x = Math.min(W - 150, Math.max(150, rc[k][0] / rc[k][2])), y = Math.max(44, rc[k][3] + 10);
+    // nombre de la región en cinta, sobre el borde superior de la región
+    ctx.font = '700 20px Fraunces, Georgia, serif'; const nombre = r.m.nombre; const tw = ctx.measureText(nombre).width + 28;
+    ctx.fillStyle = 'rgba(255,253,247,.94)'; ctx.strokeStyle = '#1F2A44'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(x - tw / 2, y - 16, tw, 32, 5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#1F2A44'; ctx.fillText(nombre, x, y + 1);
+    ctx.font = '400 11px "Atkinson Hyperlegible", sans-serif'; ctx.fillStyle = '#5a6176'; ctx.fillText(`mapa de ${r.m.docente}`, x, y + 27);
+    if (r.m.dueno && IMG[r.m.dueno].complete) ctx.drawImage(IMG[r.m.dueno], x - tw / 2 - 48, y - 24, 44, 48);
+  });
+  // rosa de los vientos
+  ctx.save(); ctx.translate(W - 60, H - 60); ctx.strokeStyle = '#1F2A44'; ctx.fillStyle = '#1F2A44'; ctx.lineWidth = 1.5;
+  for (let a = 0; a < 4; a++) { ctx.beginPath(); ctx.moveTo(0, -30); ctx.lineTo(6, 0); ctx.lineTo(0, 30); ctx.lineTo(-6, 0); ctx.closePath(); ctx.stroke(); ctx.rotate(Math.PI / 4); }
+  ctx.font = '700 12px Fraunces, serif'; ctx.fillText('N', 0, -40); ctx.restore();
+  ULTIMO = { reg, ter, regiones, W, H };
+}
+document.getElementById('continente').addEventListener('mousemove', ev => {
+  const tip = document.getElementById('tip'); if (!ULTIMO) return;
+  const cv = ev.currentTarget, rect = cv.getBoundingClientRect(); const x = Math.floor((ev.clientX - rect.left) / rect.width * ULTIMO.W), y = Math.floor((ev.clientY - rect.top) / rect.height * ULTIMO.H);
+  const i = y * ULTIMO.W + x; const r = ULTIMO.reg[i];
+  if (r < 0 || r === undefined) { tip.style.display = 'none'; return; }
+  const T = ULTIMO.regiones[r].m.territorios[ULTIMO.ter[i]];
+  tip.style.display = 'block'; tip.style.left = (ev.clientX - rect.left + 14) + 'px'; tip.style.top = (ev.clientY - rect.top + 14) + 'px';
+  tip.textContent = `${ULTIMO.regiones[r].m.nombre} · Misión ${T.mision}: ` + Object.entries(T.puntos).map(([e, v]) => `${cap(e)} ${v}`).join(' · ');
+});
+document.getElementById('continente').addEventListener('mouseleave', () => { document.getElementById('tip').style.display = 'none'; });
 async function pintar() {
   if (!grupo) { document.getElementById('sub').textContent = 'Falta el código de grupo.'; return; }
   const u = await api(`/universo/${grupo}`);
@@ -97,27 +189,18 @@ async function pintar() {
       <div class="cifras"><span><b>${t.territorios}</b>territorios</span><span><b>${t.materias}</b>materias</span><span><b>${t.insignias}</b>insignias</span><span><b>${u.alumnos[e] || 0}</b>jugadores</span></div></div>
       ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>`; }).join('');
   const misNombre = Object.fromEntries(u.misiones.map(m => [m.n, m.nombre]));
-  document.getElementById('regiones').innerHTML = u.mapas.length ? u.mapas.map(m => `
-    <section class="region">
-      <div class="region-cab">
-        <div><h2>${m.nombre}</h2><div class="prof">Mapa de ${m.docente}</div></div>
-        ${m.dueno ? `<div class="dueno">${escudoHtml(m.dueno)}Materia dominada por el equipo ${cap(m.dueno)}</div>` : `<div class="dueno neutral">Materia sin dueño: se decide por insignias</div>`}
-      </div>
-      <div class="territorios">
-        ${m.territorios.map((t, i) => { const tot = Object.values(t.puntos).reduce((a, b) => a + b, 0); return `
-          <div class="terr ${t.dueno ? t.dueno : 'neutral'}">
-            ${territorioSvg(i, t.dueno, t.disputa)}
-            ${t.dueno ? escudoHtml(t.dueno, 'escudo escudo-terr') : ''}
-            <div class="pts">${t.dueno ? t.puntos[t.dueno] : (t.disputa ? 'en disputa' : (tot ? '' : 'sin explorar'))}</div>
-            <div class="detalle">${Object.entries(t.puntos).map(([e, v]) => `${cap(e)} ${v}`).join(' · ')}</div>
-            <div class="cinta">Misión ${t.mision}<small>${misNombre[t.mision] || ''}</small></div>
-          </div>`; }).join('')}
-      </div>
-      <div class="insig-row">Insignias en esta materia: ${Object.entries(m.insignias).map(([e, v]) => `<span>${escudoHtml(e)}${v}</span>`).join('')}</div>
-    </section>`).join('') : '<div class="vacio" style="margin-top:20px">Este grupo todavía no tiene mapas.</div>';
+  dibujarContinente(u, misNombre);
+  document.getElementById('regiones').innerHTML = u.mapas.length ? `<div class="resumen-regiones">${u.mapas.map(m => `
+    <div class="reflexion-card" style="margin:0;background:#fff;border:1.5px solid var(--tinta);border-radius:10px;padding:10px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div><b style="font-family:var(--serif);font-size:17px">${m.nombre}</b><div class="peq suave">Mapa de ${m.docente}</div></div>
+      ${m.dueno ? `<div class="dueno" style="padding:4px 10px">${escudoHtml(m.dueno)}${cap(m.dueno)}</div>` : '<div class="dueno neutral" style="padding:4px 10px">sin dueño</div>'}</div>
+      <div class="insig-row" style="margin-top:8px">Territorios: ${Object.keys(COLOR).map(e => `<span>${escudoHtml(e)}${m.territorios.filter(t => t.dueno === e).length}</span>`).join('')}</div>
+      <div class="insig-row" style="margin-top:4px">Insignias: ${Object.entries(m.insignias).map(([e, v]) => `<span>${escudoHtml(e)}${v}</span>`).join('')}</div>
+    </div>`).join('')}</div>` : '<div class="vacio" style="margin-top:20px">Este grupo todavía no tiene mapas.</div>';
   document.getElementById('hora').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX') + ' · se actualiza solo cada 20 segundos';
 }
 pintar();
+Object.values(IMG).forEach(i => i.addEventListener('load', () => { if (ULTIMO) pintar(); }, { once: true }));
 setInterval(pintar, 20000);
 </script>
 </body>
