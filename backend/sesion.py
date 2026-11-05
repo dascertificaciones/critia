@@ -14,11 +14,11 @@ def _validar_conf(c):
     return c
 
 
-def abrir(seudonimo, caso_id):
+def abrir(seudonimo, caso_id, mapa_id=None):
     casos, _ = motor.cargar_casos()
     caso = casos[caso_id]
-    abierto = historial.intento_abierto(seudonimo, caso_id)
-    intento_id = abierto["id"] if abierto else historial.abrir_intento(seudonimo, caso_id, caso.get("familia_error"))
+    abierto = historial.intento_abierto(seudonimo, caso_id, mapa_id)
+    intento_id = abierto["id"] if abierto else historial.abrir_intento(seudonimo, caso_id, caso.get("familia_error"), mapa_id)
     return {"intento_id": intento_id, "caso": motor.caso_para_alumno(caso),
             "retomado": bool(abierto and abierto.get("clave_ini"))}
 

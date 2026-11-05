@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Ruta de la base de datos. Se puede cambiar con la variable de entorno SEXTO_DB.
 DB = Path(os.environ.get("SEXTO_DB", Path(__file__).parent / "historial.db"))
-EQUIPOS = ["rojo", "azul", "verde", "amarillo"]
+EQUIPOS = ["rojo", "azul", "verde", "violeta"]
 
 ESQUEMA = """
 CREATE TABLE IF NOT EXISTS alumnos (
@@ -81,20 +81,20 @@ def obtener_alumno(seudonimo):
 
 
 # ---------- Intentos ----------
-def abrir_intento(seudonimo, caso_id, familia_caso):
+def abrir_intento(seudonimo, caso_id, familia_caso, mapa_id=None):
     with conectar() as con:
         cur = con.execute(
-            "INSERT INTO intentos (seudonimo, caso_id, familia_caso, inicio) VALUES (?,?,?,?)",
-            (seudonimo, caso_id, familia_caso, ahora()))
+            "INSERT INTO intentos (seudonimo, caso_id, familia_caso, inicio, mapa_id) VALUES (?,?,?,?,?)",
+            (seudonimo, caso_id, familia_caso, ahora(), mapa_id))
         return cur.lastrowid
 
 
-def intento_abierto(seudonimo, caso_id):
-    """Intento sin cerrar para ese alumno y caso (permite retomar)."""
+def intento_abierto(seudonimo, caso_id, mapa_id=None):
+    """Intento sin cerrar para ese alumno, caso y mapa (permite retomar)."""
     with conectar() as con:
         r = con.execute(
-            "SELECT * FROM intentos WHERE seudonimo=? AND caso_id=? AND cierre IS NULL ORDER BY id DESC LIMIT 1",
-            (seudonimo, caso_id)).fetchone()
+            "SELECT * FROM intentos WHERE seudonimo=? AND caso_id=? AND cierre IS NULL AND (mapa_id IS ? OR ?) ORDER BY id DESC LIMIT 1",
+            (seudonimo, caso_id, mapa_id, mapa_id is None)).fetchone()
         return dict(r) if r else None
 
 
@@ -149,11 +149,14 @@ def _bien_revisado(sentidos, eval_ini):
     return eval_ini == "correcta" or "revisar" in sentidos
 
 
-def progreso_alumno(seudonimo, casos_por_postulado=None):
+def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
+    """Progreso del alumno. Con mapa_id, solo los intentos e insignias de ese mapa."""
+    fm = " AND mapa_id=?" if mapa_id else ""
+    pm = (mapa_id,) if mapa_id else ()
     with conectar() as con:
-        rows = con.execute("""SELECT caso_id, sentidos, eval_ini, eval_fin FROM intentos
-                              WHERE seudonimo=? AND cierre IS NOT NULL ORDER BY cierre""",
-                           (seudonimo,)).fetchall()
+        rows = con.execute(f"""SELECT caso_id, sentidos, eval_ini, eval_fin FROM intentos
+                              WHERE seudonimo=? AND cierre IS NOT NULL{fm} ORDER BY cierre""",
+                           (seudonimo,) + pm).fetchall()
         casos, total, racha, mejor_racha = {}, 0, 0, 0
         avance = {}
         for r in rows:
@@ -169,7 +172,7 @@ def progreso_alumno(seudonimo, casos_por_postulado=None):
                 p = casos_por_postulado.get(r["caso_id"])
                 if p:
                     avance.setdefault(str(p), set()).add(r["caso_id"])
-        ins = [r["postulado"] for r in con.execute("SELECT postulado FROM insignias WHERE seudonimo=?", (seudonimo,))]
+        ins = [r["postulado"] for r in con.execute(f"SELECT postulado FROM insignias WHERE seudonimo=?{fm}", (seudonimo,) + pm)]
         return {
             "casos": casos,
             "sentidos_total": total,
@@ -205,9 +208,10 @@ def tablero_equipos():
 
 
 # ---------- Docente ----------
-def otorgar_insignia(seudonimo, postulado, por="docente"):
+def otorgar_insignia(seudonimo, postulado, por="docente", mapa_id=None):
     with conectar() as con:
-        con.execute("INSERT OR REPLACE INTO insignias VALUES (?,?,?,?)", (seudonimo, postulado, ahora(), por))
+        con.execute("INSERT OR REPLACE INTO insignias (seudonimo, postulado, mapa_id, otorgada, por) VALUES (?,?,?,?,?)",
+                    (seudonimo, postulado, mapa_id or 0, ahora(), por))
 
 
 def sugerencias_insignia(casos_por_postulado):
@@ -339,6 +343,27 @@ CREATE TABLE IF NOT EXISTS casos_grupo (
 """
 
 
+ESQUEMA_V3 = """
+CREATE TABLE IF NOT EXISTS docentes_grupo (
+    usuario   TEXT NOT NULL,
+    codigo    TEXT NOT NULL,
+    PRIMARY KEY (usuario, codigo)
+);
+CREATE TABLE IF NOT EXISTS mapas (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo    TEXT NOT NULL,
+    docente   TEXT NOT NULL,
+    nombre    TEXT NOT NULL,
+    creado    TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS casos_mapa (
+    caso_id   TEXT NOT NULL,
+    mapa_id   INTEGER NOT NULL,
+    PRIMARY KEY (caso_id, mapa_id)
+);
+"""
+
+
 def _migrar():
     with conectar() as con:
         con.executescript(ESQUEMA_V2)
@@ -348,6 +373,35 @@ def _migrar():
         cols = [r[1] for r in con.execute("PRAGMA table_info(grupos)")]
         if "nivel" not in cols:
             con.execute("ALTER TABLE grupos ADD COLUMN nivel INTEGER DEFAULT 2")
+        # ---- V3: grupos compartidos, mapas por docente, territorio ----
+        con.executescript(ESQUEMA_V3)
+        cols = [r[1] for r in con.execute("PRAGMA table_info(intentos)")]
+        if "mapa_id" not in cols:
+            con.execute("ALTER TABLE intentos ADD COLUMN mapa_id INTEGER")
+        cols = [r[1] for r in con.execute("PRAGMA table_info(insignias)")]
+        if "mapa_id" not in cols:
+            con.executescript("""
+                CREATE TABLE insignias_v3 (
+                    seudonimo TEXT NOT NULL, postulado INTEGER NOT NULL, mapa_id INTEGER NOT NULL DEFAULT 0,
+                    otorgada TEXT NOT NULL, por TEXT, PRIMARY KEY (seudonimo, postulado, mapa_id));
+                INSERT INTO insignias_v3 (seudonimo, postulado, mapa_id, otorgada, por)
+                    SELECT seudonimo, postulado, 0, otorgada, por FROM insignias;
+                DROP TABLE insignias; ALTER TABLE insignias_v3 RENAME TO insignias;""")
+        con.execute("UPDATE alumnos SET equipo='violeta' WHERE equipo='amarillo'")
+        # el creador de cada grupo es miembro
+        con.execute("INSERT OR IGNORE INTO docentes_grupo SELECT docente, codigo FROM grupos")
+        # cada grupo sin mapas recibe un mapa inicial y hereda sus casos, intentos e insignias
+        for g in con.execute("SELECT codigo, docente FROM grupos").fetchall():
+            if con.execute("SELECT 1 FROM mapas WHERE codigo=?", (g["codigo"],)).fetchone():
+                continue
+            cur = con.execute("INSERT INTO mapas (codigo, docente, nombre, creado) VALUES (?,?,?,?)",
+                              (g["codigo"], g["docente"], "Expedición", ahora()))
+            mid = cur.lastrowid
+            con.execute("INSERT OR IGNORE INTO casos_mapa SELECT caso_id, ? FROM casos_grupo WHERE codigo=?", (mid, g["codigo"]))
+            con.execute("""UPDATE intentos SET mapa_id=? WHERE mapa_id IS NULL AND seudonimo IN
+                           (SELECT seudonimo FROM alumnos WHERE grupo=?)""", (mid, g["codigo"]))
+            con.execute("""UPDATE insignias SET mapa_id=? WHERE mapa_id=0 AND seudonimo IN
+                           (SELECT seudonimo FROM alumnos WHERE grupo=?)""", (mid, g["codigo"]))
 
 
 _migrar()
@@ -382,7 +436,7 @@ def cambiar_password(usuario, password):
 def listar_docentes():
     with conectar() as con:
         return [dict(r) for r in con.execute("""SELECT d.usuario, d.nombre, d.creado, d.activo,
-                    (SELECT COUNT(*) FROM grupos g WHERE g.docente=d.usuario) grupos FROM docentes d ORDER BY d.nombre""")]
+                    (SELECT COUNT(*) FROM docentes_grupo g WHERE g.usuario=d.usuario) grupos FROM docentes d ORDER BY d.nombre""")]
 
 
 def activar_docente(usuario, activo):
@@ -432,13 +486,68 @@ def crear_grupo(docente, nombre, nivel=2):
                 break
         con.execute("INSERT INTO grupos (codigo, nombre, docente, creado, nivel) VALUES (?,?,?,?,?)",
                     (cod, nombre.strip(), docente, ahora(), nivel))
+        con.execute("INSERT OR IGNORE INTO docentes_grupo VALUES (?,?)", (docente, cod))
         return {"codigo": cod, "nombre": nombre.strip(), "docente": docente, "nivel": nivel}
 
 
-def grupos_de(docente):
+def grupos_de(docente=None):
+    """Grupos del docente (por membresía). Sin docente: todos. Cada grupo trae sus mapas y profesores."""
     with conectar() as con:
-        return [dict(r) for r in con.execute("""SELECT g.*, (SELECT COUNT(*) FROM alumnos a WHERE a.grupo=g.codigo) alumnos
-                    FROM grupos g WHERE g.docente=? ORDER BY g.creado""", (docente,))]
+        if docente:
+            rows = con.execute("""SELECT g.*, (SELECT COUNT(*) FROM alumnos a WHERE a.grupo=g.codigo) alumnos
+                        FROM grupos g JOIN docentes_grupo dg ON dg.codigo=g.codigo WHERE dg.usuario=? ORDER BY g.creado""", (docente,))
+        else:
+            rows = con.execute("""SELECT g.*, (SELECT COUNT(*) FROM alumnos a WHERE a.grupo=g.codigo) alumnos
+                        FROM grupos g ORDER BY g.creado""")
+        out = []
+        for r in rows:
+            g = dict(r)
+            g["mapas"] = mapas_de_grupo(g["codigo"])
+            g["profesores"] = [dict(x) for x in con.execute("""SELECT d.usuario, d.nombre FROM docentes_grupo dg
+                        JOIN docentes d ON d.usuario=dg.usuario WHERE dg.codigo=? ORDER BY d.nombre""", (g["codigo"],))]
+            out.append(g)
+        return out
+
+
+def unirse_grupo(docente, codigo):
+    g = grupo(codigo)
+    if not g:
+        raise ValueError("Ese código de grupo no existe")
+    with conectar() as con:
+        con.execute("INSERT OR IGNORE INTO docentes_grupo VALUES (?,?)", (docente, g["codigo"]))
+    return g
+
+
+def es_miembro(docente, codigo):
+    with conectar() as con:
+        return bool(con.execute("SELECT 1 FROM docentes_grupo WHERE usuario=? AND codigo=?", (docente, (codigo or "").upper())).fetchone())
+
+
+# ---------- Mapas (uno por docente/materia dentro de un grupo) ----------
+def mapas_de_grupo(codigo):
+    with conectar() as con:
+        return [dict(r) for r in con.execute("""SELECT m.*, d.nombre docente_nombre,
+                    (SELECT COUNT(*) FROM casos_mapa c WHERE c.mapa_id=m.id) casos_propios
+                    FROM mapas m LEFT JOIN docentes d ON d.usuario=m.docente WHERE m.codigo=? ORDER BY m.creado""", (codigo,))]
+
+
+def mapa(mapa_id):
+    with conectar() as con:
+        r = con.execute("SELECT * FROM mapas WHERE id=?", (mapa_id,)).fetchone()
+        return dict(r) if r else None
+
+
+def crear_mapa(codigo, docente, nombre):
+    with conectar() as con:
+        cur = con.execute("INSERT INTO mapas (codigo, docente, nombre, creado) VALUES (?,?,?,?)",
+                          (codigo.upper(), docente, nombre.strip(), ahora()))
+        con.commit()
+        return dict(con.execute("SELECT * FROM mapas WHERE id=?", (cur.lastrowid,)).fetchone())
+
+
+def renombrar_mapa(mapa_id, nombre):
+    with conectar() as con:
+        con.execute("UPDATE mapas SET nombre=? WHERE id=?", (nombre.strip(), mapa_id))
 
 
 def grupo(codigo):
@@ -465,6 +574,7 @@ def registrar_alumno_en_grupo(seudonimo, equipo, codigo):
     a["grupo"] = g["codigo"]
     a["grupo_nombre"] = g["nombre"]
     a["nivel"] = g.get("nivel") or 2
+    a["mapas"] = [{"id": m["id"], "nombre": m["nombre"], "docente": m["docente_nombre"] or m["docente"]} for m in mapas_de_grupo(g["codigo"])]
     return a
 
 
@@ -481,21 +591,71 @@ def nivel_de_alumno(seudonimo):
     return (g.get("nivel") or 2) if g else None
 
 
-# ---------- Casos ↔ grupo ----------
-def asignar_caso(caso_id, codigos):
+# ---------- Casos ↔ mapa ----------
+def asignar_caso(caso_id, mapa_ids):
     with conectar() as con:
-        con.execute("DELETE FROM casos_grupo WHERE caso_id=?", (caso_id,))
-        con.executemany("INSERT OR IGNORE INTO casos_grupo VALUES (?,?)", [(caso_id, c) for c in codigos])
+        con.execute("DELETE FROM casos_mapa WHERE caso_id=?", (caso_id,))
+        con.executemany("INSERT OR IGNORE INTO casos_mapa VALUES (?,?)", [(caso_id, int(m)) for m in mapa_ids])
 
 
-def casos_del_grupo(codigo):
+def casos_del_mapa(mapa_id):
     with conectar() as con:
-        return {r["caso_id"] for r in con.execute("SELECT caso_id FROM casos_grupo WHERE codigo=?", (codigo,))}
+        return {r["caso_id"] for r in con.execute("SELECT caso_id FROM casos_mapa WHERE mapa_id=?", (mapa_id,))}
 
 
-def grupos_del_caso(caso_id):
+def mapas_del_caso(caso_id):
     with conectar() as con:
-        return [r["codigo"] for r in con.execute("SELECT codigo FROM casos_grupo WHERE caso_id=?", (caso_id,))]
+        return [r["mapa_id"] for r in con.execute("SELECT mapa_id FROM casos_mapa WHERE caso_id=?", (caso_id,))]
+
+
+# ---------- Universo: territorios por mapa ----------
+def universo(codigo, mision_de_caso):
+    """Para cada mapa del grupo: sentidos por equipo en cada misión (territorio) e insignias por equipo.
+    mision_de_caso: {caso_id: mision}."""
+    g = grupo(codigo)
+    if not g:
+        return None
+    with conectar() as con:
+        alumnos_eq = {e: 0 for e in EQUIPOS}
+        for r in con.execute("SELECT equipo, COUNT(*) n FROM alumnos WHERE grupo=? GROUP BY equipo", (g["codigo"],)):
+            alumnos_eq[r["equipo"]] = r["n"]
+        mapas = mapas_de_grupo(g["codigo"])
+        salida = []
+        totales = {e: {"territorios": 0, "insignias": 0, "sentidos": 0, "materias": 0} for e in EQUIPOS}
+        for m in mapas:
+            terr = {}
+            for r in con.execute("""SELECT a.equipo, i.caso_id, i.sentidos FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                    WHERE i.cierre IS NOT NULL AND a.grupo=? AND i.mapa_id=?""", (g["codigo"], m["id"])):
+                mis = mision_de_caso.get(r["caso_id"])
+                if not mis:
+                    continue
+                n = len(json.loads(r["sentidos"] or "[]"))
+                terr.setdefault(mis, {e: 0 for e in EQUIPOS})[r["equipo"]] += n
+                totales[r["equipo"]]["sentidos"] += n
+            ins = {e: 0 for e in EQUIPOS}
+            for r in con.execute("""SELECT a.equipo, COUNT(*) n FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                    WHERE a.grupo=? AND i.mapa_id=? GROUP BY a.equipo""", (g["codigo"], m["id"])):
+                ins[r["equipo"]] = r["n"]
+            territorios = []
+            for mis in range(1, 9):
+                pts = terr.get(mis, {e: 0 for e in EQUIPOS})
+                top = max(pts.values()) if pts else 0
+                lideres = [e for e, v in pts.items() if v == top and v > 0]
+                dueno = lideres[0] if len(lideres) == 1 else None
+                if dueno:
+                    totales[dueno]["territorios"] += 1
+                territorios.append({"mision": mis, "dueno": dueno, "disputa": len(lideres) > 1, "puntos": pts})
+            top = max(ins.values())
+            lid = [e for e, v in ins.items() if v == top and v > 0]
+            dueno_materia = lid[0] if len(lid) == 1 else None
+            if dueno_materia:
+                totales[dueno_materia]["materias"] += 1
+            for e in EQUIPOS:
+                totales[e]["insignias"] += ins[e]
+            salida.append({"id": m["id"], "nombre": m["nombre"], "docente": m["docente_nombre"] or m["docente"],
+                           "territorios": territorios, "insignias": ins, "dueno": dueno_materia})
+        return {"grupo": {"codigo": g["codigo"], "nombre": g["nombre"], "nivel": g.get("nivel") or 2},
+                "alumnos": alumnos_eq, "mapas": salida, "totales": totales}
 
 
 # ---------- Vistas filtradas por grupo ----------
@@ -507,19 +667,21 @@ def _filtro_grupos(codigos):
     return f" AND a.grupo IN ({','.join('?'*len(codigos))})", tuple(codigos)
 
 
-def tablero_equipos_grupo(codigo):
+def tablero_equipos_grupo(codigo, mapa_id=None):
+    fm = " AND i.mapa_id=?" if mapa_id else ""
+    pm = (mapa_id,) if mapa_id else ()
     with conectar() as con:
         tab = {e: {"sentidos": 0, "casos": 0, "alumnos": 0, "insignias": 0, "justificar": 0, "revisar": 0, "calibrar": 0} for e in EQUIPOS}
         for r in con.execute("SELECT equipo, COUNT(*) n FROM alumnos WHERE grupo=? GROUP BY equipo", (codigo,)):
             tab[r["equipo"]]["alumnos"] = r["n"]
-        for r in con.execute("""SELECT a.equipo, i.sentidos FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
-                                WHERE i.cierre IS NOT NULL AND a.grupo=?""", (codigo,)):
+        for r in con.execute(f"""SELECT a.equipo, i.sentidos FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                WHERE i.cierre IS NOT NULL AND a.grupo=?{fm}""", (codigo,) + pm):
             s = json.loads(r["sentidos"] or "[]"); t = tab[r["equipo"]]
             t["sentidos"] += len(s); t["casos"] += 1
             for k in s:
                 if k in t: t[k] += 1
-        for r in con.execute("""SELECT a.equipo, COUNT(*) n FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
-                                WHERE a.grupo=? GROUP BY a.equipo""", (codigo,)):
+        for r in con.execute(f"""SELECT a.equipo, COUNT(*) n FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                WHERE a.grupo=?{fm} GROUP BY a.equipo""", (codigo,) + pm):
             tab[r["equipo"]]["insignias"] = r["n"]
         return tab
 
@@ -569,12 +731,14 @@ def reflexiones_pendientes_codigos(codigos):
 def sugerencias_insignia_codigos(casos_por_postulado, codigos):
     f, params = _filtro_grupos(codigos)
     with conectar() as con:
-        rows = con.execute(f"""SELECT i.seudonimo, i.caso_id FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+        rows = con.execute(f"""SELECT i.seudonimo, i.caso_id, COALESCE(i.mapa_id, 0) mapa_id FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
                               WHERE i.cierre IS NOT NULL AND i.eval_ini='correcta'{f}""", params).fetchall()
         conteo = {}
         for r in rows:
             p = casos_por_postulado.get(r["caso_id"])
             if p is None: continue
-            conteo.setdefault((r["seudonimo"], p), set()).add(r["caso_id"])
-        ya = {(r["seudonimo"], r["postulado"]) for r in con.execute("SELECT seudonimo, postulado FROM insignias")}
-        return [{"seudonimo": k[0], "postulado": k[1], "casos": sorted(v)} for k, v in conteo.items() if len(v) >= CASOS_PARA_INSIGNIA and k not in ya]
+            conteo.setdefault((r["seudonimo"], p, r["mapa_id"]), set()).add(r["caso_id"])
+        ya = {(r["seudonimo"], r["postulado"], r["mapa_id"]) for r in con.execute("SELECT seudonimo, postulado, mapa_id FROM insignias")}
+        nombres = {r["id"]: r["nombre"] for r in con.execute("SELECT id, nombre FROM mapas")}
+        return [{"seudonimo": k[0], "postulado": k[1], "mapa_id": k[2], "mapa": nombres.get(k[2], ""), "casos": sorted(v)}
+                for k, v in conteo.items() if len(v) >= CASOS_PARA_INSIGNIA and k not in ya]

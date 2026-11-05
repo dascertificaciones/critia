@@ -50,8 +50,12 @@
   document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
   const alumno = Sesion.leer();
   if (!alumno) { location.href = 'index.html'; return; }
-  const [prog, lista] = await Promise.all([api(`/alumno/${alumno.seudonimo}/progreso`), api(`/insignias/${alumno.seudonimo}`)]);
+  const a2 = await Sesion.conMapas() || alumno;
+  const mq = a2.mapa ? `?mapa=${a2.mapa}` : '';
+  const [prog, lista] = await Promise.all([api(`/alumno/${alumno.seudonimo}/progreso${mq}`), api(`/insignias/${alumno.seudonimo}${mq}`)]);
   pintarCabecera(alumno, prog.sentidos_total);
+  const mapaActual = (a2.mapas || []).find(m => m.id === a2.mapa);
+  if (mapaActual && (a2.mapas || []).length > 1) document.querySelector('h1').insertAdjacentHTML('afterend', `<p class="peq suave" style="margin:-6px 0 8px">Mapa: <b>${mapaActual.nombre}</b>. Cada mapa tiene sus propias insignias.</p>`);
   document.getElementById('meta-n').textContent = prog.casos_para_insignia;
 
   document.getElementById('vitrina').innerHTML = lista.map(i => {

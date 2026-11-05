@@ -11,7 +11,7 @@
   --hierba: #4F7A4A;
   --ambar: #D99A2B;
   --ambar-claro: #F4E2B8;
-  --rojo: #C8402F; --azul: #2F5FA8; --verde: #4F7A4A; --amarillo: #D99A2B;
+  --rojo: #C8402F; --azul: #2F5FA8; --verde: #4F7A4A; --amarillo: #D99A2B; --violeta: #6B2D9E;
   --trazo: 2px;
   --r: 6px;
   --serif: 'Fraunces', Georgia, serif;
@@ -43,7 +43,7 @@ button { font-family: inherit; }
 .jugador { display: flex; align-items: center; gap: 10px; font-size: 15px; }
 .ficha-equipo { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid var(--tinta); }
 .ficha-equipo.rojo { background: var(--rojo); } .ficha-equipo.azul { background: var(--azul); }
-.ficha-equipo.verde { background: var(--verde); } .ficha-equipo.amarillo { background: var(--amarillo); }
+.ficha-equipo.verde { background: var(--verde); } .ficha-equipo.amarillo { background: var(--amarillo); } .ficha-equipo.violeta { background: var(--violeta); }
 .sentidos-pill { font-family: var(--serif); font-weight: 700; font-size: 18px; }
 .sentidos-pill small { font-family: var(--sans); font-weight: 400; font-size: 13px; color: var(--tinta-suave); margin-left: 3px; }
 
@@ -190,3 +190,13 @@ input[type=range] { width: 100%; accent-color: var(--ambar); margin: 10px 0 4px;
 .post-card input{margin-top:4px;flex:none}
 .post-card .post-titulo{font-family:var(--serif);font-weight:700;font-size:16px}
 .post-card .peq{margin-top:3px}
+
+/* Escudos de equipo */
+.escudo { width: 28px; height: 28px; object-fit: contain; display: inline-block; vertical-align: middle; }
+.equipo-btn .escudo { width: 56px; height: 56px; display: block; margin: 0 auto 4px; }
+/* Selector de mapa (materia) del grupo */
+.mapas-sel { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+.mapas-sel .mapa-tab { border: 1.5px solid var(--tinta); border-radius: 999px; padding: 6px 14px; background: #fff; cursor: pointer; font: inherit; font-size: 14px; }
+.mapas-sel .mapa-tab small { color: var(--tinta-suave); margin-left: 6px; }
+.mapas-sel .mapa-tab.activo { background: var(--tinta); color: var(--papel); }
+.mapas-sel .mapa-tab.activo small { color: rgba(243,238,226,.75); }

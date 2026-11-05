@@ -101,10 +101,11 @@
   if (!id) { location.href = 'index.html'; return; }
 
   const meta = await api('/meta');
-  const prog = await api(`/alumno/${alumno.seudonimo}/progreso`);
+  const mapaQ = Sesion.mapa() ? `?mapa=${Sesion.mapa()}` : '';
+  const prog = await api(`/alumno/${alumno.seudonimo}/progreso${mapaQ}`);
   pintarCabecera(alumno, prog.sentidos_total);
 
-  const ab = await api(`/caso/${id}/abrir`, 'POST', { seudonimo: alumno.seudonimo });
+  const ab = await api(`/caso/${id}/abrir`, 'POST', { seudonimo: alumno.seudonimo, mapa: Sesion.mapa() });
   const caso = ab.caso, intento = ab.intento_id;
   const abierta = caso.formato === 'reflexion_abierta';
   const mision = meta.misiones.find(m => m.n === caso.mision);

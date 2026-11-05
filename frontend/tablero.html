@@ -10,7 +10,8 @@
   .tablero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 18px; }
   .equipo-card { border: var(--trazo) solid var(--tinta); border-radius: var(--r); padding: 18px 18px 16px; background: #fff; position: relative; }
   .equipo-card.rojo { --c: var(--rojo); } .equipo-card.azul { --c: var(--azul); }
-  .equipo-card.verde { --c: var(--verde); } .equipo-card.amarillo { --c: var(--amarillo); }
+  .equipo-card.verde { --c: var(--verde); } .equipo-card.amarillo { --c: var(--amarillo); } .equipo-card.violeta { --c: var(--violeta); }
+  .equipo-nombre .escudo { width: 44px; height: 44px; }
   .equipo-card.lider { background: var(--ambar-claro); }
   .equipo-nombre { font-family: var(--serif); font-weight: 700; font-size: 24px; text-transform: capitalize; display: flex; align-items: center; gap: 10px; }
   .equipo-nombre .ficha-equipo { width: 18px; height: 18px; }
@@ -36,6 +37,7 @@
 
   <h1>Tablero de la expedición</h1>
   <p class="suave" style="margin:0" id="sub">Sentidos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.</p>
+  <div class="mapas-sel" id="mapas-sel"></div>
 
   <div class="tablero" id="tablero"></div>
 
@@ -47,11 +49,21 @@
 <script src="assets/js/api.js"></script>
 <script>
 document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
-const grupoParam = new URLSearchParams(location.search).get('grupo') || (Sesion.leer() || {}).grupo || '';
+const params = new URLSearchParams(location.search);
+const grupoParam = params.get('grupo') || (Sesion.leer() || {}).grupo || '';
+let mapaParam = params.get('mapa') ? +params.get('mapa') : 0;
 async function pintar() {
-  const r = await api('/tablero' + (grupoParam ? `?grupo=${grupoParam}` : ''));
+  const r = await api('/tablero' + (grupoParam ? `?grupo=${grupoParam}${mapaParam ? '&mapa=' + mapaParam : ''}` : ''));
   const t = r.equipos;
-  if (r.grupo) document.getElementById('sub').textContent = `Grupo ${r.grupo.nombre} · sentidos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.`;
+  if (r.grupo) {
+    document.getElementById('sub').textContent = `Grupo ${r.grupo.nombre}${r.mapa ? ' · ' + r.mapa.nombre : ' · todos los mapas'} · sentidos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.`;
+    const sel = document.getElementById('mapas-sel');
+    const mapas = r.mapas || [];
+    sel.innerHTML = mapas.length > 1 ? [`<button type="button" class="mapa-tab ${!mapaParam ? 'activo' : ''}" data-id="0">Todo el grupo</button>`]
+      .concat(mapas.map(m => `<button type="button" class="mapa-tab ${m.id === mapaParam ? 'activo' : ''}" data-id="${m.id}">${m.nombre}<small>${m.docente_nombre || m.docente}</small></button>`))
+      .concat([`<a class="mapa-tab" href="universo.html?grupo=${r.grupo.codigo}">Ver el universo</a>`]).join('') : (mapas.length ? `<a class="mapa-tab" href="universo.html?grupo=${r.grupo.codigo}">Ver el universo</a>` : '');
+    [...sel.querySelectorAll('button.mapa-tab')].forEach(b => b.onclick = () => { mapaParam = +b.dataset.id; pintar(); });
+  }
   const equipos = Object.keys(t);
   const max = Math.max(1, ...equipos.map(e => t[e].sentidos));
   const tope = Math.max(...equipos.map(e => t[e].sentidos));
@@ -60,7 +72,7 @@ async function pintar() {
     const lider = tope > 0 && d.sentidos === tope;
     return `
       <div class="equipo-card ${e} ${lider ? 'lider' : ''}">
-        <div class="equipo-nombre"><span class="ficha-equipo ${e}"></span>${e} ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>
+        <div class="equipo-nombre">${escudoHtml(e)}${e} ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>
         <div class="gran-numero">${d.sentidos}<small>sentidos</small></div>
         <div class="barra"><div style="width:${Math.round(100 * d.sentidos / max)}%"></div></div>
         <div class="detalle">

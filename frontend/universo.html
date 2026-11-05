@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Critia · Universo</title>
+<link rel="stylesheet" href="assets/css/estilo.css">
+<style>
+  .contenedor { max-width: 1180px; }
+  .totales { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin: 16px 0 6px; }
+  .tot { border: var(--trazo) solid var(--tinta); border-radius: var(--r); background: #fff; padding: 12px 14px; display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; position: relative; }
+  .tot.rojo { --c: var(--rojo); } .tot.azul { --c: var(--azul); } .tot.verde { --c: var(--verde); } .tot.violeta { --c: var(--violeta); }
+  .tot.lider { background: var(--ambar-claro); }
+  .tot .escudo { width: 64px; height: 64px; }
+  .tot .nom { font-family: var(--serif); font-weight: 700; font-size: 18px; text-transform: capitalize; color: var(--c); }
+  .tot .cifras { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--tinta-suave); margin-top: 2px; }
+  .tot .cifras b { display: block; font-family: var(--serif); font-size: 22px; color: var(--tinta); line-height: 1.1; }
+  .tot .corona { position: absolute; top: 8px; right: 10px; width: 22px; height: 22px; color: var(--sello); }
+  .region { margin-top: 26px; border: var(--trazo) solid var(--tinta); border-radius: var(--r); background: var(--papel-2, #EAE2D0); padding: 16px 18px 18px; position: relative; }
+  .region-cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .region-cab h2 { margin: 0; font-size: 24px; }
+  .region-cab .prof { color: var(--tinta-suave); font-size: 14px; }
+  .dueno { display: flex; align-items: center; gap: 8px; font-family: var(--serif); font-weight: 700; padding: 6px 12px; border: 1.5px solid var(--tinta); border-radius: 999px; background: #fff; }
+  .dueno .escudo { width: 30px; height: 30px; }
+  .dueno.neutral { border-style: dashed; color: var(--tinta-suave); font-weight: 400; font-family: var(--sans); }
+  .territorios { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 14px; }
+  .terr { position: relative; text-align: center; }
+  .terr svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 2px 0 rgba(31,42,68,.25)); }
+  .terr .cinta { display: inline-block; margin-top: -6px; background: #fff; border: 1.5px solid var(--tinta); border-radius: 4px; padding: 3px 10px; font-size: 12px; font-family: var(--serif); font-weight: 700; max-width: 95%; }
+  .terr .cinta small { display: block; font-family: var(--sans); font-weight: 400; color: var(--tinta-suave); }
+  .terr .escudo-terr { position: absolute; left: 50%; top: 28%; transform: translate(-50%, -50%); width: 44px; height: 44px; }
+  .terr .pts { position: absolute; left: 0; right: 0; top: 56%; font-family: var(--serif); font-weight: 900; font-size: 20px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+  .terr.neutral .pts { color: var(--tinta-suave); text-shadow: none; font-weight: 400; font-size: 13px; font-family: var(--sans); }
+  .terr .detalle { display: none; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); background: var(--tinta); color: var(--papel); font-size: 12px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; z-index: 2; }
+  .terr:hover .detalle { display: block; }
+  .insig-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; color: var(--tinta-suave); }
+  .insig-row span { display: inline-flex; align-items: center; gap: 5px; }
+  .insig-row .escudo { width: 20px; height: 20px; }
+  .leyenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--tinta-suave); margin-top: 10px; }
+  .leyenda i { display: inline-block; width: 14px; height: 14px; border: 1.5px solid var(--tinta); border-radius: 4px; vertical-align: -2px; margin-right: 4px; }
+  @media (max-width: 900px) { .territorios { grid-template-columns: repeat(2, 1fr); } }
+
+</style>
+</head>
+<body>
+<div class="contenedor">
+  <header class="cabecera">
+    <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Critia</a>
+    <div class="jugador"><a class="btn btn-secundario" href="index.html">Volver al mapa</a></div>
+  </header>
+
+  <h1 id="titulo">El universo</h1>
+  <p class="suave" style="margin:0;max-width:70ch" id="sub">Cada materia es una región con ocho territorios, uno por misión. Un territorio es del equipo que más sentidos ha ganado ahí; la materia es del equipo con más insignias. Todo se puede perder: nada está asegurado.</p>
+  <div class="leyenda"><span><i style="background:#fff;border-style:dashed"></i>Neutral</span><span><i style="background:repeating-linear-gradient(45deg,#fff 0 3px,#999 3px 5px)"></i>En disputa (empate)</span><span><i style="background:var(--azul)"></i>Conquistado</span></div>
+
+  <div class="totales" id="totales"></div>
+  <div id="regiones"></div>
+  <div class="pie" style="margin-top:16px;color:var(--tinta-suave);font-size:13px" id="hora"></div>
+  <div class="pie-inst"><img src="assets/img/udemex.png" alt="Universidad Digital del Estado de México"><span>Hack4Edu 2026</span></div>
+</div>
+
+<script src="assets/js/iconos.js"></script>
+<script src="assets/js/api.js"></script>
+<script>
+document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
+const grupo = new URLSearchParams(location.search).get('grupo') || (Sesion.leer() || {}).grupo || '';
+const COLOR = { rojo: '#C8402F', azul: '#2F5FA8', verde: '#4F7A4A', violeta: '#6B2D9E' };
+// Ocho siluetas distintas de territorio (viewBox 160x110), dibujadas a mano
+const FORMAS = [
+  'M22 40 C30 18 62 12 84 20 C104 10 134 18 140 40 C150 58 136 74 128 86 C112 104 80 100 60 96 C36 92 18 78 20 60 Z',
+  'M18 52 C14 30 40 14 66 18 C86 8 118 12 134 30 C150 46 142 70 130 84 C112 100 88 94 70 100 C44 106 22 86 18 52 Z',
+  'M26 34 C44 14 76 18 92 14 C116 10 140 28 138 50 C136 70 148 84 128 96 C104 106 78 92 58 98 C34 104 16 80 20 60 C22 48 18 42 26 34 Z',
+  'M20 44 C28 20 56 22 78 16 C100 10 128 20 136 40 C146 62 130 76 134 90 C122 104 92 96 72 102 C48 106 24 90 24 70 C24 58 14 54 20 44 Z',
+  'M16 58 C18 32 46 16 72 20 C92 8 120 14 136 28 C148 42 140 60 142 76 C136 96 106 102 84 98 C60 104 30 100 22 82 C16 72 14 66 16 58 Z',
+  'M28 30 C50 16 72 24 96 16 C120 8 142 24 140 46 C138 64 150 78 134 92 C116 104 90 94 66 100 C44 104 22 92 20 72 C18 56 14 44 28 30 Z',
+  'M22 46 C18 24 48 10 70 18 C90 12 112 10 128 24 C146 38 144 60 136 78 C130 98 102 104 80 98 C58 104 30 96 24 76 C20 64 26 56 22 46 Z',
+  'M24 38 C38 20 66 20 86 14 C110 8 136 22 138 44 C140 64 150 82 130 94 C108 104 84 96 62 100 C40 102 18 88 20 66 C22 52 16 46 24 38 Z',
+];
+function territorioSvg(i, dueno, disputa) {
+  const fill = dueno ? COLOR[dueno] : (disputa ? 'url(#rayas)' : '#FFFDF7');
+  const dash = dueno ? '' : (disputa ? '' : 'stroke-dasharray="7 5"');
+  return `<svg viewBox="0 0 160 110" aria-hidden="true">
+    <defs><pattern id="rayas" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#fff"/><rect width="3" height="8" fill="#9a9385"/></pattern></defs>
+    <path d="${FORMAS[i % FORMAS.length]}" fill="${fill}" stroke="#1F2A44" stroke-width="3" stroke-linejoin="round" ${dash}/>
+    ${dueno ? `<path d="${FORMAS[i % FORMAS.length]}" fill="none" stroke="#fff" stroke-width="1.2" opacity=".5" transform="translate(0,-2)"/>` : ''}
+  </svg>`;
+}
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+async function pintar() {
+  if (!grupo) { document.getElementById('sub').textContent = 'Falta el código de grupo.'; return; }
+  const u = await api(`/universo/${grupo}`);
+  document.getElementById('titulo').textContent = `El universo del grupo ${u.grupo.nombre}`;
+  const eq = Object.keys(u.totales);
+  const topT = Math.max(...eq.map(e => u.totales[e].territorios));
+  document.getElementById('totales').innerHTML = eq.map(e => { const t = u.totales[e]; const lider = topT > 0 && t.territorios === topT; return `
+    <div class="tot ${e} ${lider ? 'lider' : ''}">${escudoHtml(e)}<div><div class="nom">Equipo ${cap(e)}</div>
+      <div class="cifras"><span><b>${t.territorios}</b>territorios</span><span><b>${t.materias}</b>materias</span><span><b>${t.insignias}</b>insignias</span><span><b>${u.alumnos[e] || 0}</b>jugadores</span></div></div>
+      ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>`; }).join('');
+  const misNombre = Object.fromEntries(u.misiones.map(m => [m.n, m.nombre]));
+  document.getElementById('regiones').innerHTML = u.mapas.length ? u.mapas.map(m => `
+    <section class="region">
+      <div class="region-cab">
+        <div><h2>${m.nombre}</h2><div class="prof">Mapa de ${m.docente}</div></div>
+        ${m.dueno ? `<div class="dueno">${escudoHtml(m.dueno)}Materia dominada por el equipo ${cap(m.dueno)}</div>` : `<div class="dueno neutral">Materia sin dueño: se decide por insignias</div>`}
+      </div>
+      <div class="territorios">
+        ${m.territorios.map((t, i) => { const tot = Object.values(t.puntos).reduce((a, b) => a + b, 0); return `
+          <div class="terr ${t.dueno ? t.dueno : 'neutral'}">
+            ${territorioSvg(i, t.dueno, t.disputa)}
+            ${t.dueno ? escudoHtml(t.dueno, 'escudo escudo-terr') : ''}
+            <div class="pts">${t.dueno ? t.puntos[t.dueno] : (t.disputa ? 'en disputa' : (tot ? '' : 'sin explorar'))}</div>
+            <div class="detalle">${Object.entries(t.puntos).map(([e, v]) => `${cap(e)} ${v}`).join(' · ')}</div>
+            <div class="cinta">Misión ${t.mision}<small>${misNombre[t.mision] || ''}</small></div>
+          </div>`; }).join('')}
+      </div>
+      <div class="insig-row">Insignias en esta materia: ${Object.entries(m.insignias).map(([e, v]) => `<span>${escudoHtml(e)}${v}</span>`).join('')}</div>
+    </section>`).join('') : '<div class="vacio" style="margin-top:20px">Este grupo todavía no tiene mapas.</div>';
+  document.getElementById('hora').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX') + ' · se actualiza solo cada 20 segundos';
+}
+pintar();
+setInterval(pintar, 20000);
+</script>
+</body>
+</html>

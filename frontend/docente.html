@@ -82,7 +82,7 @@
   let META = null;
 
   const PESTANAS_BASE = [
-    ['resumen', 'Resumen'], ['grupos', 'Mis grupos'], ['generar', 'Generar casos'], ['casos', 'Casos'],
+    ['resumen', 'Resumen'], ['grupos', 'Grupos y mapas'], ['generar', 'Generar casos'], ['casos', 'Casos'],
     ['reflexiones', 'Reflexiones'], ['insignias', 'Insignias'], ['alertas', 'Alertas'], ['alumnos', 'Alumnos'],
   ];
   let PESTANAS = PESTANAS_BASE;
@@ -96,7 +96,7 @@
     META = await api('/meta');
     $('estado').innerHTML = `<span class="peq">${esc(YO.nombre)}</span><a class="btn btn-enlace" href="guia.html" target="_blank">guía</a><button class="btn btn-enlace" id="salir">salir</button>`;
     $('salir').onclick = async () => { if (auth?.tipo === 'docente') { try { await api('/docente/logout', 'POST', null, H()); } catch {} } try { sessionStorage.removeItem('ss_auth'); } catch {} location.reload(); };
-    if (!YO.admin && !YO.grupos.length) { activa = 'grupos'; toast('Crea tu primer grupo para que tus alumnos puedan entrar', 5000); }
+    if (!YO.admin && !YO.grupos.length) { activa = 'grupos'; toast('Crea tu primer grupo, o únete a uno con su código, para que tus alumnos puedan entrar', 6000); }
     await pintarPestanas();
   }
 
@@ -124,6 +124,10 @@
     await VISTAS[activa]();
   }
 
+  // Mapas de los que el docente es autor (solo en esos puede aprobar casos)
+  function misMapas() {
+    return (YO?.grupos || []).flatMap(g => (g.mapas || []).filter(m => YO.admin || m.docente === YO.usuario).map(m => ({ ...m, grupo_nombre: g.nombre })));
+  }
   function habDe(c) {
     const clave = c.habilidad || (META.postulados.find(p => p.n === c.postulado) || {}).habilidad;
     return (META.marco_teorico?.habilidades || []).find(h => h.clave === clave);
@@ -149,10 +153,10 @@
       <label>Explicación</label><textarea class="f-explicacion">${esc(c.explicacion)}</textarea>
       <label>Reflexión</label><input type="text" class="f-reflexion" value="${esc(c.reflexion || '')}">
       <label>Grupos que verán este caso</label>
-      <div class="grupos-sel">${(YO?.grupos || []).map(g => `<label style="display:inline-flex;gap:6px;align-items:center;margin:0 14px 6px 0;font-weight:400"><input type="checkbox" value="${esc(g.codigo)}" ${(c.grupos || []).includes(g.codigo) ? 'checked' : ''}> ${esc(g.nombre)} <span class="peq suave">${esc(g.codigo)}</span></label>`).join('') || '<span class="peq suave">No tienes grupos todavía. Créalos en "Mis grupos".</span>'}</div>
+      <div class="grupos-sel">${misMapas().map(m => `<label style="display:inline-flex;gap:6px;align-items:center;margin:0 14px 6px 0;font-weight:400"><input type="checkbox" value="${m.id}" ${(c.mapas || []).includes(m.id) ? 'checked' : ''}> ${esc(m.nombre)} <span class="peq suave">grupo ${esc(m.grupo_nombre)}</span></label>`).join('') || '<span class="peq suave">No tienes mapas todavía. Crea uno en "Grupos y mapas".</span>'}</div>
       <div class="fila-acciones">
         <button class="btn btn-secundario btn-peq guardar-caso">Guardar cambios</button>
-        ${c.provisional ? '<button class="btn btn-primario btn-peq aprobar-caso">Aprobar para esos grupos</button>' : '<button class="btn btn-secundario btn-peq asignar-caso">Actualizar grupos</button>'}
+        ${c.provisional ? '<button class="btn btn-primario btn-peq aprobar-caso">Aprobar para esos mapas</button>' : '<button class="btn btn-secundario btn-peq asignar-caso">Actualizar mapas</button>'}
         <button class="btn btn-enlace btn-peq borrar-caso" style="color:var(--mal)">Descartar</button>
       </div></div>`;
   }
@@ -176,15 +180,15 @@
         await api(`/docente/casos/${id}`, 'PUT', { cambios }, H());
       };
       card.querySelector('.guardar-caso').onclick = async () => { try { await guardar(); toast('Guardado'); } catch (e) { toast(e.message); } };
-      const gruposSel = () => [...card.querySelectorAll('.grupos-sel input:checked')].map(i => i.value);
+      const mapasSel = () => [...card.querySelectorAll('.grupos-sel input:checked')].map(i => +i.value);
       const ap = card.querySelector('.aprobar-caso');
       if (ap) ap.onclick = async () => {
-        const gs = gruposSel();
-        if (!gs.length) { toast('Marca al menos un grupo'); return; }
-        try { await guardar(); await api(`/docente/casos/${id}/aprobar`, 'POST', { grupos: gs }, H()); toast(`Aprobado para ${gs.length} grupo(s)`); card.querySelector('.tag.aviso').outerHTML = '<span class="tag ok">aprobado</span>'; ap.outerHTML = '<button class="btn btn-secundario btn-peq asignar-caso">Actualizar grupos</button>'; enlazarTarjetas(); } catch (e) { toast(e.message); }
+        const ms = mapasSel();
+        if (!ms.length) { toast('Marca al menos un mapa'); return; }
+        try { await guardar(); await api(`/docente/casos/${id}/aprobar`, 'POST', { mapas: ms }, H()); toast(`Aprobado para ${ms.length} mapa(s)`); card.querySelector('.tag.aviso').outerHTML = '<span class="tag ok">aprobado</span>'; ap.outerHTML = '<button class="btn btn-secundario btn-peq asignar-caso">Actualizar mapas</button>'; enlazarTarjetas(); } catch (e) { toast(e.message); }
       };
       const asg = card.querySelector('.asignar-caso');
-      if (asg) asg.onclick = async () => { try { await api(`/docente/casos/${id}/grupos`, 'PUT', { grupos: gruposSel() }, H()); toast('Grupos actualizados'); } catch (e) { toast(e.message); } };
+      if (asg) asg.onclick = async () => { try { await api(`/docente/casos/${id}/mapas`, 'PUT', { mapas: mapasSel() }, H()); toast('Mapas actualizados'); } catch (e) { toast(e.message); } };
       card.querySelector('.borrar-caso').onclick = async () => { try { await api(`/docente/casos/${id}`, 'DELETE', null, H()); card.remove(); toast('Descartado'); } catch (e) { toast(e.message); } };
     });
   }
@@ -192,23 +196,60 @@
   const VISTAS = {
     async grupos() {
       const yo = await api('/docente/yo', 'GET', null, H()); YO = yo;
-      $('contenido').innerHTML = `<h2>Mis grupos</h2>
-        <p class="suave" style="max-width:60ch">Cada grupo tiene un código de 6 letras. Dáselo a tus alumnos: lo escriben al entrar y así solo ven los casos que apruebes para ese grupo.</p>
-        <p class="suave peq" style="max-width:60ch">El <b>nivel</b> decide qué versión de los casos ven: ${(META.marco_teorico?.niveles || []).map(n => `<b>${n.n}</b> = ${esc(n.edad)}`).join(' · ')}. Los tres niveles trabajan las mismas habilidades, con respuestas de IA de distinta complejidad.</p>
-        <div class="fila-acciones" style="max-width:640px"><input type="text" id="g-nombre" placeholder="Nombre del grupo, por ejemplo 2°A" maxlength="40">
-          <select id="g-nivel" style="width:auto">${(META.marco_teorico?.niveles || []).map(n => `<option value="${n.n}" ${n.n === 2 ? 'selected' : ''}>Nivel ${n.n} · ${esc(n.edad)}</option>`).join('')}</select>
-          <button class="btn btn-primario btn-peq" id="g-crear">Crear grupo</button></div>
-        ${yo.grupos.length ? `<table style="margin-top:18px"><thead><tr><th>Grupo</th><th>Código</th><th>Nivel</th><th>Alumnos</th><th></th></tr></thead><tbody>
-          ${yo.grupos.map(g => `<tr><td><b>${esc(g.nombre)}</b></td><td><span style="font-family:var(--serif);font-weight:900;font-size:22px;letter-spacing:3px">${esc(g.codigo)}</span></td>
-            <td><select class="g-nivel-sel" data-c="${esc(g.codigo)}" data-n="${esc(g.nombre)}" style="width:auto;padding:4px 8px">${[1, 2, 3].map(n => `<option value="${n}" ${(g.nivel || 2) === n ? 'selected' : ''}>${n} · ${esc(nivelEdad(n))}</option>`).join('')}</select></td><td>${g.alumnos}</td>
-            <td><a class="btn btn-secundario btn-peq" href="tablero.html?grupo=${esc(g.codigo)}" target="_blank">Tablero</a></td></tr>`).join('')}
-          </tbody></table>` : '<div class="vacio">Todavía no tienes grupos.</div>'}`;
+      const niveles = META.marco_teorico?.niveles || [];
+      $('contenido').innerHTML = `<h2>Grupos y mapas</h2>
+        <p class="suave" style="max-width:66ch">Un <b>grupo</b> es el salón: tiene un código de 6 letras, un nivel y sus equipos. Dentro del grupo, cada profesor crea su <b>mapa</b> (su materia o tema). Los alumnos entran una sola vez con el código y eligen en qué mapa trabajar. Los equipos compiten por territorios en todos los mapas; eso se ve en el <b>Universo</b>.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
+          <div class="tarjeta" style="margin:0">
+            <b>Crear un grupo nuevo</b>
+            <p class="peq suave" style="margin:4px 0 8px">El nivel decide qué versión de los casos ven: ${niveles.map(n => `<b>${n.n}</b> = ${esc(n.edad)}`).join(' · ')}.</p>
+            <input type="text" id="g-nombre" placeholder="Nombre del grupo, por ejemplo 2°A" maxlength="40">
+            <div class="fila-acciones" style="margin-top:8px"><select id="g-nivel" style="width:auto">${niveles.map(n => `<option value="${n.n}" ${n.n === 2 ? 'selected' : ''}>Nivel ${n.n} · ${esc(n.edad)}</option>`).join('')}</select>
+            <button class="btn btn-primario btn-peq" id="g-crear">Crear grupo</button></div>
+          </div>
+          <div class="tarjeta" style="margin:0">
+            <b>Unirme a un grupo que ya existe</b>
+            <p class="peq suave" style="margin:4px 0 8px">Si otro profesor ya creó el grupo, pídele el código y crea tu propio mapa dentro de él.</p>
+            <div class="fila-acciones"><input type="text" id="g-unirse" placeholder="código de 6 letras" maxlength="6" style="text-transform:uppercase;letter-spacing:2px;font-weight:700"><button class="btn btn-secundario btn-peq" id="g-unirse-ok">Unirme</button></div>
+          </div>
+        </div>
+        ${yo.grupos.length ? yo.grupos.map(g => `
+          <div class="reflexion-card" style="margin-top:18px">
+            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+              <div><span style="font-family:var(--serif);font-weight:700;font-size:20px">${esc(g.nombre)}</span>
+                <span style="font-family:var(--serif);font-weight:900;font-size:22px;letter-spacing:3px;margin-left:12px">${esc(g.codigo)}</span>
+                <span class="peq suave" style="margin-left:10px">${g.alumnos} alumno(s) · profesores: ${(g.profesores || []).map(p => esc(p.nombre)).join(', ')}</span></div>
+              <div class="fila-acciones" style="margin:0">
+                <select class="g-nivel-sel" data-c="${esc(g.codigo)}" data-n="${esc(g.nombre)}" style="width:auto;padding:4px 8px">${[1, 2, 3].map(n => `<option value="${n}" ${(g.nivel || 2) === n ? 'selected' : ''}>Nivel ${n} · ${esc(nivelEdad(n))}</option>`).join('')}</select>
+                <a class="btn btn-secundario btn-peq" href="tablero.html?grupo=${esc(g.codigo)}" target="_blank">Tablero</a>
+                <a class="btn btn-secundario btn-peq" href="universo.html?grupo=${esc(g.codigo)}" target="_blank">Universo</a>
+              </div>
+            </div>
+            <table style="margin-top:10px"><thead><tr><th>Mapa (materia o tema)</th><th>Profesor</th><th>Casos propios aprobados</th><th></th></tr></thead><tbody>
+              ${(g.mapas || []).map(m => `<tr><td><b>${esc(m.nombre)}</b></td><td>${esc(m.docente_nombre || m.docente)}</td><td>${m.casos_propios}</td>
+                <td class="fila-acciones" style="margin:0">${(YO.admin || m.docente === YO.usuario) ? `<button class="btn btn-enlace btn-peq m-ren" data-id="${m.id}" data-n="${esc(m.nombre)}">Renombrar</button>` : ''}
+                <a class="btn btn-enlace btn-peq" href="tablero.html?grupo=${esc(g.codigo)}&mapa=${m.id}" target="_blank">Tablero</a></td></tr>`).join('') || '<tr><td colspan="4" class="suave">Todavía no hay mapas en este grupo.</td></tr>'}
+            </tbody></table>
+            ${YO.admin ? '' : `<div class="fila-acciones" style="margin-top:8px"><input type="text" class="m-nombre" data-c="${esc(g.codigo)}" placeholder="Nuevo mapa: materia o tema, por ejemplo Geografía · Ríos de México" maxlength="60"><button class="btn btn-primario btn-peq m-crear" data-c="${esc(g.codigo)}">Crear mi mapa</button></div>`}
+          </div>`).join('') : '<div class="vacio" style="margin-top:18px">Todavía no tienes grupos.</div>'}`;
       $('g-crear').onclick = async () => {
         const n = $('g-nombre').value.trim(); if (!n) return;
-        try { const g = await api('/docente/grupos', 'POST', { nombre: n, nivel: +$('g-nivel').value }, H()); toast(`Grupo creado. Código: ${g.codigo}`, 6000); VISTAS.grupos(); } catch (e) { toast(e.message); }
+        try { const g = await api('/docente/grupos', 'POST', { nombre: n, nivel: +$('g-nivel').value }, H()); toast(`Grupo creado. Código: ${g.codigo}. Ahora crea tu mapa.`, 6000); VISTAS.grupos(); } catch (e) { toast(e.message); }
+      };
+      $('g-unirse-ok').onclick = async () => {
+        const c = $('g-unirse').value.trim().toUpperCase(); if (c.length !== 6) { toast('El código tiene 6 letras'); return; }
+        try { const r = await api('/docente/grupos/unirse', 'POST', { codigo: c }, H()); toast(`Te uniste al grupo ${r.nombre}. Crea tu mapa.`, 5000); VISTAS.grupos(); } catch (e) { toast(e.message); }
       };
       [...$('contenido').querySelectorAll('.g-nivel-sel')].forEach(sel => sel.onchange = async () => {
         try { await api(`/docente/grupos/${sel.dataset.c}`, 'PUT', { nombre: sel.dataset.n, nivel: +sel.value }, H()); toast('Nivel actualizado'); } catch (e) { toast(e.message); }
+      });
+      [...$('contenido').querySelectorAll('.m-crear')].forEach(b => b.onclick = async () => {
+        const inp = $('contenido').querySelector(`.m-nombre[data-c="${b.dataset.c}"]`); const n = inp.value.trim(); if (n.length < 2) { toast('Escribe el nombre del mapa'); return; }
+        try { await api('/docente/mapas', 'POST', { codigo: b.dataset.c, nombre: n }, H()); toast('Mapa creado'); VISTAS.grupos(); } catch (e) { toast(e.message); }
+      });
+      [...$('contenido').querySelectorAll('.m-ren')].forEach(b => b.onclick = async () => {
+        const n = prompt('Nuevo nombre del mapa:', b.dataset.n); if (!n) return;
+        try { await api(`/docente/mapas/${b.dataset.id}`, 'PUT', { nombre: n }, H()); VISTAS.grupos(); } catch (e) { toast(e.message); }
       });
     },
 
@@ -339,23 +380,24 @@
       const nombre = n => { const p = META.postulados.find(p => p.n === n) || {}; return p.insignia ? `${p.insignia} (postulado ${n}: ${p.corto})` : p.corto || n; };
       $('contenido').innerHTML = `<h2>Insignias por confirmar</h2>
         <p class="suave peq">El sistema sugiere cuando un alumno aplicó un postulado en ${sug[0]?.casos?.length || 2}+ casos sin pista. Tú decides si la otorgas.</p>
-        ${sug.length ? `<table><thead><tr><th>Alumno</th><th>Postulado</th><th>Casos</th><th></th></tr></thead><tbody>
+        ${sug.length ? `<table><thead><tr><th>Alumno</th><th>Postulado</th><th>Mapa</th><th>Casos</th><th></th></tr></thead><tbody>
           ${sug.map(s => `<tr><td>${esc(s.seudonimo)}</td><td><img src="assets/insignias/p${String(s.postulado).padStart(2, '0')}.png" style="width:28px;vertical-align:middle;border-radius:50%;margin-right:6px" onerror="this.remove()">${esc(nombre(s.postulado))}</td>
-            <td class="peq suave">${s.casos.join(', ')}</td>
-            <td><button class="btn btn-primario btn-peq" data-s="${esc(s.seudonimo)}" data-p="${s.postulado}">Otorgar</button></td></tr>`).join('')}
+            <td class="peq">${esc(s.mapa || '')}</td><td class="peq suave">${s.casos.join(', ')}</td>
+            <td><button class="btn btn-primario btn-peq" data-s="${esc(s.seudonimo)}" data-p="${s.postulado}" data-m="${s.mapa_id || ''}">Otorgar</button></td></tr>`).join('')}
           </tbody></table>` : '<div class="vacio">No hay sugerencias por ahora.</div>'}
         <h2 style="font-size:16px;margin-top:20px">Otorgar a mano</h2>
         <div class="fila-acciones">
           <input type="text" id="ins-seu" placeholder="seudónimo">
           <select id="ins-p" style="width:auto">${META.postulados.map(p => `<option value="${p.n}">${p.n}. ${esc(p.insignia || p.corto)} · ${esc(p.corto)}</option>`).join('')}</select>
+          <select id="ins-m" style="width:auto">${(YO?.grupos || []).flatMap(g => (g.mapas || []).map(m => `<option value="${m.id}">${esc(m.nombre)} · ${esc(g.nombre)}</option>`)).join('')}</select>
           <button class="btn btn-secundario btn-peq" id="ins-ok">Otorgar</button>
         </div>`;
       [...$('contenido').querySelectorAll('button[data-s]')].forEach(b => b.onclick = async () => {
-        await api('/docente/insignia', 'POST', { seudonimo: b.dataset.s, postulado: +b.dataset.p }, H()); toast('Insignia otorgada'); pintarPestanas();
+        await api('/docente/insignia', 'POST', { seudonimo: b.dataset.s, postulado: +b.dataset.p, mapa: b.dataset.m ? +b.dataset.m : null }, H()); toast('Insignia otorgada'); pintarPestanas();
       });
       $('ins-ok').onclick = async () => {
         const s = $('ins-seu').value.trim(); if (!s) return;
-        try { await api('/docente/insignia', 'POST', { seudonimo: s, postulado: +$('ins-p').value }, H()); toast('Insignia otorgada'); pintarPestanas(); }
+        try { await api('/docente/insignia', 'POST', { seudonimo: s, postulado: +$('ins-p').value, mapa: $('ins-m').value ? +$('ins-m').value : null }, H()); toast('Insignia otorgada'); pintarPestanas(); }
         catch (e) { toast(e.message); }
       };
     },
@@ -394,7 +436,7 @@
       const lista = await api('/docente/alumnos', 'GET', null, H());
       $('contenido').innerHTML = `<h2>Alumnos</h2><p class="suave peq">Solo seudónimos. Haz clic en uno para ver su historial.</p>
         ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Sentidos</th><th>Insignias</th></tr></thead><tbody>
-        ${lista.map(a => `<tr style="cursor:pointer" data-s="${esc(a.seudonimo)}"><td><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td><span class="ficha-equipo ${a.equipo}"></span>${a.equipo}</td><td>${a.casos}</td><td>${a.sentidos}</td><td>${a.insignias}</td></tr>`).join('')}
+        ${lista.map(a => `<tr style="cursor:pointer" data-s="${esc(a.seudonimo)}"><td><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td>${escudoHtml(a.equipo)} ${a.equipo}</td><td>${a.casos}</td><td>${a.sentidos}</td><td>${a.insignias}</td></tr>`).join('')}
         </tbody></table><div id="hist"></div>` : '<div class="vacio">Nadie se ha registrado todavía.</div>'}`;
       [...$('contenido').querySelectorAll('tr[data-s]')].forEach(tr => tr.onclick = async () => {
         const h = await api(`/docente/alumnos/${tr.dataset.s}`, 'GET', null, H());

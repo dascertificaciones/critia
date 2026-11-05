@@ -58,7 +58,18 @@ class Quien:
         return [g["codigo"] for g in historial.grupos_de(self.docente["usuario"])]
 
     def puede_grupo(self, codigo):
-        return self.admin or codigo in (self.codigos() or [])
+        return self.admin or historial.es_miembro(self.usuario, codigo)
+
+    def puede_mapa(self, mapa_id, solo_propio=False):
+        """Puede ver el mapa si es miembro del grupo; con solo_propio, además debe ser su autor."""
+        m = historial.mapa(mapa_id)
+        if not m:
+            return False
+        if self.admin:
+            return True
+        if not historial.es_miembro(self.usuario, m["codigo"]):
+            return False
+        return (m["docente"] == self.usuario) if solo_propio else True
 
 
 def _quien(x_admin: str = "", x_sesion: str = "") -> Quien:
@@ -84,6 +95,7 @@ class AlumnoIn(BaseModel):
 
 class AbrirIn(BaseModel):
     seudonimo: str
+    mapa: Optional[int] = None
 
 
 class ResponderIn(BaseModel):
@@ -110,6 +122,7 @@ class RevisionIn(BaseModel):
 class InsigniaIn(BaseModel):
     seudonimo: str
     postulado: int
+    mapa: Optional[int] = None
 
 
 class GenerarIn(BaseModel):
@@ -126,7 +139,16 @@ class CasoEditIn(BaseModel):
 
 
 class AprobarIn(BaseModel):
-    grupos: list[str] = []
+    mapas: list[int] = []
+
+
+class UnirseIn(BaseModel):
+    codigo: str
+
+
+class MapaIn(BaseModel):
+    codigo: Optional[str] = None
+    nombre: str
 
 
 class LoginIn(BaseModel):
@@ -157,13 +179,26 @@ def meta():
     return META | {"equipos": historial.EQUIPOS}
 
 
-def _casos_visibles(seudonimo=None):
-    """Banco base del nivel del grupo + casos generados aprobados para el grupo del alumno.
+def _mapa_de(seudonimo, mapa_id):
+    """Valida que el mapa pertenezca al grupo del alumno; si no hay mapa, usa el primero del grupo."""
+    codigo = historial.grupo_de_alumno(seudonimo)
+    if not codigo:
+        return None
+    if mapa_id:
+        m = historial.mapa(mapa_id)
+        if m and m["codigo"] == codigo:
+            return m["id"]
+    ms = historial.mapas_de_grupo(codigo)
+    return ms[0]["id"] if ms else None
+
+
+def _casos_visibles(seudonimo=None, mapa_id=None):
+    """Banco base del nivel del grupo + casos generados aprobados para el mapa elegido.
     Sin seudónimo (vista previa) se muestra todo el banco base."""
     todos, _ = motor.cargar_casos()
-    codigo = historial.grupo_de_alumno(seudonimo) if seudonimo else None
     nivel = historial.nivel_de_alumno(seudonimo) if seudonimo else None
-    permitidos = historial.casos_del_grupo(codigo) if codigo else set()
+    mid = _mapa_de(seudonimo, mapa_id) if seudonimo else None
+    permitidos = historial.casos_del_mapa(mid) if mid else set()
     out = {}
     for cid, c in todos.items():
         es_generado = "generado_por" in c or c.get("origen")
@@ -176,9 +211,9 @@ def _casos_visibles(seudonimo=None):
 
 
 @app.get("/api/casos")
-def casos(seudonimo: Optional[str] = None):
-    """Lista de casos sin claves, agrupados por misión, filtrados por el grupo del alumno."""
-    vis = _casos_visibles(seudonimo)
+def casos(seudonimo: Optional[str] = None, mapa: Optional[int] = None):
+    """Lista de casos sin claves, agrupados por misión, filtrados por nivel del grupo y mapa elegido."""
+    vis = _casos_visibles(seudonimo, mapa)
     por_mision = {m["n"]: [] for m in META["misiones"]}
     for c in sorted(vis.values(), key=lambda c: (c["mision"], c["id"])):
         por_mision.setdefault(c["mision"], []).append(motor.caso_para_alumno(c))
@@ -190,7 +225,8 @@ def grupo_publico(codigo: str):
     g = historial.grupo(codigo)
     if not g:
         raise HTTPException(404, "Ese código de grupo no existe")
-    return {"codigo": g["codigo"], "nombre": g["nombre"], "nivel": g.get("nivel") or 2}
+    return {"codigo": g["codigo"], "nombre": g["nombre"], "nivel": g.get("nivel") or 2,
+            "mapas": [{"id": m["id"], "nombre": m["nombre"], "docente": m["docente_nombre"] or m["docente"]} for m in historial.mapas_de_grupo(g["codigo"])]}
 
 
 @app.post("/api/alumno")
@@ -202,19 +238,19 @@ def alumno(a: AlumnoIn):
 
 
 @app.get("/api/alumno/{seudonimo}/progreso")
-def progreso(seudonimo: str):
+def progreso(seudonimo: str, mapa: Optional[int] = None):
     if not historial.obtener_alumno(seudonimo):
         raise HTTPException(404, "Alumno no registrado")
     todos, _ = motor.cargar_casos()
-    return historial.progreso_alumno(seudonimo, {c["id"]: c["postulado"] for c in todos.values()})
+    return historial.progreso_alumno(seudonimo, {c["id"]: c["postulado"] for c in todos.values()}, _mapa_de(seudonimo, mapa))
 
 
 @app.get("/api/insignias/{seudonimo}")
-def insignias(seudonimo: str):
+def insignias(seudonimo: str, mapa: Optional[int] = None):
     if not historial.obtener_alumno(seudonimo):
         raise HTTPException(404, "Alumno no registrado")
     todos, _ = motor.cargar_casos()
-    prog = historial.progreso_alumno(seudonimo, {c["id"]: c["postulado"] for c in todos.values()})
+    prog = historial.progreso_alumno(seudonimo, {c["id"]: c["postulado"] for c in todos.values()}, _mapa_de(seudonimo, mapa))
     return [p | {"obtenida": p["n"] in prog["insignias"], "avance": prog["avance_insignias"].get(str(p["n"]), 0),
                  "meta": prog["casos_para_insignia"], "imagen": f"/assets/insignias/p{p['n']:02d}.png",
                  "habilidad_nombre": (motor.habilidad_de({"postulado": p["n"]}) or {}).get("nombre"),
@@ -223,9 +259,9 @@ def insignias(seudonimo: str):
 
 @app.post("/api/caso/{caso_id}/abrir")
 def abrir(caso_id: str, d: AbrirIn):
-    if caso_id not in _casos_visibles(d.seudonimo):
+    if caso_id not in _casos_visibles(d.seudonimo, d.mapa):
         raise HTTPException(404, "Ese caso no está disponible para tu grupo")
-    return sesion.abrir(d.seudonimo, caso_id)
+    return sesion.abrir(d.seudonimo, caso_id, _mapa_de(d.seudonimo, d.mapa))
 
 
 @app.post("/api/intento/{intento_id}/responder")
@@ -259,13 +295,27 @@ def duda(intento_id: int):
 
 
 @app.get("/api/tablero")
-def tablero(grupo: Optional[str] = None):
+def tablero(grupo: Optional[str] = None, mapa: Optional[int] = None):
     if grupo:
         g = historial.grupo(grupo)
         if not g:
             raise HTTPException(404, "Grupo no existe")
-        return {"grupo": {"codigo": g["codigo"], "nombre": g["nombre"]}, "equipos": historial.tablero_equipos_grupo(g["codigo"])}
+        m = historial.mapa(mapa) if mapa else None
+        return {"grupo": {"codigo": g["codigo"], "nombre": g["nombre"]}, "mapa": m,
+                "mapas": historial.mapas_de_grupo(g["codigo"]),
+                "equipos": historial.tablero_equipos_grupo(g["codigo"], m["id"] if m else None)}
     return {"grupo": None, "equipos": historial.tablero_equipos()}
+
+
+@app.get("/api/universo/{codigo}")
+def universo(codigo: str):
+    """Vista global del grupo: territorios por mapa (materia) y totales por equipo."""
+    todos, _ = motor.cargar_casos()
+    u = historial.universo(codigo, {c["id"]: c["mision"] for c in todos.values()})
+    if not u:
+        raise HTTPException(404, "Grupo no existe")
+    u["misiones"] = [{"n": m["n"], "nombre": m["nombre"]} for m in META["misiones"]]
+    return u
 
 
 # =====================================================================
@@ -289,7 +339,7 @@ def docente_logout(x_sesion: str = Header(default="")):
 def docente_yo(x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
     q = _quien(x_admin, x_sesion)
     return {"admin": q.admin, "usuario": q.usuario, "nombre": "Administrador" if q.admin else q.docente["nombre"],
-            "grupos": historial.grupos_de(q.usuario) if not q.admin else [g for d in historial.listar_docentes() for g in historial.grupos_de(d["usuario"])]}
+            "grupos": historial.grupos_de(None if q.admin else q.usuario)}
 
 
 @app.post("/api/docente/grupos")
@@ -311,6 +361,40 @@ def renombrar_grupo(codigo: str, d: GrupoIn, x_admin: str = Header(default=""), 
     return {"ok": True}
 
 
+@app.post("/api/docente/grupos/unirse")
+def unirse_grupo(d: UnirseIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    """Otro profesor se une a un grupo existente con su código para crear su propio mapa."""
+    q = _quien(x_admin, x_sesion)
+    if q.admin:
+        raise HTTPException(400, "El administrador ya ve todos los grupos")
+    try:
+        g = historial.unirse_grupo(q.usuario, d.codigo)
+    except ValueError as e:
+        _err(e)
+    return {"ok": True, "codigo": g["codigo"], "nombre": g["nombre"]}
+
+
+@app.post("/api/docente/mapas")
+def crear_mapa(d: MapaIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    q = _quien(x_admin, x_sesion)
+    if q.admin:
+        raise HTTPException(400, "Los mapas los crea cada profesor desde su cuenta")
+    if not d.codigo or not q.puede_grupo(d.codigo):
+        raise HTTPException(403, "Primero únete a ese grupo")
+    if len(d.nombre.strip()) < 2:
+        raise HTTPException(400, "Escribe el nombre de la materia o tema")
+    return historial.crear_mapa(d.codigo, q.usuario, d.nombre)
+
+
+@app.put("/api/docente/mapas/{mapa_id}")
+def renombrar_mapa(mapa_id: int, d: MapaIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    q = _quien(x_admin, x_sesion)
+    if not q.puede_mapa(mapa_id, solo_propio=True):
+        raise HTTPException(403, "Ese mapa no es tuyo")
+    historial.renombrar_mapa(mapa_id, d.nombre)
+    return {"ok": True}
+
+
 # =====================================================================
 # Panel docente (filtrado por grupos del docente; admin ve todo)
 # =====================================================================
@@ -322,7 +406,7 @@ def _casos_de(q: Quien):
         if not es_generado:
             c = dict(c, base=True); out.append(c); continue
         if q.admin or c.get("docente") == q.usuario:
-            c = dict(c, grupos=historial.grupos_del_caso(c["id"])); out.append(c)
+            c = dict(c, mapas=historial.mapas_del_caso(c["id"])); out.append(c)
     return out
 
 
@@ -333,11 +417,11 @@ def docente_casos(x_admin: str = Header(default=""), x_sesion: str = Header(defa
 
 @app.post("/api/docente/casos/{caso_id}/aprobar")
 def docente_aprobar(caso_id: str, d: AprobarIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
-    """Quita la marca provisional y asigna el caso a los grupos indicados."""
+    """Quita la marca provisional y asigna el caso a los mapas indicados."""
     q = _quien(x_admin, x_sesion)
-    for cod in d.grupos:
-        if not q.puede_grupo(cod):
-            raise HTTPException(403, f"El grupo {cod} no es tuyo")
+    for m in d.mapas:
+        if not q.puede_mapa(m, solo_propio=True):
+            raise HTTPException(403, f"El mapa {m} no es tuyo")
     for f in (motor.CASOS_DIR / "docente").glob("*.json"):
         data = json.loads(f.read_text(encoding="utf-8"))
         for c in data.get("casos", []):
@@ -347,18 +431,18 @@ def docente_aprobar(caso_id: str, d: AprobarIn, x_admin: str = Header(default=""
                 c["provisional"] = False
                 c["revisado_por_docente"] = True
                 f.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-                historial.asignar_caso(caso_id, d.grupos)
-                return {"ok": True, "grupos": d.grupos}
+                historial.asignar_caso(caso_id, d.mapas)
+                return {"ok": True, "mapas": d.mapas}
     raise HTTPException(404, "Caso no está en la carpeta docente")
 
 
-@app.put("/api/docente/casos/{caso_id}/grupos")
+@app.put("/api/docente/casos/{caso_id}/mapas")
 def docente_asignar(caso_id: str, d: AprobarIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
     q = _quien(x_admin, x_sesion)
-    for cod in d.grupos:
-        if not q.puede_grupo(cod):
-            raise HTTPException(403, f"El grupo {cod} no es tuyo")
-    historial.asignar_caso(caso_id, d.grupos)
+    for m in d.mapas:
+        if not q.puede_mapa(m, solo_propio=True):
+            raise HTTPException(403, f"El mapa {m} no es tuyo")
+    historial.asignar_caso(caso_id, d.mapas)
     return {"ok": True}
 
 
@@ -394,7 +478,7 @@ def docente_insignia(d: InsigniaIn, x_admin: str = Header(default=""), x_sesion:
     q = _quien(x_admin, x_sesion)
     if not q.puede_grupo(historial.grupo_de_alumno(d.seudonimo)):
         raise HTTPException(403, "Ese alumno no está en tus grupos")
-    historial.otorgar_insignia(d.seudonimo, d.postulado, q.usuario)
+    historial.otorgar_insignia(d.seudonimo, d.postulado, q.usuario, _mapa_de(d.seudonimo, d.mapa))
     return {"ok": True}
 
 
