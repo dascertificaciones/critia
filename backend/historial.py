@@ -124,6 +124,40 @@ def guardar_final(intento_id, clave, conf, eval_, tipo_error, accion, motivo, se
                      json.dumps(sentidos), json.dumps(diagnosticos), ahora(), intento_id))
 
 
+def guardar_pista(intento_id, nivel, pedida=False):
+    """Registra que el alumno recibió la pista de ese nivel (1 suave, 2 fuerte)."""
+    with conectar() as con:
+        con.execute("UPDATE intentos SET pistas_usadas=MAX(COALESCE(pistas_usadas,0), ?), pista_pedida=MAX(COALESCE(pista_pedida,0), ?) WHERE id=?",
+                    (int(nivel), 1 if pedida else 0, intento_id))
+
+
+def guardar_media(intento_id, clave, conf):
+    """Segunda decisión cuando todavía hay una pista más por dar."""
+    with conectar() as con:
+        con.execute("UPDATE intentos SET clave_med=?, conf_med=? WHERE id=?", (clave, conf, intento_id))
+
+
+def fallo_mision_previa(seudonimo, mapa_id, mision_de_caso, mision):
+    """True si el último caso cerrado de esa misión (en ese mapa) terminó en error."""
+    with conectar() as con:
+        rows = con.execute("""SELECT caso_id, eval_fin FROM intentos WHERE seudonimo=? AND cierre IS NOT NULL
+                              AND (mapa_id IS ? OR ?) ORDER BY cierre DESC""", (seudonimo, mapa_id, mapa_id is None)).fetchall()
+        for r in rows:
+            if mision_de_caso.get(r["caso_id"]) == mision:
+                return r["eval_fin"] not in (None, "correcta", "abierta")
+        return False
+
+
+def resolucion(it):
+    """Etiqueta legible de cómo terminó el intento, para el docente."""
+    if it.get("eval_fin") == "abierta":
+        return "abierta"
+    if it.get("eval_fin") != "correcta":
+        return "no_resolvio"
+    p = it.get("pistas_usadas") or 0
+    return "solo" if p == 0 else ("con_pregunta" if p == 1 else "con_senalamiento")
+
+
 def guardar_reflexion(intento_id, texto):
     with conectar() as con:
         con.execute("UPDATE intentos SET reflexion=? WHERE id=?", (texto, intento_id))
@@ -314,11 +348,12 @@ def lista_alumnos():
 def historial_alumno(seudonimo):
     with conectar() as con:
         rows = con.execute("""SELECT id, caso_id, inicio, clave_ini, conf_ini, just_ini, eval_ini, tipo_error_ini, accion_ini,
-                              clave_fin, conf_fin, eval_fin, accion_fin, motivo_fin, sentidos, reflexion, reporta_duda
+                              clave_med, conf_med, clave_fin, conf_fin, eval_fin, accion_fin, motivo_fin, sentidos, reflexion, reporta_duda,
+                              COALESCE(pistas_usadas,0) pistas_usadas, COALESCE(pista_pedida,0) pista_pedida, COALESCE(repeticion,0) repeticion
                               FROM intentos WHERE seudonimo=? AND cierre IS NOT NULL ORDER BY inicio""", (seudonimo,)).fetchall()
         out = []
         for r in rows:
-            d = dict(r); d["sentidos"] = json.loads(d["sentidos"] or "[]"); out.append(d)
+            d = dict(r); d["sentidos"] = json.loads(d["sentidos"] or "[]"); d["resolucion"] = resolucion(d); out.append(d)
         return out
 
 
@@ -406,6 +441,9 @@ def _migrar():
             con.execute("ALTER TABLE intentos ADD COLUMN mapa_id INTEGER")
         if "repeticion" not in cols:
             con.execute("ALTER TABLE intentos ADD COLUMN repeticion INTEGER DEFAULT 0")
+        for col, tipo in (("pistas_usadas", "INTEGER DEFAULT 0"), ("pista_pedida", "INTEGER DEFAULT 0"), ("clave_med", "TEXT"), ("conf_med", "INTEGER")):
+            if col not in cols:
+                con.execute(f"ALTER TABLE intentos ADD COLUMN {col} {tipo}")
         cols = [r[1] for r in con.execute("PRAGMA table_info(insignias)")]
         if "mapa_id" not in cols:
             con.executescript("""
@@ -712,13 +750,13 @@ def universo(codigo, mision_de_caso, detective_ids=()):
         for m in mapas:
             terr = {}
             rachas = {}   # seudonimo -> [equipo, racha_actual, ultima_mision]
-            for r in con.execute("""SELECT a.equipo, a.seudonimo, i.caso_id, i.sentidos, i.eval_ini FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+            for r in con.execute("""SELECT a.equipo, a.seudonimo, i.caso_id, i.sentidos, i.eval_ini, i.eval_fin, COALESCE(i.pistas_usadas,0) pistas FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
                                     WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND a.grupo=? AND i.mapa_id=? ORDER BY i.cierre""", (g["codigo"], m["id"])):
                 mis = mision_de_caso.get(r["caso_id"])
                 if not mis:
                     continue
                 sent = json.loads(r["sentidos"] or "[]")
-                n = len(sent)
+                n = len(sent) + (1 if (r["eval_fin"] == "correcta" and r["pistas"] == 0) else 0)   # +1 por resolver sin ayuda
                 terr.setdefault(mis, {e: 0 for e in EQUIPOS})[r["equipo"]] += n
                 totales[r["equipo"]]["sentidos"] += n
                 st = rachas.setdefault(r["seudonimo"], [r["equipo"], 0, mis])
@@ -811,6 +849,10 @@ def resumen_grupo_codigos(codigos):
             SELECT i.caso_id, COUNT(*) n, SUM(i.eval_ini='correcta') ok_ini,
                    SUM(i.eval_ini<>'correcta' AND i.eval_fin='correcta') mejoraron,
                    SUM(i.eval_ini<>'correcta' AND i.eval_fin<>'correcta') siguen_mal,
+                   SUM(i.eval_fin='correcta' AND COALESCE(i.pistas_usadas,0)=0) solos,
+                   SUM(i.eval_fin='correcta' AND COALESCE(i.pistas_usadas,0)=1) con_pregunta,
+                   SUM(i.eval_fin='correcta' AND COALESCE(i.pistas_usadas,0)>=2) con_senalamiento,
+                   SUM(COALESCE(i.pista_pedida,0)) pidieron,
                    ROUND(AVG(i.conf_ini)) conf_ini_prom, ROUND(AVG(i.conf_fin)) conf_fin_prom, SUM(i.reporta_duda) dudas
             FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo WHERE i.cierre IS NOT NULL{f} GROUP BY i.caso_id ORDER BY i.caso_id""", params)]
         por_familia = [dict(r) for r in con.execute(f"""
@@ -850,7 +892,7 @@ def sugerencias_insignia_codigos(casos_por_postulado, codigos):
     f, params = _filtro_grupos(codigos)
     with conectar() as con:
         rows = con.execute(f"""SELECT i.seudonimo, i.caso_id, COALESCE(i.mapa_id, 0) mapa_id FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
-                              WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND i.eval_ini='correcta'{f}""", params).fetchall()
+                              WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND i.eval_ini='correcta' AND COALESCE(i.pistas_usadas,0)=0{f}""", params).fetchall()
         conteo = {}
         for r in rows:
             p = casos_por_postulado.get(r["caso_id"])

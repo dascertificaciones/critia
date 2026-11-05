@@ -23,8 +23,38 @@ def abrir(seudonimo, caso_id, mapa_id=None):
             "retomado": bool(abierto and abierto.get("clave_ini"))}
 
 
+def _pista(caso, nivel):
+    """Nivel 1: pregunta general (del caso o, si no tiene, la de su habilidad). Nivel 2: señalamiento del fallo."""
+    if nivel >= 2:
+        return caso.get("pista_fuerte") or caso.get("pista")
+    if caso.get("pista_suave"):
+        return caso["pista_suave"]
+    h = motor.habilidad_de(caso)
+    hd = next((x for x in motor.META["marco_teorico"]["habilidades"] if h and x["clave"] == h["clave"]), None)
+    return (hd or {}).get("pregunta_suave") or caso.get("pista")
+
+
+def pedir_pista(intento_id):
+    """El alumno pide ayuda antes de decidir. Sube un escalón cada vez (máximo 2)."""
+    it = historial.obtener_intento(intento_id)
+    if not it:
+        raise KeyError("intento inexistente")
+    if it.get("clave_ini") or it.get("cierre"):
+        raise ValueError("Las pistas se piden antes de decidir")
+    casos, _ = motor.cargar_casos()
+    caso = casos[it["caso_id"]]
+    if caso["formato"] == "reflexion_abierta":
+        raise ValueError("Este caso no tiene pistas")
+    nivel = min(2, (it.get("pistas_usadas") or 0) + 1)
+    historial.guardar_pista(intento_id, nivel, pedida=True)
+    return {"accion": "pista_pedida", "motivo": "pista_a_peticion", "texto_accion": motor.TEXTO_ACCION["pista_pedida"],
+            "texto_motivo": motor.TEXTO_MOTIVO["pista_a_peticion"], "pista": _pista(caso, nivel), "nivel": nivel,
+            "quedan": 2 - nivel}
+
+
 def responder(intento_id, clave, confianza, justificacion=""):
-    """Fase inicial. Devuelve la intervención del tutor (pista + motivo)."""
+    """Decisión 1. Devuelve la intervención del tutor (pista + motivo).
+    Si hubo error, la pista es suave (pregunta) o fuerte (señalamiento) según las reglas ASP y las pistas ya pedidas."""
     it = historial.obtener_intento(intento_id)
     if not it:
         raise KeyError("intento inexistente")
@@ -42,10 +72,17 @@ def responder(intento_id, clave, confianza, justificacion=""):
 
     eval_, tipo = motor.evaluar_opcion(caso, clave.upper())
     inicial = {"clave": clave, "confianza": conf, "justificacion": justificacion, "evaluacion": eval_, "tipo_error": tipo}
-    hechos = motor.armar_hechos(caso, "inicial", inicial, historial_errores=historial.errores_previos(it["seudonimo"]))
+    mision_de = {c["id"]: c["mision"] for c in casos.values()}
+    fmp = historial.fallo_mision_previa(it["seudonimo"], it.get("mapa_id"), mision_de, caso["mision"])
+    hechos = motor.armar_hechos(caso, "inicial", inicial, historial_errores=historial.errores_previos(it["seudonimo"]), fallo_mision_previa=fmp)
     r = motor.consultar(hechos)
     historial.guardar_inicial(intento_id, clave.upper(), conf, justificacion, eval_, tipo, r["accion"], r["motivo"])
-    r["pista"] = caso["pista"] if eval_ != "correcta" else None
+    r["pista"] = None; r["nivel"] = 0; r["quedan"] = 0
+    if eval_ != "correcta":
+        ya = it.get("pistas_usadas") or 0
+        nivel = max(r.get("nivel_pista") or 1, min(2, ya + 1))   # si ya pidió una pista, la siguiente es la fuerte
+        historial.guardar_pista(intento_id, nivel)
+        r["pista"] = _pista(caso, nivel); r["nivel"] = nivel; r["quedan"] = 2 - nivel
     r["hechos"] = hechos
     return r
 
@@ -62,6 +99,16 @@ def revisar(intento_id, clave, confianza):
     casos, _ = motor.cargar_casos()
     caso = casos[it["caso_id"]]
     conf = _validar_conf(confianza)
+
+    # Decisión 2 con error y todavía queda la pista fuerte: se da la pista y se pide una tercera decisión.
+    if caso["formato"] != "reflexion_abierta" and not it.get("clave_med"):
+        ev2, _t = motor.evaluar_opcion(caso, clave.upper())
+        if ev2 != "correcta" and it.get("eval_ini") != "correcta" and (it.get("pistas_usadas") or 0) < 2:
+            historial.guardar_media(intento_id, clave.upper(), conf)
+            historial.guardar_pista(intento_id, 2)
+            return {"accion": "pista_fuerte", "motivo": "sigue_error_tras_pista", "texto_accion": motor.TEXTO_ACCION["pista_fuerte"],
+                    "texto_motivo": motor.TEXTO_MOTIVO["sigue_error_tras_pista"], "pista": _pista(caso, 2), "nivel": 2,
+                    "continua": True, "diagnosticos": [], "sentidos": []}
 
     if caso["formato"] == "reflexion_abierta":
         historial.guardar_final(intento_id, "-", conf, "abierta", None, "cerrar_abierta", "formato_abierto",
@@ -82,6 +129,10 @@ def revisar(intento_id, clave, confianza):
     r["explicacion"] = caso["explicacion"]
     r["reflexion"] = caso["reflexion"]
     r["habilidad"] = motor.habilidad_de(caso)
+    it2 = historial.obtener_intento(intento_id)
+    r["pistas_usadas"] = it2.get("pistas_usadas") or 0
+    r["resolucion"] = historial.resolucion(it2)
+    r["continua"] = False
     r["hechos"] = hechos
     return r
 

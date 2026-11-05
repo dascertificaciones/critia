@@ -35,8 +35,13 @@
     <label for="just">¿Por qué? <span class="suave peq">(una línea; cuenta como una habilidad)</span></label>
     <input type="text" id="just" placeholder="Elegí esto porque..." maxlength="200">
 
+    <div class="tutor oculto" id="pista-previa" style="margin-top:12px">
+      <div class="avatar" id="av0"></div>
+      <div><div class="dice" id="pp-dice"></div><div class="motivo" id="pp-motivo"></div><div class="pista" id="pp-pista"></div></div>
+    </div>
     <div class="acciones">
       <button class="btn btn-primario" id="enviar" disabled>Decidir</button>
+      <button class="btn btn-secundario" id="pedir-pista" title="Cada pista que pides te ayuda un poco más; resolver sin pistas vale más">Necesito una pista</button>
       <button class="btn btn-enlace" id="duda" title="Si crees que el caso está mal planteado">Creo que este caso está mal</button>
     </div>
   </section>
@@ -95,6 +100,7 @@
   document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
   document.getElementById('av1').innerHTML = ICONO.ojo;
   document.getElementById('av2').innerHTML = ICONO.ojo;
+  document.getElementById('av0').innerHTML = ICONO.ojo;
   const alumno = Sesion.leer();
   if (!alumno) { location.href = 'index.html'; return; }
   const id = new URLSearchParams(location.search).get('id');
@@ -144,6 +150,21 @@
   $('conf').oninput = () => $('conf-valor').textContent = $('conf').value;
   $('conf2').oninput = () => $('conf2-valor').textContent = $('conf2').value;
 
+  // Pedir una pista antes de decidir (sube un escalón cada vez; máximo 2)
+  let pistasPedidas = 0;
+  $('pedir-pista').onclick = async () => {
+    try {
+      const r = await api(`/intento/${intento}/pista`, 'POST');
+      pistasPedidas = r.nivel;
+      $('pista-previa').classList.remove('oculto');
+      $('pp-dice').textContent = r.texto_accion; $('pp-motivo').textContent = 'Motivo: ' + r.texto_motivo;
+      $('pp-pista').innerHTML = `<b>Pista ${r.nivel === 1 ? 'suave' : 'fuerte'}:</b> ${esc(r.pista)}`;
+      if (!r.quedan) { $('pedir-pista').disabled = true; $('pedir-pista').textContent = 'Ya no hay más pistas'; }
+      else $('pedir-pista').textContent = 'Necesito otra pista';
+    } catch (e) { toast(e.message); }
+  };
+  if (abierta) $('pedir-pista').classList.add('oculto');
+
   let dudaReportada = false;
   $('duda').onclick = async () => {
     if (dudaReportada) return;
@@ -171,7 +192,8 @@
       setPaso(2);
       $('tutor-dice').textContent = r.texto_accion;
       $('tutor-motivo').textContent = 'Motivo: ' + r.texto_motivo;
-      $('tutor-pista').innerHTML = r.pista ? `<b>Pista:</b> ${esc(r.pista)}` : '';
+      $('tutor-pista').innerHTML = r.pista ? `<b>Pista ${r.nivel === 2 ? 'fuerte' : 'suave'}:</b> ${esc(r.pista)}` : '';
+      $('pedir-pista').disabled = true;
       $('tutor-pista').classList.toggle('oculto', !r.pista);
       $('pista-seccion').classList.remove('oculto');
       $('revisar').classList.remove('oculto');
@@ -190,6 +212,16 @@
     $('enviar2').disabled = true;
     try {
       const r2 = await api(`/intento/${intento}/revisar`, 'POST', { clave: clave2, confianza: +$('conf2').value });
+      if (r2.continua) {
+        // Todavía queda una ayuda: el tutor señala dónde mirar y pide una tercera decisión
+        $('tutor-dice').textContent = r2.texto_accion;
+        $('tutor-motivo').textContent = 'Motivo: ' + r2.texto_motivo;
+        $('tutor-pista').innerHTML = `<b>Pista fuerte:</b> ${esc(r2.pista)}`;
+        $('revisar').querySelector('h2').textContent = 'Última decisión. ¿Qué eliges ahora?';
+        $('pista-seccion').scrollIntoView({ behavior: 'smooth' });
+        $('enviar2').disabled = false;
+        return;
+      }
       [...$('opciones2').children].forEach(b => b.disabled = true);
       $('conf2').disabled = true;
       mostrarCierre(r2, false);
@@ -206,6 +238,8 @@
         <span class="icono">${ICONO[s.clave] || ''}</span><div class="nombre">${s.nombre}</div>
       </div>`).join('');
     $('explicacion').textContent = r2.explicacion;
+    const RES = { solo: 'Lo resolviste sin pistas.', con_pregunta: 'Lo resolviste con una pregunta de ayuda.', con_senalamiento: 'Lo resolviste después de que el tutor te señaló dónde mirar.', no_resolvio: 'Esta vez no salió; la explicación te muestra el paso que faltaba.' };
+    if (r2.resolucion && RES[r2.resolucion]) $('cierre-motivo').textContent += ' · ' + RES[r2.resolucion];
     if (r2.habilidad) {
       const hDef = (meta.marco_teorico?.habilidades || []).find(h => h.clave === r2.habilidad.clave) || {};
       $('habilidad').innerHTML = `<span class="icono">${ICONO.lupa || ''}</span><div><b>Habilidad que practicaste:</b> ${esc(r2.habilidad.nombre)} <span class="suave">· ${esc(r2.habilidad.autor)}</span>${hDef.definicion ? `<div class="peq suave">${esc(hDef.definicion)}</div>` : ''}</div>`;

@@ -67,3 +67,11 @@ diagnostico(mantuvo_correcta) :- fase(final), es_correcta(inicial), es_correcta(
 calibro :- fase(final), es_correcta(final), confianza(inicial, C1), confianza(final, C2), C2 >= C1, C2 >= 60.
 calibro :- fase(final), es_error(final), es_error(inicial), confianza(inicial, C1), confianza(final, C2), C2 < C1, C2 <= 50.
 diagnostico(calibro) :- calibro.
+
+% ---------- Escalera de ayudas: qué tan fuerte es la primera pista ----------
+% Nivel 1 = pregunta general (hacer pensar). Nivel 2 = señalar dónde está el fallo.
+% Se salta la pregunta cuando el alumno ya duda, ya repitió este error, o falló el caso anterior de la misma misión.
+nivel_pista(2) :- fase(inicial), es_error(inicial), confianza(inicial, C), C < 50.
+nivel_pista(2) :- fase(inicial), es_error(inicial), diagnostico(error_repetido).
+nivel_pista(2) :- fase(inicial), es_error(inicial), fallo_mision_previa.
+nivel_pista(1) :- fase(inicial), es_error(inicial), not nivel_pista(2).

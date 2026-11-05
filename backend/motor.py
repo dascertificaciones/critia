@@ -29,6 +29,8 @@ TEXTO_ACCION = {
     "reforzar_confianza": "Tu respuesta es correcta. ¿Por qué dudaste? Explica qué la hace correcta.",
     "confirmar": "Correcto. Explica con tus palabras por qué elegiste esa opción.",
     "cerrar_elogio_calibrado": "Buena revisión. Cambiaste a la respuesta correcta y ajustaste tu confianza.",
+    "pista_fuerte": "Todavía no. Te señalo dónde mirar; la decisión sigue siendo tuya.",
+    "pista_pedida": "Va una pista. Piensa con ella y decide.",
     "cerrar_elogio": "Buena revisión. Llegaste a la respuesta correcta.",
     "cerrar_mantuvo": "Mantuviste la respuesta correcta. Bien.",
     "cerrar_explicar_cambio": "Cambiaste de respuesta, pero a otra que tampoco funciona. Lee la explicación con calma.",
@@ -51,6 +53,8 @@ TEXTO_MOTIVO = {
     "correcta_insegura": "Respuesta correcta con confianza baja.",
     "correcta_segura": "Respuesta correcta con confianza adecuada.",
     "mejoro_y_calibro": "La revisión corrigió el error y la confianza se ajustó.",
+    "sigue_error_tras_pista": "Después de la primera pista la respuesta sigue siendo incorrecta: toca una ayuda más directa.",
+    "pista_a_peticion": "El alumno pidió ayuda antes de decidir.",
     "mejoro": "La revisión corrigió el error inicial.",
     "mantuvo_correcta": "La respuesta correcta se mantuvo tras la pista.",
     "cambio_a_otro_error": "La revisión cambió la respuesta, pero a otra incorrecta.",
@@ -117,7 +121,7 @@ def evaluar_opcion(caso, clave):
 
 
 # ---------- Hechos ASP ----------
-def armar_hechos(caso, fase, inicial, final=None, ayuda_previa=False, historial_errores=None):
+def armar_hechos(caso, fase, inicial, final=None, ayuda_previa=False, historial_errores=None, fallo_mision_previa=False):
     """
     inicial / final: dict con clave, confianza, justificacion, evaluacion, tipo_error
     historial_errores: dict familia -> cantidad de errores iniciales previos
@@ -141,6 +145,8 @@ def armar_hechos(caso, fase, inicial, final=None, ayuda_previa=False, historial_
     h += fase_hechos("final", final)
     if ayuda_previa:
         h.append("ayuda_previa.")
+    if fallo_mision_previa:
+        h.append("fallo_mision_previa.")
     for fam, n in (historial_errores or {}).items():
         h.append(f"historial_error({fam}, {n}).")
     return "\n".join(h)
@@ -162,7 +168,7 @@ def _correr_dlv(programa):
     limpio = "\n".join(l for l in programa.splitlines() if not l.strip().startswith("#show"))
     res = subprocess.run([binario, "--silent", "--"], input=limpio, capture_output=True, text=True)
     atomos = res.stdout.strip().strip("{}").split(", ")
-    return [[a for a in atomos if a.startswith(("seleccionada", "diagnostico", "sentido"))]]
+    return [[a for a in atomos if a.startswith(("seleccionada", "diagnostico", "sentido", "nivel_pista"))]]
 
 
 def consultar(hechos):
@@ -179,6 +185,8 @@ def consultar(hechos):
     accion, motivo = sel[0][len("seleccionada("):-1].split(",")
     diag = sorted(a[len("diagnostico("):-1] for a in atomos if a.startswith("diagnostico("))
     sentidos = sorted(a[len("sentido("):-1] for a in atomos if a.startswith("sentido("))
+    niveles = [int(a[len("nivel_pista("):-1]) for a in atomos if a.startswith("nivel_pista(")]
+    nivel_pista = max(niveles) if niveles else None
     return {
         "accion": accion,
         "motivo": motivo,
@@ -186,4 +194,5 @@ def consultar(hechos):
         "texto_motivo": TEXTO_MOTIVO.get(motivo, motivo),
         "diagnosticos": diag,
         "sentidos": sentidos,
+        "nivel_pista": nivel_pista,
     }

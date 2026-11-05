@@ -311,6 +311,16 @@ def responder(intento_id: int, d: ResponderIn, x_alumno: str = Header(default=""
     return r
 
 
+@app.post("/api/intento/{intento_id}/pista")
+def pista(intento_id: int, x_alumno: str = Header(default="")):
+    """El alumno pide una pista antes de decidir (cada vez sube un escalón; máximo 2)."""
+    _intento_de(intento_id, x_alumno)
+    try:
+        return sesion.pedir_pista(intento_id)
+    except (ValueError, KeyError) as e:
+        _err(e)
+
+
 @app.post("/api/intento/{intento_id}/revisar")
 def revisar(intento_id: int, d: RevisarIn, x_alumno: str = Header(default="")):
     _intento_de(intento_id, x_alumno)
@@ -629,7 +639,7 @@ def docente_generar(d: GenerarIn, x_admin: str = Header(default=""), x_sesion: s
 @app.put("/api/docente/casos/{caso_id}")
 def docente_editar_caso(caso_id: str, d: CasoEditIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
     q = _quien(x_admin, x_sesion)
-    permitidos = {"titulo", "situacion", "pregunta", "opciones", "pista", "explicacion", "reflexion", "rubrica_reflexion"}
+    permitidos = {"titulo", "situacion", "pregunta", "opciones", "pista", "pista_suave", "pista_fuerte", "explicacion", "reflexion", "rubrica_reflexion"}
     cambios = {k: v for k, v in d.cambios.items() if k in permitidos}
     try:
         r = generador.actualizar_caso(caso_id, cambios, solo_de=None if q.admin else q.usuario)

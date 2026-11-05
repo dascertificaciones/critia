@@ -217,7 +217,8 @@
         "postulados": [
           1,
           2
-        ]
+        ],
+        "pregunta_suave": "Antes de creerle: ¿qué tendrías que ver para saber que es cierto, y no solo que suena bien?"
       },
       {
         "clave": "evaluacion",
@@ -226,7 +227,8 @@
         "definicion": "Valorar la credibilidad de una fuente o afirmación y la solidez de un argumento.",
         "postulados": [
           3
-        ]
+        ],
+        "pregunta_suave": "¿Podrías encontrar tú esa fuente? Y si no aparece, ¿qué significa?"
       },
       {
         "clave": "analisis",
@@ -235,7 +237,8 @@
         "definicion": "Identificar las relaciones entre premisas y conclusión; detectar qué falta.",
         "postulados": [
           4
-        ]
+        ],
+        "pregunta_suave": "¿Qué dato le falta a la respuesta para que la conclusión se sostenga?"
       },
       {
         "clave": "autorregulacion",
@@ -244,7 +247,8 @@
         "definicion": "Vigilar el propio razonamiento y ajustar la confianza según la evidencia.",
         "postulados": [
           5
-        ]
+        ],
+        "pregunta_suave": "¿De dónde sale tu seguridad: de algo que comprobaste o de cómo sonó la respuesta?"
       },
       {
         "clave": "apertura",
@@ -253,7 +257,8 @@
         "definicion": "Cambiar de opinión cuando aparecen mejores razones.",
         "postulados": [
           6
-        ]
+        ],
+        "pregunta_suave": "Si apareciera una razón mejor que la tuya, ¿cambiarías? Busca esa razón antes de decidir."
       },
       {
         "clave": "relevancia_amplitud",
@@ -262,7 +267,8 @@
         "definicion": "Considerar el contexto y otros puntos de vista antes de concluir.",
         "postulados": [
           7
-        ]
+        ],
+        "pregunta_suave": "¿La respuesta es para tu caso o para cualquier caso? ¿Qué le faltó saber a la IA?"
       },
       {
         "clave": "justicia",
@@ -271,7 +277,8 @@
         "definicion": "Aplicar los mismos criterios a todas las personas; detectar sesgos y estereotipos.",
         "postulados": [
           8
-        ]
+        ],
+        "pregunta_suave": "¿Ese criterio se aplica igual a todas las personas, o juzga a un grupo entero?"
       },
       {
         "clave": "explicacion",
@@ -280,7 +287,8 @@
         "definicion": "Presentar el propio razonamiento de forma que otros puedan seguirlo y revisarlo.",
         "postulados": [
           9
-        ]
+        ],
+        "pregunta_suave": "¿Otra persona podría repetir lo que harías con lo que escribiste?"
       },
       {
         "clave": "juicio_consecuencias",
@@ -289,7 +297,8 @@
         "definicion": "Decidir considerando lo que puede pasar, en especial con la información personal.",
         "postulados": [
           10
-        ]
+        ],
+        "pregunta_suave": "¿Quién podría salir afectado si haces lo que dice la IA?"
       },
       {
         "clave": "limite_juicio",
@@ -298,7 +307,8 @@
         "definicion": "Saber cuándo una decisión excede lo que uno (o una IA) puede resolver y requiere a otra persona.",
         "postulados": [
           11
-        ]
+        ],
+        "pregunta_suave": "¿Esto lo puede decidir una IA, o necesita a una persona que te conozca?"
       },
       {
         "clave": "responsabilidad",
@@ -307,7 +317,8 @@
         "definicion": "Hacerse cargo de lo que uno presenta como propio, aunque haya usado herramientas.",
         "postulados": [
           12
-        ]
+        ],
+        "pregunta_suave": "Si firmas esto como tuyo, ¿qué parte hiciste tú?"
       }
     ],
     "niveles": [

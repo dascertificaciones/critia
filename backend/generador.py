@@ -63,7 +63,8 @@ def _prompt_usuario(tema, nivel, postulado, formato, n, familia):
             {"clave": "B", "texto": "Opción correcta: la acción crítica adecuada", "correcta": True, "tipo_error": None},
             {"clave": "C", "texto": "Opción incorrecta: rechaza todo sin revisar", "correcta": False, "tipo_error": "desconfia_de_todo"},
         ],
-        "pista": "Pregunta corta que hace dudar sin dar la respuesta.",
+        "pista_suave": "Pregunta general que activa la habilidad, sin mencionar datos del caso. Máximo 25 palabras.",
+        "pista_fuerte": "Señala exactamente dónde está el fallo de la respuesta de la IA, sin dar la respuesta ni resolver la cuenta. Máximo 30 palabras.",
         "explicacion": "Por qué la correcta es correcta y por qué las otras no. Si hay cálculo, muéstralo. Máximo 90 palabras.",
         "reflexion": "Pregunta abierta de cierre que el alumno responde con sus palabras.",
         "rubrica_reflexion": ["criterio observable 1", "criterio observable 2"],
@@ -76,6 +77,7 @@ La opción correcta debe ser exactamente lo que haría alguien que ejerce esa ha
 Familia de error principal que debe aparecer en una opción incorrecta: "{familia}".
 Formato: {formato} (tres opciones A, B, C; exactamente UNA correcta; la posición de la correcta debe variar entre casos).
 Las opciones incorrectas deben ser plausibles, no absurdas.
+Las dos pistas son una escalera de ayuda: la suave solo hace pensar; la fuerte apunta al lugar del fallo. Ninguna de las dos puede contener la respuesta correcta ni el resultado de la cuenta.
 Si el caso tiene números, las cuentas deben ser correctas y aparecer resueltas en la explicación.
 
 Responde con un JSON con esta forma exacta: {{"casos": [ {json.dumps(ejemplo, ensure_ascii=False)} ]}}"""
@@ -102,9 +104,24 @@ GRUPOS = re.compile(r"\b(los|las)\s+(mujeres|hombres|ni[ñn]as|ni[ñn]os|ind[ií
 def validar(caso, familias):
     """Devuelve lista de problemas (vacía si pasa)."""
     errores = []
-    for k in ["titulo", "situacion", "pregunta", "opciones", "pista", "explicacion", "reflexion", "rubrica_reflexion"]:
+    # compatibilidad: si solo viene 'pista', se usa como fuerte; la suave sale de la habilidad del postulado
+    if caso.get("pista") and not caso.get("pista_fuerte"):
+        caso["pista_fuerte"] = caso["pista"]
+    if caso.get("pista_fuerte") and not caso.get("pista"):
+        caso["pista"] = caso["pista_fuerte"]
+    if not caso.get("pista_suave"):
+        h = HABILIDADES.get(POSTULADOS.get(caso.get("postulado"), {}).get("habilidad"), {})
+        if h.get("pregunta_suave"):
+            caso["pista_suave"] = h["pregunta_suave"]
+    for k in ["titulo", "situacion", "pregunta", "opciones", "pista_suave", "pista_fuerte", "explicacion", "reflexion", "rubrica_reflexion"]:
         if not caso.get(k):
             errores.append(f"falta {k}")
+    # ninguna pista puede contener el texto de la opción correcta
+    corr = next((o.get("texto", "") for o in (caso.get("opciones") or []) if o.get("correcta")), "")
+    if corr and len(corr) > 12:
+        for k in ("pista_suave", "pista_fuerte"):
+            if corr.lower()[:40] in str(caso.get(k, "")).lower():
+                errores.append(f"{k} contiene la respuesta correcta")
     ops = caso.get("opciones") or []
     if len(ops) < 3:
         errores.append("menos de 3 opciones")
@@ -198,7 +215,7 @@ def actualizar_caso(caso_id, cambios, solo_de=None):
         datos = json.loads(f.read_text(encoding="utf-8"))
         for c in datos.get("casos", []):
             if c["id"] == caso_id and (solo_de is None or c.get("docente") == solo_de):
-                for k in ["titulo", "situacion", "pregunta", "opciones", "pista", "explicacion", "reflexion", "rubrica_reflexion", "mision", "nivel_revision"]:
+                for k in ["titulo", "situacion", "pregunta", "opciones", "pista", "pista_suave", "pista_fuerte", "explicacion", "reflexion", "rubrica_reflexion", "mision", "nivel_revision"]:
                     if k in cambios:
                         c[k] = cambios[k]
                 f.write_text(json.dumps(datos, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -60,13 +60,18 @@
   <div class="ficha"><b>Alcance:</b> Critia es un prototipo. No ha pasado por un piloto con estudiantes ni cuenta con evidencia de eficacia. Lo que registra es el proceso (decisión, confianza, revisión, reflexión); que un alumno corrija después de la pista muestra que revisó, no que aprendió. Comprobar aprendizaje requiere casos nuevos, valorar sus razones y, si es posible, una medición posterior. El tutor no lee ni califica el razonamiento escrito, no verifica fuentes en internet ni detecta imágenes o audios manipulados.</div>
 
   <h2 id="como-funciona">2. Cómo funciona un caso</h2>
+  <p>La regla del tutor cabe en una frase: <b>primero te hago pensar; si no alcanza, te señalo el lugar; la respuesta solo al final.</b> Un caso tiene hasta tres decisiones.</p>
   <ol>
-    <li><b>Decidir.</b> El estudiante lee la situación, elige una opción (A, B o C), marca su confianza de 0 a 100 y escribe en una línea por qué.</li>
-    <li><b>Pista.</b> El tutor responde con una acción y un motivo, por ejemplo: "Vamos a comprobarlo paso a paso" porque "se aceptó una afirmación sin evidencia con confianza alta". Si la respuesta fue incorrecta, da una pista que no revela la respuesta.</li>
-    <li><b>Revisar.</b> El estudiante puede mantener o cambiar su respuesta, y ajustar su confianza.</li>
-    <li><b>Cierre.</b> Ve qué habilidades ganó, lee la explicación completa y responde una pregunta de reflexión que llega a tu panel.</li>
+    <li><b>Decidir.</b> El estudiante lee la respuesta de la IA, elige una opción (A, B o C), marca su confianza de 0 a 100 y escribe en una línea por qué. Si quiere, puede pedir una pista antes de decidir con el botón <i>Necesito una pista</i>: cada pista pedida sube un escalón y resta valor al caso para territorio e insignia.</li>
+    <li><b>Pista suave.</b> Si se equivocó, el tutor responde con una acción y un motivo visibles (por ejemplo "Vamos a comprobarlo paso a paso" porque "se aceptó una afirmación sin evidencia con confianza alta") y una <b>pregunta general</b> que activa la habilidad, sin tocar el caso: "¿qué tendrías que ver para saber que es cierto?".</li>
+    <li><b>Decidir otra vez.</b> Puede mantener o cambiar su respuesta y su confianza.</li>
+    <li><b>Pista fuerte.</b> Si sigue mal, el tutor <b>señala dónde está el fallo</b> sin resolverlo: "fíjate sobre qué cantidad se aplica el segundo 25%".</li>
+    <li><b>Última decisión.</b></li>
+    <li><b>Cierre.</b> Ve qué habilidades ganó, lee la explicación completa (si no lo resolvió, empieza por el paso que faltaba) y responde una pregunta de reflexión que llega a tu panel.</li>
   </ol>
+  <div class="nota">El tutor se salta la pista suave y va directo a la fuerte cuando el alumno <b>ya duda</b> (confianza menor a 50), cuando <b>ya cometió ese mismo error</b> en casos anteriores, o cuando <b>falló el caso anterior de la misma misión</b>: hacer dudar a quien ya duda no aporta. Estas reglas están escritas en el motor (<code>diagnostico.dlv</code>) y se pueden leer y cambiar.</div>
   <div class="nota">La respuesta correcta nunca aparece antes del cierre. Si un estudiante cree que el caso está mal planteado, puede marcarlo con "Creo que este caso está mal"; eso te llega como alerta.</div>
+  <p><b>Lo que ves tú:</b> en el historial de cada alumno y en el resumen por caso, cómo lo resolvió: <i>solo</i>, <i>con una pregunta</i>, <i>con señalamiento</i> o <i>no lo resolvió</i>, y si pidió pista. Ese es el dato de "en qué necesita apoyo": no solo si acertó, sino cuánta ayuda necesitó. Las insignias solo se sugieren por casos resueltos sin ninguna pista.</p>
 
   <h2 id="antes">3. Antes de la primera clase</h2>
   <ol>

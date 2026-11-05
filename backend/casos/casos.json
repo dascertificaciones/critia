@@ -59,7 +59,9 @@
       "rubrica_reflexion": [
         "La pregunta pide un dato concreto (quién, cuántos, dónde).",
         "No se contesta con sí o no."
-      ]
+      ],
+      "pista_fuerte": "¿Quién midió ese 95%? ¿La empresa que vende la app o alguien que no gana con ella?",
+      "pista_suave": "Antes de creerle: ¿qué tendrías que ver para saber que es cierto, y no solo que suena bien?"
     },
     {
       "id": "N1-M1-002",
@@ -100,7 +102,9 @@
       "rubrica_reflexion": [
         "Señala algo del texto de la IA (tono, seguridad, la palabra 'sencilla').",
         "Distingue entre cómo sonaba y si era correcta."
-      ]
+      ],
+      "pista_fuerte": "El segundo 25%, ¿se saca de 800 o de 1000?",
+      "pista_suave": "Antes de creerle: ¿qué tendrías que ver para saber que es cierto, y no solo que suena bien?"
     },
     {
       "id": "N2-M1-001",
@@ -141,7 +145,9 @@
       "rubrica_reflexion": [
         "Cita la frase.",
         "Explica por qué no es verificable."
-      ]
+      ],
+      "pista_fuerte": "\"Ampliamente aceptado por la neurociencia\" ¿nombra a alguien o a algo que puedas revisar?",
+      "pista_suave": "Antes de creerle: ¿qué tendrías que ver para saber que es cierto, y no solo que suena bien?"
     },
     {
       "id": "N3-M1-001",
@@ -182,7 +188,9 @@
       "rubrica_reflexion": [
         "Reconoce que ver los pasos da sensación de rigor.",
         "Distingue entre pasos correctos y premisa correcta."
-      ]
+      ],
+      "pista_fuerte": "La IA dijo \"asume interés simple, que es lo habitual\". ¿Es habitual? ¿Quién lo decide: la IA o el contrato?",
+      "pista_suave": "Antes de creerle: ¿qué tendrías que ver para saber que es cierto, y no solo que suena bien?"
     },
     {
       "id": "N1-M2-001",
@@ -223,7 +231,9 @@
       "rubrica_reflexion": [
         "Nombra una fuente real (libro, museo, página de una institución).",
         "No se queda solo con la IA."
-      ]
+      ],
+      "pista_fuerte": "¿Un nombre de libro que nadie encuentra sirve como prueba?",
+      "pista_suave": "¿Podrías encontrar tú esa fuente? Y si no aparece, ¿qué significa?"
     },
     {
       "id": "N2-M2-001",
@@ -264,7 +274,9 @@
       "rubrica_reflexion": [
         "Dice dónde buscaría (buscador académico, biblioteca, la revista).",
         "Dice que revisaría que el artículo diga lo que la IA afirma."
-      ]
+      ],
+      "pista_fuerte": "Una cita puede tener formato perfecto y aun así no existir. ¿Qué prueba que es real?",
+      "pista_suave": "¿Podrías encontrar tú esa fuente? Y si no aparece, ¿qué significa?"
     },
     {
       "id": "N2-M2-002",
@@ -305,7 +317,9 @@
       "rubrica_reflexion": [
         "Reconoce que los detalles dan apariencia de precisión.",
         "Concluye que los detalles no sustituyen la verificación."
-      ]
+      ],
+      "pista_fuerte": "Un número de página hace que la cita suene más real. ¿La hace más real?",
+      "pista_suave": "¿Podrías encontrar tú esa fuente? Y si no aparece, ¿qué significa?"
     },
     {
       "id": "N3-M2-001",
@@ -346,7 +360,9 @@
       "rubrica_reflexion": [
         "Refleja el matiz (relación con agresividad, no causa de violencia).",
         "Atribuye la afirmación a la fuente, no a la IA."
-      ]
+      ],
+      "pista_fuerte": "Verificar que la fuente existe es el primer paso. ¿Cuál es el segundo?",
+      "pista_suave": "¿Podrías encontrar tú esa fuente? Y si no aparece, ¿qué significa?"
     },
     {
       "id": "N1-M3-001",
@@ -387,7 +403,9 @@
       "rubrica_reflexion": [
         "Identifica una frase concreta.",
         "Explica que esa frase no muestra de dónde salió el dato."
-      ]
+      ],
+      "pista_fuerte": "Decir \"es un dato bien establecido\" no es mostrar de dónde salió. ¿Dónde lo puedes comprobar?",
+      "pista_suave": "Antes de creerle: ¿qué tendrías que ver para saber que es cierto, y no solo que suena bien?"
     },
     {
       "id": "N2-M3-001",
@@ -428,7 +446,9 @@
       "rubrica_reflexion": [
         "Incluye al menos dos condiciones (cantidad, recipiente, fuego, lugar).",
         "Sigue siendo clara y corta."
-      ]
+      ],
+      "pista_fuerte": "¿4 minutos para una taza o para una olla? ¿En la playa o en Toluca?",
+      "pista_suave": "¿La respuesta es para tu caso o para cualquier caso? ¿Qué le faltó saber a la IA?"
     },
     {
       "id": "N3-M3-001",
@@ -469,7 +489,9 @@
       "rubrica_reflexion": [
         "Incluye propiedad, ubicación/clima y consumo.",
         "La pregunta deja claro que quiere una respuesta para su caso."
-      ]
+      ],
+      "pista_fuerte": "¿Para quién son esos 4 a 6 años? ¿Para una casa propia con sol todo el año o para la tuya?",
+      "pista_suave": "¿La respuesta es para tu caso o para cualquier caso? ¿Qué le faltó saber a la IA?"
     },
     {
       "id": "N1-M4-001",
@@ -510,7 +532,9 @@
       "rubrica_reflexion": [
         "Compara su confianza antes y después.",
         "Reconoce que la rapidez de la respuesta influyó."
-      ]
+      ],
+      "pista_fuerte": "Si la pelota cuesta 10 y el bate 100 más, ¿cuánto cuesta el bate? ¿Cuánto suman?",
+      "pista_suave": "¿De dónde sale tu seguridad: de algo que comprobaste o de cómo sonó la respuesta?"
     },
     {
       "id": "N1-M4-002",
@@ -551,7 +575,9 @@
       "rubrica_reflexion": [
         "Reconoce que un número da apariencia de precisión.",
         "Señala que el número no tenía respaldo."
-      ]
+      ],
+      "pista_fuerte": "¿La moneda sabe lo que salió antes?",
+      "pista_suave": "¿De dónde sale tu seguridad: de algo que comprobaste o de cómo sonó la respuesta?"
     },
     {
       "id": "N2-M4-001",
@@ -592,7 +618,9 @@
       "rubrica_reflexion": [
         "Menciona algo verificable (fuente, procedimiento, comprobación).",
         "Distingue entre sonar seguro y estar en lo correcto."
-      ]
+      ],
+      "pista_fuerte": "Si dos respuestas distintas vienen con la misma seguridad, ¿qué vale esa seguridad?",
+      "pista_suave": "¿De dónde sale tu seguridad: de algo que comprobaste o de cómo sonó la respuesta?"
     },
     {
       "id": "N2-M4-002",
@@ -633,7 +661,9 @@
       "rubrica_reflexion": [
         "Reconoce que cambiar de opinión con razones es correcto.",
         "Da una razón personal, no genérica."
-      ]
+      ],
+      "pista_fuerte": "Ve hacia atrás desde el día 48: ¿cómo estaba el estanque el día 47?",
+      "pista_suave": "Si apareciera una razón mejor que la tuya, ¿cambiarías? Busca esa razón antes de decidir."
     },
     {
       "id": "N2-M4-003",
@@ -674,7 +704,9 @@
       "rubrica_reflexion": [
         "Da un ejemplo concreto.",
         "Explica qué lo hacía sonar correcto."
-      ]
+      ],
+      "pista_fuerte": "¿Cuánto tarda una sola máquina en hacer una sola pieza?",
+      "pista_suave": "¿De dónde sale tu seguridad: de algo que comprobaste o de cómo sonó la respuesta?"
     },
     {
       "id": "N3-M4-001",
@@ -715,7 +747,9 @@
       "rubrica_reflexion": [
         "Menciona el tamaño o la selección de la muestra.",
         "Señala que la IA no cuestionó los datos que le dieron."
-      ]
+      ],
+      "pista_fuerte": "¿Tus 5 compañeros se parecen al resto del grupo, o son justo los que piensan como tú? ¿La IA preguntó eso?",
+      "pista_suave": "Si apareciera una razón mejor que la tuya, ¿cambiarías? Busca esa razón antes de decidir."
     },
     {
       "id": "N1-M5-001",
@@ -756,7 +790,9 @@
       "rubrica_reflexion": [
         "Se basa en lo que hace la persona, no en cómo es.",
         "Se aplica igual a todos."
-      ]
+      ],
+      "pista_fuerte": "¿Conoces a alguien bajito que organiza bien? ¿A una niña que juega mejor que muchos?",
+      "pista_suave": "¿Ese criterio se aplica igual a todas las personas, o juzga a un grupo entero?"
     },
     {
       "id": "N2-M5-001",
@@ -797,7 +833,9 @@
       "rubrica_reflexion": [
         "Se basa en lo que cada persona sabe o quiere, no en un grupo.",
         "Se puede aplicar igual a todos."
-      ]
+      ],
+      "pista_fuerte": "¿Jugar videojuegos prueba que alguien sabe programar? ¿Ser bueno en artes prueba que no es lógico?",
+      "pista_suave": "¿Ese criterio se aplica igual a todas las personas, o juzga a un grupo entero?"
     },
     {
       "id": "N3-M5-001",
@@ -838,7 +876,9 @@
       "rubrica_reflexion": [
         "Menciona que aprende de textos escritos por personas.",
         "Concluye que la frecuencia no es un requisito."
-      ]
+      ],
+      "pista_fuerte": "Separa la respuesta en frases. ¿Cuáles describen una habilidad y cuáles describen a un grupo de personas?",
+      "pista_suave": "¿Ese criterio se aplica igual a todas las personas, o juzga a un grupo entero?"
     },
     {
       "id": "N1-M6-001",
@@ -879,7 +919,9 @@
       "rubrica_reflexion": [
         "La lista de 'nunca' incluye contraseña y dirección.",
         "La lista de 'sí' solo tiene datos de la tarea (materia, grado, tema)."
-      ]
+      ],
+      "pista_fuerte": "¿Para hacer una tarea de matemáticas la app necesita tu dirección? ¿Tu contraseña?",
+      "pista_suave": "¿Quién podría salir afectado si haces lo que dice la IA?"
     },
     {
       "id": "N2-M6-001",
@@ -920,7 +962,9 @@
       "rubrica_reflexion": [
         "Menciona una señal del contexto (canal, falta de aviso oficial, urgencia).",
         "No se basa solo en que se vea bien o mal."
-      ]
+      ],
+      "pista_fuerte": "¿La IA vio el video o solo leyó lo que tú le contaste? ¿Por qué el aviso no llegó por el canal oficial?",
+      "pista_suave": "¿Quién podría salir afectado si haces lo que dice la IA?"
     },
     {
       "id": "N3-M6-001",
@@ -961,7 +1005,9 @@
       "rubrica_reflexion": [
         "No incluye nombre, número ni datos identificables.",
         "Mantiene lo esencial del problema."
-      ]
+      ],
+      "pista_fuerte": "¿Tu amigo te autorizó a subir lo que te contó a un servicio de internet? ¿La IA puede prometer confidencialidad?",
+      "pista_suave": "¿Quién podría salir afectado si haces lo que dice la IA?"
     },
     {
       "id": "N1-M7-001",
@@ -1002,7 +1048,9 @@
       "rubrica_reflexion": [
         "Dice qué le pidió a la IA.",
         "Dice qué hizo la persona."
-      ]
+      ],
+      "pista_fuerte": "Si tu maestra te pregunta cómo se te ocurrió el final, ¿qué le dirías?",
+      "pista_suave": "Si firmas esto como tuyo, ¿qué parte hiciste tú?"
     },
     {
       "id": "N2-M7-001",
@@ -1025,7 +1073,9 @@
         "Menciona al menos una fuente distinta a la IA.",
         "Describe qué haría si la IA y la fuente no coinciden.",
         "Usa sus propias palabras."
-      ]
+      ],
+      "pista_fuerte": "Piensa en dos fuentes distintas a la IA donde podrías comparar la explicación.",
+      "pista_suave": "¿Otra persona podría repetir lo que harías con lo que escribiste?"
     },
     {
       "id": "N2-M7-002",
@@ -1066,7 +1116,9 @@
       "rubrica_reflexion": [
         "Dice qué le pidió a la IA en concreto.",
         "Dice qué parte del trabajo hizo la persona."
-      ]
+      ],
+      "pista_fuerte": "¿Qué parte del ensayo sería tuya? ¿Qué aprendiste al hacerlo?",
+      "pista_suave": "Si firmas esto como tuyo, ¿qué parte hiciste tú?"
     },
     {
       "id": "N3-M7-001",
@@ -1089,7 +1141,9 @@
         "Distingue lo que pidió a la IA de lo que hizo la persona.",
         "Describe al menos una verificación concreta.",
         "Toma postura sobre el consejo de ocultar el uso de IA."
-      ]
+      ],
+      "pista_fuerte": "Una buena explicación permite que otra persona repita tu proceso.",
+      "pista_suave": "¿Otra persona podría repetir lo que harías con lo que escribiste?"
     },
     {
       "id": "N1-M8-001",
@@ -1130,7 +1184,9 @@
       "rubrica_reflexion": [
         "Las situaciones tienen consecuencias reales (salud, seguridad, dinero, un conflicto).",
         "Dice a quién preguntaría en cada caso."
-      ]
+      ],
+      "pista_fuerte": "La IA no te puede examinar ni sabe tu historial. ¿Quién sí puede?",
+      "pista_suave": "¿Esto lo puede decidir una IA, o necesita a una persona que te conozca?"
     },
     {
       "id": "DET-001",
@@ -1155,7 +1211,9 @@
         "Identifica que la cita de la IA 1 no se puede comprobar tal como está.",
         "Detecta que la IA 3 inventa una experiencia que no puede tener.",
         "Propone al menos un paso concreto de verificación."
-      ]
+      ],
+      "pista_fuerte": "Que tres respuestas coincidan no prueba nada si ninguna muestra evidencia. ¿Las tres pueden estar repitiendo la misma idea popular?",
+      "pista_suave": "¿Qué dato le falta a la respuesta para que la conclusión se sostenga?"
     },
     {
       "id": "N2-M8-001",
@@ -1196,7 +1254,9 @@
       "rubrica_reflexion": [
         "La situación afecta a otras personas o tiene consecuencias reales.",
         "Da una razón propia."
-      ]
+      ],
+      "pista_fuerte": "¿La IA escuchó a Sofía? ¿Conoce la historia de esa amistad?",
+      "pista_suave": "¿Esto lo puede decidir una IA, o necesita a una persona que te conozca?"
     },
     {
       "id": "N3-M8-001",
@@ -1237,7 +1297,10 @@
       "rubrica_reflexion": [
         "Separa al menos tres afirmaciones.",
         "Justifica el orden de verificación (por ejemplo, la cifra más precisa primero)."
-      ]
+      ],
+      "pista_fuerte": "Separa el párrafo en afirmaciones. ¿Cuáles podrías encontrar en una fuente real en 5 minutos? ¿Cuáles tienen cifras muy exactas sin decir de dónde salen?",
+      "pista_suave": "¿Qué dato le falta a la respuesta para que la conclusión se sostenga?"
     }
-  ]
+  ],
+  "formato_pistas": "pista_suave: pregunta general que activa la habilidad, sin tocar el caso. pista_fuerte: señala dónde está el fallo sin resolverlo. 'pista' se conserva igual a la fuerte por compatibilidad."
 }

@@ -84,3 +84,4 @@ sentido(calibrar)   :- fase(final), diagnostico(calibro).
 #show seleccionada/2.
 #show diagnostico/1.
 #show sentido/1.
+#show nivel_pista/1.

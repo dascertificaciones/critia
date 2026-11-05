@@ -148,7 +148,8 @@
         <input type="radio" name="ok-${esc(c.id)}" value="${i}" ${o.correcta ? 'checked' : ''}>
         <b>${o.clave}</b><input type="text" class="f-op" data-i="${i}" value="${esc(o.texto)}" style="flex:1">
       </div>`).join('')}
-      <label>Pista</label><input type="text" class="f-pista" value="${esc(c.pista)}">
+      <label>Pista suave <span class="suave peq">(pregunta general que activa la habilidad)</span></label><input type="text" class="f-pista_suave" value="${esc(c.pista_suave || '')}">
+      <label>Pista fuerte <span class="suave peq">(señala dónde está el fallo, sin resolverlo)</span></label><input type="text" class="f-pista" value="${esc(c.pista_fuerte || c.pista || '')}">
       <label>Explicación</label><textarea class="f-explicacion">${esc(c.explicacion)}</textarea>
       <label>Reflexión</label><input type="text" class="f-reflexion" value="${esc(c.reflexion || '')}">
       <label>Grupos que verán este caso</label>
@@ -166,6 +167,7 @@
     ops.forEach((o, i) => { o.correcta = i === ci; });
     return { titulo: card.querySelector('.f-titulo').value, situacion: card.querySelector('.f-situacion').value,
              pregunta: card.querySelector('.f-pregunta').value, pista: card.querySelector('.f-pista').value,
+             pista_fuerte: card.querySelector('.f-pista').value, pista_suave: card.querySelector('.f-pista_suave').value,
              explicacion: card.querySelector('.f-explicacion').value, reflexion: card.querySelector('.f-reflexion').value, opciones: ops };
   }
   function enlazarTarjetas() {
@@ -345,12 +347,13 @@
         </tbody></table>` : '<div class="vacio">Todavía no hay mapas con alumnos.</div>'}
         <h2 style="font-size:16px;margin-top:20px">Por caso</h2>
         <p class="suave peq">Verde: acertó sin pista. Ámbar: corrigió después de la pista. Rojo: siguió mal.</p>
-        <table><thead><tr><th>Caso</th><th>N</th><th style="width:30%">Resultado</th><th>Conf. inicial → final</th><th>Dudas</th></tr></thead><tbody>
+        <table><thead><tr><th>Caso</th><th>N</th><th style="width:26%">Resultado</th><th>Ayuda que necesitaron</th><th>Conf. inicial → final</th><th>Dudas</th></tr></thead><tbody>
         ${r.por_caso.map(c => `<tr>
           <td><b>${esc(c.titulo)}</b><br><span class="peq suave">${c.caso_id}</span></td><td>${c.n}</td>
           <td><div class="barrita"><i class="b-ok" style="width:${100 * c.ok_ini / c.n}%"></i><i class="b-mej" style="width:${100 * c.mejoraron / c.n}%"></i><i class="b-mal" style="width:${100 * c.siguen_mal / c.n}%"></i></div>
               <span class="peq suave">${c.ok_ini} · ${c.mejoraron} · ${c.siguen_mal}</span></td>
-          <td>${c.conf_ini_prom ?? '-'} → ${c.conf_fin_prom ?? '-'}</td><td>${c.dudas || ''}</td></tr>`).join('') || '<tr><td colspan="5" class="vacio">Aún no hay casos resueltos</td></tr>'}
+          <td class="peq">solos <b>${c.solos || 0}</b> · con pregunta <b>${c.con_pregunta || 0}</b> · con señalamiento <b>${c.con_senalamiento || 0}</b>${c.pidieron ? ` · pidieron pista ${c.pidieron}` : ''}</td>
+          <td>${c.conf_ini_prom ?? '-'} → ${c.conf_fin_prom ?? '-'}</td><td>${c.dudas || ''}</td></tr>`).join('') || '<tr><td colspan="6" class="vacio">Aún no hay casos resueltos</td></tr>'}
         </tbody></table>
         <h2 style="font-size:16px;margin-top:20px">Errores más frecuentes</h2>
         <table><tbody>${r.por_familia.map(f => `<tr><td>${esc(f.familia)}</td><td>${f.n}</td></tr>`).join('') || '<tr><td class="vacio">Sin datos</td></tr>'}</tbody></table>`;
@@ -450,12 +453,13 @@
       [...$('contenido').querySelectorAll('td[data-s]')].forEach(tr => tr.onclick = async () => {
         const h = await api(`/docente/alumnos/${tr.dataset.s}`, 'GET', null, H());
         $('hist').innerHTML = `<h2 style="font-size:16px;margin-top:20px">Historial de ${esc(tr.dataset.s)}</h2>
-          <table><thead><tr><th>Caso</th><th>Inicial</th><th>Tutor</th><th>Revisada</th><th>Habilidades</th><th>Reflexión</th></tr></thead><tbody>
+          <table><thead><tr><th>Caso</th><th>Inicial</th><th>Tutor</th><th>Revisada</th><th>Ayuda que necesitó</th><th>Habilidades</th><th>Reflexión</th></tr></thead><tbody>
           ${h.map(i => `<tr>
             <td><b>${esc(i.titulo)}</b><br><span class="peq suave">${esc(i.inicio.slice(0, 16).replace('T', ' '))}</span></td>
             <td><span class="tag ${i.eval_ini === 'correcta' ? 'ok' : 'mal'}">${esc(i.clave_ini)} · ${i.conf_ini}</span>${i.just_ini ? `<br><span class="peq suave">"${esc(i.just_ini)}"</span>` : ''}</td>
             <td class="peq suave">${esc(i.accion_ini)}</td>
             <td><span class="tag ${i.eval_fin === 'correcta' ? 'ok' : 'mal'}">${esc(i.clave_fin)} · ${i.conf_fin}</span></td>
+            <td>${({ solo: '<span class="tag ok">solo</span>', con_pregunta: '<span class="tag ok">con una pregunta</span>', con_senalamiento: '<span class="tag aviso">con señalamiento</span>', no_resolvio: '<span class="tag mal">no lo resolvió</span>', abierta: '<span class="tag">abierta</span>' })[i.resolucion] || ''}${i.pista_pedida ? '<br><span class="peq suave">pidió pista</span>' : ''}${i.repeticion ? '<br><span class="peq suave">repetición</span>' : ''}</td>
             <td>${i.sentidos.length}/3</td>
             <td class="peq">${esc(i.reflexion || '')}${i.reporta_duda ? ' <span class="tag aviso">dudó del caso</span>' : ''}</td></tr>`).join('') || '<tr><td colspan="6" class="vacio">Sin casos cerrados</td></tr>'}
           </tbody></table>`;
