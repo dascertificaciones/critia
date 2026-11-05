@@ -186,6 +186,12 @@ class PasswordIn(BaseModel):
     password: str
 
 
+class TransferenciaIn(BaseModel):
+    mapa: int
+    aplico: bool
+    nota: str = ""
+
+
 class GrupoIn(BaseModel):
     nombre: str
     nivel: Optional[int] = None
@@ -557,7 +563,29 @@ def docente_resumen(grupo: Optional[str] = None, x_admin: str = Header(default="
 @app.get("/api/docente/alumnos")
 def docente_alumnos(x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
     q = _quien(x_admin, x_sesion)
-    return historial.lista_alumnos_codigos(q.codigos())
+    lista = historial.lista_alumnos_codigos(q.codigos())
+    tr = historial.transferencias_de([a["seudonimo"] for a in lista])
+    for a in lista:
+        a["transferencia"] = {str(k): v for k, v in tr.get(a["seudonimo"], {}).items()}
+    return lista
+
+
+@app.put("/api/docente/alumnos/{seudonimo}/transferencia")
+def docente_transferencia(seudonimo: str, d: TransferenciaIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    """El docente marca si el alumno aplicó la habilidad en la tarea real (la investigación) de ese mapa."""
+    q = _quien(x_admin, x_sesion)
+    cod = historial.grupo_de_alumno(seudonimo)
+    m = historial.mapa(d.mapa)
+    if not cod or not q.puede_grupo(cod) or not m or m["codigo"] != cod:
+        raise HTTPException(403, "Ese alumno o ese mapa no son de tus grupos")
+    historial.marcar_transferencia(seudonimo, d.mapa, d.aplico, d.nota, q.usuario)
+    return {"ok": True}
+
+
+@app.get("/api/docente/transferencia")
+def docente_resumen_transferencia(x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    q = _quien(x_admin, x_sesion)
+    return historial.resumen_transferencia(q.codigos())
 
 
 @app.get("/api/docente/alumnos/{seudonimo}")

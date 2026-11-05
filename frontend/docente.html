@@ -327,7 +327,7 @@
     },
 
     async resumen() {
-      const r = await api('/docente/resumen', 'GET', null, H());
+      const [r, tr] = await Promise.all([api('/docente/resumen', 'GET', null, H()), api('/docente/transferencia', 'GET', null, H())]);
       const t = r.totales;
       const tasa = t.errores_ini ? Math.round(100 * t.mejoraron / t.errores_ini) : 0;
       $('contenido').innerHTML = `
@@ -338,7 +338,12 @@
           <div class="kpi"><b>${t.errores_ini || 0}</b><span>errores iniciales</span></div>
           <div class="kpi"><b>${tasa}%</b><span>de errores corregidos tras la pista</span></div>
         </div>
-        <h2 style="font-size:16px">Por caso</h2>
+        <h2 style="font-size:16px">Entrenar → insignia → tarea real</h2>
+        <p class="suave peq">Por mapa: cuántos alumnos entrenaron en Critia, cuántos ganaron al menos una insignia y cuántos aplicaron la habilidad en la investigación real (lo marcas tú en Alumnos → Tarea real).</p>
+        ${tr.length ? `<table><thead><tr><th>Mapa</th><th>Grupo</th><th>Entrenaron</th><th>Con insignia</th><th>Aplicaron en la tarea</th><th>Tareas revisadas</th></tr></thead><tbody>
+          ${tr.map(m => `<tr><td><b>${esc(m.nombre)}</b></td><td>${esc(m.grupo_nombre)}</td><td>${m.entrenaron}</td><td>${m.con_insignia}</td><td><b>${m.aplicaron}</b>${m.revisados ? ` <span class="peq suave">(${Math.round(100 * m.aplicaron / m.revisados)}% de las revisadas)</span>` : ''}</td><td>${m.revisados}</td></tr>`).join('')}
+        </tbody></table>` : '<div class="vacio">Todavía no hay mapas con alumnos.</div>'}
+        <h2 style="font-size:16px;margin-top:20px">Por caso</h2>
         <p class="suave peq">Verde: acertó sin pista. Ámbar: corrigió después de la pista. Rojo: siguió mal.</p>
         <table><thead><tr><th>Caso</th><th>N</th><th style="width:30%">Resultado</th><th>Conf. inicial → final</th><th>Dudas</th></tr></thead><tbody>
         ${r.por_caso.map(c => `<tr>
@@ -433,11 +438,16 @@
 
     async alumnos() {
       const lista = await api('/docente/alumnos', 'GET', null, H());
-      $('contenido').innerHTML = `<h2>Alumnos</h2><p class="suave peq">Solo seudónimos. Haz clic en uno para ver su historial.</p>
-        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Sentidos</th><th>Insignias</th></tr></thead><tbody>
-        ${lista.map(a => `<tr style="cursor:pointer" data-s="${esc(a.seudonimo)}"><td><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td>${escudoHtml(a.equipo)} ${a.equipo}</td><td>${a.casos}</td><td>${a.sentidos}</td><td>${a.insignias}</td></tr>`).join('')}
+      const mapasDe = cod => ((YO.grupos.find(g => g.codigo === cod) || {}).mapas || []);
+      $('contenido').innerHTML = `<h2>Alumnos</h2><p class="suave peq">Solo seudónimos. Haz clic en el seudónimo para ver su historial. En <b>Tarea real</b> marca, por mapa, si el alumno aplicó la habilidad en la investigación que entregó (su nota de uso de IA, sus fuentes): así se registra la transferencia fuera de Critia.</p>
+        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Sentidos</th><th>Insignias</th><th>Tarea real</th></tr></thead><tbody>
+        ${lista.map(a => `<tr><td style="cursor:pointer" data-s="${esc(a.seudonimo)}"><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td>${escudoHtml(a.equipo)} ${a.equipo}</td><td>${a.casos}</td><td>${a.sentidos}</td><td>${a.insignias}</td>
+          <td class="peq">${mapasDe(a.grupo).map(m => `<label style="display:flex;gap:6px;align-items:center;font-weight:400;margin:0 0 4px"><input type="checkbox" class="tr-chk" data-s="${esc(a.seudonimo)}" data-m="${m.id}" ${(a.transferencia || {})[m.id]?.aplico ? 'checked' : ''}> ${esc(m.nombre)}</label>`).join('') || '<span class="suave">sin mapas</span>'}</td></tr>`).join('')}
         </tbody></table><div id="hist"></div>` : '<div class="vacio">Nadie se ha registrado todavía.</div>'}`;
-      [...$('contenido').querySelectorAll('tr[data-s]')].forEach(tr => tr.onclick = async () => {
+      [...$('contenido').querySelectorAll('.tr-chk')].forEach(c => c.onchange = async () => {
+        try { await api(`/docente/alumnos/${c.dataset.s}/transferencia`, 'PUT', { mapa: +c.dataset.m, aplico: c.checked }, H()); toast(c.checked ? 'Marcado: aplicó la habilidad en la tarea' : 'Desmarcado'); } catch (e) { toast(e.message); c.checked = !c.checked; }
+      });
+      [...$('contenido').querySelectorAll('td[data-s]')].forEach(tr => tr.onclick = async () => {
         const h = await api(`/docente/alumnos/${tr.dataset.s}`, 'GET', null, H());
         $('hist').innerHTML = `<h2 style="font-size:16px;margin-top:20px">Historial de ${esc(tr.dataset.s)}</h2>
           <table><thead><tr><th>Caso</th><th>Inicial</th><th>Tutor</th><th>Revisada</th><th>Sentidos</th><th>Reflexión</th></tr></thead><tbody>

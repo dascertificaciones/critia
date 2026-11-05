@@ -373,6 +373,15 @@ CREATE TABLE IF NOT EXISTS casos_mapa (
     mapa_id   INTEGER NOT NULL,
     PRIMARY KEY (caso_id, mapa_id)
 );
+CREATE TABLE IF NOT EXISTS transferencias (
+    seudonimo TEXT NOT NULL,
+    mapa_id   INTEGER NOT NULL,
+    aplico    INTEGER NOT NULL DEFAULT 0,
+    nota      TEXT,
+    docente   TEXT,
+    fecha     TEXT,
+    PRIMARY KEY (seudonimo, mapa_id)
+);
 CREATE TABLE IF NOT EXISTS sesiones_alumno (
     token     TEXT PRIMARY KEY,
     seudonimo TEXT NOT NULL,
@@ -851,3 +860,41 @@ def sugerencias_insignia_codigos(casos_por_postulado, codigos):
         nombres = {r["id"]: r["nombre"] for r in con.execute("SELECT id, nombre FROM mapas")}
         return [{"seudonimo": k[0], "postulado": k[1], "mapa_id": k[2], "mapa": nombres.get(k[2], ""), "casos": sorted(v)}
                 for k, v in conteo.items() if len(v) >= CASOS_PARA_INSIGNIA and k not in ya]
+
+
+# ---------- Transferencia: ¿aplicó la habilidad en la tarea real? ----------
+def marcar_transferencia(seudonimo, mapa_id, aplico, nota, docente):
+    with conectar() as con:
+        con.execute("INSERT OR REPLACE INTO transferencias VALUES (?,?,?,?,?,?)",
+                    (seudonimo, int(mapa_id), 1 if aplico else 0, (nota or "").strip()[:300], docente, ahora()))
+
+
+def transferencias_de(seudonimos):
+    """{seudonimo: {mapa_id: {aplico, nota}}}"""
+    if not seudonimos:
+        return {}
+    with conectar() as con:
+        q = ",".join("?" * len(seudonimos))
+        out = {}
+        for r in con.execute(f"SELECT * FROM transferencias WHERE seudonimo IN ({q})", tuple(seudonimos)):
+            out.setdefault(r["seudonimo"], {})[r["mapa_id"]] = {"aplico": bool(r["aplico"]), "nota": r["nota"] or ""}
+        return out
+
+
+def resumen_transferencia(codigos):
+    """Por mapa: cuántos alumnos entrenaron (al menos un caso cerrado), cuántos tienen insignia
+    y cuántos aplicaron la habilidad en la tarea real según el docente."""
+    f, params = _filtro_grupos(codigos)
+    with conectar() as con:
+        mapas = [dict(r) for r in con.execute(f"""SELECT m.id, m.nombre, m.codigo, g.nombre grupo_nombre FROM mapas m
+                    JOIN grupos g ON g.codigo=m.codigo JOIN alumnos a ON a.grupo=m.codigo WHERE 1=1{f} GROUP BY m.id""", params)]
+        for m in mapas:
+            m["entrenaron"] = con.execute("""SELECT COUNT(DISTINCT i.seudonimo) FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                              WHERE a.grupo=? AND i.mapa_id=? AND i.cierre IS NOT NULL""", (m["codigo"], m["id"])).fetchone()[0]
+            m["con_insignia"] = con.execute("""SELECT COUNT(DISTINCT i.seudonimo) FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                                WHERE a.grupo=? AND i.mapa_id=?""", (m["codigo"], m["id"])).fetchone()[0]
+            m["aplicaron"] = con.execute("""SELECT COUNT(*) FROM transferencias t JOIN alumnos a ON a.seudonimo=t.seudonimo
+                                             WHERE a.grupo=? AND t.mapa_id=? AND t.aplico=1""", (m["codigo"], m["id"])).fetchone()[0]
+            m["revisados"] = con.execute("""SELECT COUNT(*) FROM transferencias t JOIN alumnos a ON a.seudonimo=t.seudonimo
+                                             WHERE a.grupo=? AND t.mapa_id=?""", (m["codigo"], m["id"])).fetchone()[0]
+        return mapas
