@@ -440,7 +440,7 @@
       const lista = await api('/docente/alumnos', 'GET', null, H());
       const mapasDe = cod => ((YO.grupos.find(g => g.codigo === cod) || {}).mapas || []);
       $('contenido').innerHTML = `<h2>Alumnos</h2><p class="suave peq">Solo seudónimos. Haz clic en el seudónimo para ver su historial. En <b>Tarea real</b> marca, por mapa, si el alumno aplicó la habilidad en la investigación que entregó (su nota de uso de IA, sus fuentes): así se registra la transferencia fuera de Critia.</p>
-        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Sentidos</th><th>Insignias</th><th>Tarea real</th></tr></thead><tbody>
+        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Habilidades</th><th>Insignias</th><th>Tarea real</th></tr></thead><tbody>
         ${lista.map(a => `<tr><td style="cursor:pointer" data-s="${esc(a.seudonimo)}"><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td>${escudoHtml(a.equipo)} ${a.equipo}</td><td>${a.casos}</td><td>${a.sentidos}</td><td>${a.insignias}</td>
           <td class="peq">${mapasDe(a.grupo).map(m => `<label style="display:flex;gap:6px;align-items:center;font-weight:400;margin:0 0 4px"><input type="checkbox" class="tr-chk" data-s="${esc(a.seudonimo)}" data-m="${m.id}" ${(a.transferencia || {})[m.id]?.aplico ? 'checked' : ''}> ${esc(m.nombre)}</label>`).join('') || '<span class="suave">sin mapas</span>'}</td></tr>`).join('')}
         </tbody></table><div id="hist"></div>` : '<div class="vacio">Nadie se ha registrado todavía.</div>'}`;
@@ -450,7 +450,7 @@
       [...$('contenido').querySelectorAll('td[data-s]')].forEach(tr => tr.onclick = async () => {
         const h = await api(`/docente/alumnos/${tr.dataset.s}`, 'GET', null, H());
         $('hist').innerHTML = `<h2 style="font-size:16px;margin-top:20px">Historial de ${esc(tr.dataset.s)}</h2>
-          <table><thead><tr><th>Caso</th><th>Inicial</th><th>Tutor</th><th>Revisada</th><th>Sentidos</th><th>Reflexión</th></tr></thead><tbody>
+          <table><thead><tr><th>Caso</th><th>Inicial</th><th>Tutor</th><th>Revisada</th><th>Habilidades</th><th>Reflexión</th></tr></thead><tbody>
           ${h.map(i => `<tr>
             <td><b>${esc(i.titulo)}</b><br><span class="peq suave">${esc(i.inicio.slice(0, 16).replace('T', ' '))}</span></td>
             <td><span class="tag ${i.eval_ini === 'correcta' ? 'ok' : 'mal'}">${esc(i.clave_ini)} · ${i.conf_ini}</span>${i.just_ini ? `<br><span class="peq suave">"${esc(i.just_ini)}"</span>` : ''}</td>

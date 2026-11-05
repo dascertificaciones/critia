@@ -32,7 +32,7 @@ Abrir http://localhost:8000
     backend/asp/                 reglas (diagnostico.dlv, tutor.dlv)
     backend/casos/casos.json     banco base
     backend/casos/docente/       casos inyectados por n8n (provisionales hasta aprobar)
-    backend/misiones.json        misiones, postulados, sentidos
+    backend/misiones.json        misiones, postulados, habilidades (justificar, revisar, calibrar)
     frontend/                    interfaz (HTML/CSS/JS, sin build)
     frontend/assets/insignias/   p01..p12.png
 
@@ -54,7 +54,7 @@ Restaurar la base: `docker cp historial.db critia:/data/historial.db && docker r
 - El alumno recibe un token al entrar (cabecera `X-Alumno`); solo él puede abrir casos, responder, revisar y reflexionar sobre sus intentos.
 - Un seudónimo no se puede mover de grupo ni cambiar de equipo; para volver a entrar hay que usar el mismo grupo y equipo.
 - Cada intento es una máquina de estados: decisión inicial → revisión → reflexión; nada se reescribe después.
-- Repetir un caso ya cerrado sirve para practicar, pero no suma sentidos, racha, insignias ni territorio.
+- Repetir un caso ya cerrado sirve para practicar, pero no suma habilidades, racha, insignias ni territorio.
 - El caso del detective se valida en el servidor (racha de 3 por mapa).
 - Los docentes solo revisan intentos, alertas y resúmenes de sus grupos, y solo asignan sus propios casos a sus propios mapas. Sesión de 12 h; 5 contraseñas falladas bloquean un minuto.
 - Todo texto de usuario o del modelo se escapa antes de insertarse en HTML.
