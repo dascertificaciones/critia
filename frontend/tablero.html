@@ -60,8 +60,8 @@ async function pintar() {
     const sel = document.getElementById('mapas-sel');
     const mapas = r.mapas || [];
     sel.innerHTML = mapas.length > 1 ? [`<button type="button" class="mapa-tab ${!mapaParam ? 'activo' : ''}" data-id="0">Todo el grupo</button>`]
-      .concat(mapas.map(m => `<button type="button" class="mapa-tab ${m.id === mapaParam ? 'activo' : ''}" data-id="${m.id}">${m.nombre}<small>${m.docente_nombre || m.docente}</small></button>`))
-      .concat([`<a class="mapa-tab" href="universo.html?grupo=${r.grupo.codigo}">Ver el universo</a>`]).join('') : (mapas.length ? `<a class="mapa-tab" href="universo.html?grupo=${r.grupo.codigo}">Ver el universo</a>` : '');
+      .concat(mapas.map(m => `<button type="button" class="mapa-tab ${m.id === mapaParam ? 'activo' : ''}" data-id="${+m.id}">${esc(m.nombre)}<small>${esc(m.docente_nombre || m.docente)}</small></button>`))
+      .concat([`<a class="mapa-tab" href="universo.html?grupo=${encodeURIComponent(r.grupo.codigo)}">Ver el universo</a>`]).join('') : (mapas.length ? `<a class="mapa-tab" href="universo.html?grupo=${encodeURIComponent(r.grupo.codigo)}">Ver el universo</a>` : '');
     [...sel.querySelectorAll('button.mapa-tab')].forEach(b => b.onclick = () => { mapaParam = +b.dataset.id; pintar(); });
   }
   const equipos = Object.keys(t);

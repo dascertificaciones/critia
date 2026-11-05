@@ -78,7 +78,6 @@
   const H = () => auth?.tipo === 'admin' ? { 'x-admin': auth.clave } : { 'x-sesion': auth?.token || '' };
   let YO = null;     // {admin, usuario, nombre, grupos}
   const $ = s => document.getElementById(s);
-  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let META = null;
 
   const PESTANAS_BASE = [

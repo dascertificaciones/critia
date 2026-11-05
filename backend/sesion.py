@@ -26,6 +26,10 @@ def abrir(seudonimo, caso_id, mapa_id=None):
 def responder(intento_id, clave, confianza, justificacion=""):
     """Fase inicial. Devuelve la intervención del tutor (pista + motivo)."""
     it = historial.obtener_intento(intento_id)
+    if not it:
+        raise KeyError("intento inexistente")
+    if it.get("clave_ini") or it.get("cierre"):
+        raise ValueError("Este intento ya tiene una decisión inicial; no se puede reescribir")
     casos, _ = motor.cargar_casos()
     caso = casos[it["caso_id"]]
     conf = _validar_conf(confianza)
@@ -49,6 +53,12 @@ def responder(intento_id, clave, confianza, justificacion=""):
 def revisar(intento_id, clave, confianza):
     """Fase final. Devuelve cierre, explicación, sentidos ganados y pregunta de reflexión."""
     it = historial.obtener_intento(intento_id)
+    if not it:
+        raise KeyError("intento inexistente")
+    if not it.get("clave_ini"):
+        raise ValueError("Primero hay que decidir")
+    if it.get("cierre"):
+        raise ValueError("Este intento ya está cerrado")
     casos, _ = motor.cargar_casos()
     caso = casos[it["caso_id"]]
     conf = _validar_conf(confianza)
@@ -77,7 +87,12 @@ def revisar(intento_id, clave, confianza):
 
 
 def reflexionar(intento_id, texto):
-    historial.guardar_reflexion(intento_id, texto)
+    it = historial.obtener_intento(intento_id)
+    if not it or not it.get("cierre"):
+        raise ValueError("La reflexión se escribe al cerrar el caso")
+    if it.get("reflexion"):
+        raise ValueError("La reflexión ya fue enviada")
+    historial.guardar_reflexion(intento_id, texto.strip()[:2000])
     return {"ok": True}
 
 

@@ -30,7 +30,9 @@ import sesion
 
 BASE = Path(__file__).parent
 FRONT = BASE.parent / "frontend"
-ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN") or os.environ.get("DOCENTE_TOKEN", "docente")
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN") or os.environ.get("DOCENTE_TOKEN") or ""
+if not ADMIN_TOKEN or ADMIN_TOKEN == "docente" or len(ADMIN_TOKEN) < 6:
+    raise RuntimeError("Configura ADMIN_TOKEN (mínimo 6 caracteres, distinto de 'docente') antes de arrancar Critia")
 META = json.loads((BASE / "misiones.json").read_text(encoding="utf-8"))
 VERSION = os.environ.get("APP_VERSION", "dev")
 
@@ -79,6 +81,24 @@ def _quien(x_admin: str = "", x_sesion: str = "") -> Quien:
     if d:
         return Quien(docente=d)
     raise HTTPException(401, "Inicia sesión como docente")
+
+
+def _alumno(x_alumno: str = "", seudonimo: Optional[str] = None) -> str:
+    """Seudónimo dueño del token de alumno (cabecera x-alumno). Si se indica seudónimo, debe coincidir."""
+    quien = historial.alumno_por_token(x_alumno)
+    if not quien:
+        raise HTTPException(401, "Vuelve a entrar con tu código de grupo y tu seudónimo")
+    if seudonimo and seudonimo != quien:
+        raise HTTPException(403, "Ese progreso no es tuyo")
+    return quien
+
+
+def _intento_de(intento_id: int, x_alumno: str):
+    quien = _alumno(x_alumno)
+    it = historial.obtener_intento(intento_id)
+    if not it or it["seudonimo"] != quien:
+        raise HTTPException(403, "Ese intento no es tuyo")
+    return it
 
 
 def _admin(x_admin: str = ""):
@@ -238,7 +258,8 @@ def alumno(a: AlumnoIn):
 
 
 @app.get("/api/alumno/{seudonimo}/progreso")
-def progreso(seudonimo: str, mapa: Optional[int] = None):
+def progreso(seudonimo: str, mapa: Optional[int] = None, x_alumno: str = Header(default="")):
+    _alumno(x_alumno, seudonimo)
     if not historial.obtener_alumno(seudonimo):
         raise HTTPException(404, "Alumno no registrado")
     todos, _ = motor.cargar_casos()
@@ -246,7 +267,8 @@ def progreso(seudonimo: str, mapa: Optional[int] = None):
 
 
 @app.get("/api/insignias/{seudonimo}")
-def insignias(seudonimo: str, mapa: Optional[int] = None):
+def insignias(seudonimo: str, mapa: Optional[int] = None, x_alumno: str = Header(default="")):
+    _alumno(x_alumno, seudonimo)
     if not historial.obtener_alumno(seudonimo):
         raise HTTPException(404, "Alumno no registrado")
     todos, _ = motor.cargar_casos()
@@ -258,14 +280,23 @@ def insignias(seudonimo: str, mapa: Optional[int] = None):
 
 
 @app.post("/api/caso/{caso_id}/abrir")
-def abrir(caso_id: str, d: AbrirIn):
-    if caso_id not in _casos_visibles(d.seudonimo, d.mapa):
+def abrir(caso_id: str, d: AbrirIn, x_alumno: str = Header(default="")):
+    _alumno(x_alumno, d.seudonimo)
+    vis = _casos_visibles(d.seudonimo, d.mapa)
+    if caso_id not in vis:
         raise HTTPException(404, "Ese caso no está disponible para tu grupo")
-    return sesion.abrir(d.seudonimo, caso_id, _mapa_de(d.seudonimo, d.mapa))
+    mid = _mapa_de(d.seudonimo, d.mapa)
+    if vis[caso_id].get("especial") == "detective":
+        todos, _ = motor.cargar_casos()
+        prog = historial.progreso_alumno(d.seudonimo, {c["id"]: c["postulado"] for c in todos.values()}, mid)
+        if not prog["detective_desbloqueado"]:
+            raise HTTPException(403, f"El caso del detective se abre con {prog['racha_para_detective']} casos seguidos bien revisados")
+    return sesion.abrir(d.seudonimo, caso_id, mid)
 
 
 @app.post("/api/intento/{intento_id}/responder")
-def responder(intento_id: int, d: ResponderIn):
+def responder(intento_id: int, d: ResponderIn, x_alumno: str = Header(default="")):
+    _intento_de(intento_id, x_alumno)
     try:
         r = sesion.responder(intento_id, d.clave, d.confianza, d.justificacion)
     except (ValueError, KeyError, TypeError) as e:
@@ -275,7 +306,8 @@ def responder(intento_id: int, d: ResponderIn):
 
 
 @app.post("/api/intento/{intento_id}/revisar")
-def revisar(intento_id: int, d: RevisarIn):
+def revisar(intento_id: int, d: RevisarIn, x_alumno: str = Header(default="")):
+    _intento_de(intento_id, x_alumno)
     try:
         r = sesion.revisar(intento_id, d.clave, d.confianza)
     except (ValueError, KeyError, TypeError) as e:
@@ -285,12 +317,17 @@ def revisar(intento_id: int, d: RevisarIn):
 
 
 @app.post("/api/intento/{intento_id}/reflexion")
-def reflexion(intento_id: int, d: TextoIn):
-    return sesion.reflexionar(intento_id, d.texto)
+def reflexion(intento_id: int, d: TextoIn, x_alumno: str = Header(default="")):
+    _intento_de(intento_id, x_alumno)
+    try:
+        return sesion.reflexionar(intento_id, d.texto)
+    except ValueError as e:
+        _err(e)
 
 
 @app.post("/api/intento/{intento_id}/duda")
-def duda(intento_id: int):
+def duda(intento_id: int, x_alumno: str = Header(default="")):
+    _intento_de(intento_id, x_alumno)
     return sesion.reportar_duda(intento_id)
 
 
@@ -324,9 +361,14 @@ def universo(codigo: str):
 # =====================================================================
 @app.post("/api/docente/login")
 def docente_login(d: LoginIn):
+    u = d.usuario.strip().lower()
+    if historial.login_bloqueado(u):
+        raise HTTPException(429, "Demasiados intentos. Espera un minuto")
     s = historial.login_docente(d.usuario, d.password)
     if not s:
+        historial.registrar_fallo_login(u)
         raise HTTPException(401, "Usuario o contraseña incorrectos")
+    historial.limpiar_fallos_login(u)
     return s
 
 
@@ -437,9 +479,19 @@ def docente_aprobar(caso_id: str, d: AprobarIn, x_admin: str = Header(default=""
     raise HTTPException(404, "Caso no está en la carpeta docente")
 
 
+def _caso_es_de(q: Quien, caso_id: str):
+    todos, _ = motor.cargar_casos()
+    c = todos.get(caso_id)
+    if not c or not ("generado_por" in c or c.get("origen")):
+        raise HTTPException(404, "Solo se asignan casos generados")
+    if not q.admin and c.get("docente") != q.usuario:
+        raise HTTPException(403, "Ese caso no es tuyo")
+
+
 @app.put("/api/docente/casos/{caso_id}/mapas")
 def docente_asignar(caso_id: str, d: AprobarIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
     q = _quien(x_admin, x_sesion)
+    _caso_es_de(q, caso_id)
     for m in d.mapas:
         if not q.puede_mapa(m, solo_propio=True):
             raise HTTPException(403, f"El mapa {m} no es tuyo")
@@ -462,8 +514,12 @@ def docente_reflexiones(x_admin: str = Header(default=""), x_sesion: str = Heade
 
 @app.post("/api/docente/revision")
 def docente_revision(d: RevisionIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
-    _quien(x_admin, x_sesion)
-    historial.guardar_revision(d.intento_id, d.puntaje, d.nota)
+    q = _quien(x_admin, x_sesion)
+    if not historial.intento_de_grupos(d.intento_id, q.codigos()):
+        raise HTTPException(403, "Ese intento no es de tus grupos")
+    if not 0 <= d.puntaje <= 10:
+        raise HTTPException(400, "puntaje fuera de rango")
+    historial.guardar_revision(d.intento_id, d.puntaje, d.nota.strip()[:1000])
     return {"ok": True}
 
 
@@ -545,8 +601,15 @@ def docente_generar(d: GenerarIn, x_admin: str = Header(default=""), x_sesion: s
 @app.put("/api/docente/casos/{caso_id}")
 def docente_editar_caso(caso_id: str, d: CasoEditIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
     q = _quien(x_admin, x_sesion)
+    permitidos = {"titulo", "situacion", "pregunta", "opciones", "pista", "explicacion", "reflexion", "rubrica_reflexion"}
+    cambios = {k: v for k, v in d.cambios.items() if k in permitidos}
     try:
-        return generador.actualizar_caso(caso_id, d.cambios, solo_de=None if q.admin else q.usuario)
+        r = generador.actualizar_caso(caso_id, cambios, solo_de=None if q.admin else q.usuario)
+        todos, familias = motor.cargar_casos()
+        motivos = generador.validar(todos[caso_id], familias) if caso_id in todos else []
+        if isinstance(r, dict):
+            r["avisos"] = motivos
+        return r
     except KeyError:
         raise HTTPException(404, "Solo puedes editar tus propios casos generados")
 
@@ -562,8 +625,8 @@ def docente_borrar_caso(caso_id: str, x_admin: str = Header(default=""), x_sesio
 
 @app.get("/api/docente/alertas")
 def docente_alertas(x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
-    _quien(x_admin, x_sesion)
-    return historial.alerta_casos()
+    q = _quien(x_admin, x_sesion)
+    return historial.alerta_casos(q.codigos())
 
 
 # =====================================================================

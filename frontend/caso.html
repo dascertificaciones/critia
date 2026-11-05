@@ -126,7 +126,7 @@
     caso.opciones.forEach(o => {
       const b = document.createElement('button');
       b.className = 'opcion';
-      b.innerHTML = `<span class="letra">${o.clave}</span><span>${o.texto}</span>`;
+      b.innerHTML = `<span class="letra">${esc(o.clave)}</span><span>${esc(o.texto)}</span>`;
       b.onclick = () => { [...contenedor.children].forEach(x => x.classList.remove('elegida')); b.classList.add('elegida'); alElegir(o.clave); };
       contenedor.appendChild(b);
     });
@@ -171,7 +171,7 @@
       setPaso(2);
       $('tutor-dice').textContent = r.texto_accion;
       $('tutor-motivo').textContent = 'Motivo: ' + r.texto_motivo;
-      $('tutor-pista').innerHTML = r.pista ? `<b>Pista:</b> ${r.pista}` : '';
+      $('tutor-pista').innerHTML = r.pista ? `<b>Pista:</b> ${esc(r.pista)}` : '';
       $('tutor-pista').classList.toggle('oculto', !r.pista);
       $('pista-seccion').classList.remove('oculto');
       $('revisar').classList.remove('oculto');
@@ -208,7 +208,7 @@
     $('explicacion').textContent = r2.explicacion;
     if (r2.habilidad) {
       const hDef = (meta.marco_teorico?.habilidades || []).find(h => h.clave === r2.habilidad.clave) || {};
-      $('habilidad').innerHTML = `<span class="icono">${ICONO.lupa || ''}</span><div><b>Habilidad que practicaste:</b> ${r2.habilidad.nombre} <span class="suave">· ${r2.habilidad.autor}</span>${hDef.definicion ? `<div class="peq suave">${hDef.definicion}</div>` : ''}</div>`;
+      $('habilidad').innerHTML = `<span class="icono">${ICONO.lupa || ''}</span><div><b>Habilidad que practicaste:</b> ${esc(r2.habilidad.nombre)} <span class="suave">· ${esc(r2.habilidad.autor)}</span>${hDef.definicion ? `<div class="peq suave">${esc(hDef.definicion)}</div>` : ''}</div>`;
     }
     if (r2.reflexion && !esAbierta) { $('reflexion-pregunta').textContent = r2.reflexion; }
     else { $('reflexion-caja').classList.add('oculto'); }

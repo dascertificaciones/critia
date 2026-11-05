@@ -55,19 +55,19 @@
   const [prog, lista] = await Promise.all([api(`/alumno/${alumno.seudonimo}/progreso${mq}`), api(`/insignias/${alumno.seudonimo}${mq}`)]);
   pintarCabecera(alumno, prog.sentidos_total);
   const mapaActual = (a2.mapas || []).find(m => m.id === a2.mapa);
-  if (mapaActual && (a2.mapas || []).length > 1) document.querySelector('h1').insertAdjacentHTML('afterend', `<p class="peq suave" style="margin:-6px 0 8px">Mapa: <b>${mapaActual.nombre}</b>. Cada mapa tiene sus propias insignias.</p>`);
+  if (mapaActual && (a2.mapas || []).length > 1) document.querySelector('h1').insertAdjacentHTML('afterend', `<p class="peq suave" style="margin:-6px 0 8px">Mapa: <b>${esc(mapaActual.nombre)}</b>. Cada mapa tiene sus propias insignias.</p>`);
   document.getElementById('meta-n').textContent = prog.casos_para_insignia;
 
   document.getElementById('vitrina').innerHTML = lista.map(i => {
     const puntos = Array.from({ length: i.meta }, (_, k) => `<span class="${k < i.avance ? 'on' : ''}"></span>`).join('');
     return `
-      <div class="insignia ${i.obtenida ? 'obtenida' : ''}" title="${i.nombre}">
+      <div class="insignia ${i.obtenida ? 'obtenida' : ''}" title="${esc(i.nombre)}">
         ${i.obtenida ? '' : `<span class="candado">${ICONO.candado}</span>`}
         <div class="img">
           <img src="${i.imagen}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'num',textContent:'${i.n}'}))">
         </div>
-        <div class="corto">${i.insignia || i.corto}</div>
-        <div class="nombre">Postulado ${i.n}: ${i.nombre}${i.habilidad_nombre ? `<br><span class="peq">Habilidad: ${i.habilidad_nombre} · ${i.habilidad_autor}</span>` : ''}</div>
+        <div class="corto">${esc(i.insignia || i.corto)}</div>
+        <div class="nombre">Postulado ${+i.n}: ${esc(i.nombre)}${i.habilidad_nombre ? `<br><span class="peq">Habilidad: ${esc(i.habilidad_nombre)} · ${esc(i.habilidad_autor)}</span>` : ''}</div>
         <div class="avance">${i.obtenida ? 'Obtenida' : (i.avance >= i.meta ? 'Lista para confirmar' : `${i.avance} de ${i.meta}`)}</div>
         <div class="puntos">${puntos}</div>
       </div>`;

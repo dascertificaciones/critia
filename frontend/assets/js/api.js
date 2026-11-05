@@ -1,12 +1,18 @@
 // api.js — llamadas a la API y sesión del alumno (localStorage)
 const API = '/api';
 
+// Escapa texto para insertarlo en HTML (todo lo que viene de usuarios o del modelo pasa por aquí)
+function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
 async function api(ruta, metodo = 'GET', cuerpo = null, cabeceras = {}) {
-  const opciones = { method: metodo, headers: { 'Content-Type': 'application/json', ...cabeceras } };
+  // el token de alumno (si hay sesión) viaja en todas las llamadas
+  let tok = null; try { tok = (JSON.parse(localStorage.getItem('ss_alumno') || 'null') || {}).token; } catch {}
+  const opciones = { method: metodo, headers: { 'Content-Type': 'application/json', ...(tok ? { 'X-Alumno': tok } : {}), ...cabeceras } };
   if (cuerpo) opciones.body = JSON.stringify(cuerpo);
   const r = await fetch(API + ruta, opciones);
   const datos = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(datos.detail || `Error ${r.status}`);
+  if (r.status === 401 && tok && !cabeceras['x-sesion'] && !cabeceras['x-admin']) { Sesion.borrar(); location.href = 'index.html'; }
+  if (!r.ok) throw new Error(typeof datos.detail === 'string' ? datos.detail : `Error ${r.status}`);
   return datos;
 }
 
@@ -51,8 +57,8 @@ function pintarCabecera(alumno, sentidos) {
   if (!el) return;
   if (!alumno) { el.innerHTML = ''; return; }
   el.innerHTML = `
-    ${escudoHtml(alumno.equipo)}
-    <span>${alumno.seudonimo}</span>
+    ${escudoHtml(esc(alumno.equipo))}
+    <span>${esc(alumno.seudonimo)}</span>
     <span class="sentidos-pill">${sentidos ?? 0}<small>sentidos</small></span>
     <button class="btn btn-enlace" id="salir">salir</button>`;
   document.getElementById('salir').onclick = () => { Sesion.borrar(); location.href = 'index.html'; };

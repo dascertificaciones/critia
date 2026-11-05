@@ -65,7 +65,14 @@ def ahora():
 
 
 # ---------- Alumnos ----------
+import re as _re
+SEUDONIMO_RE = _re.compile(r"^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ_\-]{3,24}$")
+
+
 def registrar_alumno(seudonimo, equipo):
+    seudonimo = (seudonimo or "").strip()
+    if not SEUDONIMO_RE.match(seudonimo):
+        raise ValueError("El seudónimo lleva de 3 a 24 letras o números, sin espacios ni símbolos")
     equipo = equipo.lower()
     if equipo not in EQUIPOS:
         raise ValueError(f"Equipo inválido: {equipo}")
@@ -82,10 +89,14 @@ def obtener_alumno(seudonimo):
 
 # ---------- Intentos ----------
 def abrir_intento(seudonimo, caso_id, familia_caso, mapa_id=None):
+    """Abre un intento. Si el alumno ya cerró ese caso en ese mapa, el nuevo intento es una repetición:
+    sirve para practicar pero no suma sentidos, racha, insignias ni territorio."""
     with conectar() as con:
+        ya = con.execute("SELECT 1 FROM intentos WHERE seudonimo=? AND caso_id=? AND cierre IS NOT NULL AND (mapa_id IS ? OR ?)",
+                         (seudonimo, caso_id, mapa_id, mapa_id is None)).fetchone()
         cur = con.execute(
-            "INSERT INTO intentos (seudonimo, caso_id, familia_caso, inicio, mapa_id) VALUES (?,?,?,?,?)",
-            (seudonimo, caso_id, familia_caso, ahora(), mapa_id))
+            "INSERT INTO intentos (seudonimo, caso_id, familia_caso, inicio, mapa_id, repeticion) VALUES (?,?,?,?,?,?)",
+            (seudonimo, caso_id, familia_caso, ahora(), mapa_id, 1 if ya else 0))
         return cur.lastrowid
 
 
@@ -155,7 +166,7 @@ def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
     pm = (mapa_id,) if mapa_id else ()
     with conectar() as con:
         rows = con.execute(f"""SELECT caso_id, sentidos, eval_ini, eval_fin FROM intentos
-                              WHERE seudonimo=? AND cierre IS NOT NULL{fm} ORDER BY cierre""",
+                              WHERE seudonimo=? AND cierre IS NOT NULL AND COALESCE(repeticion,0)=0{fm} ORDER BY cierre""",
                            (seudonimo,) + pm).fetchall()
         casos, total, racha, mejor_racha = {}, 0, 0, 0
         avance = {}
@@ -243,15 +254,16 @@ def guardar_revision(intento_id, puntaje, nota):
         con.execute("INSERT OR REPLACE INTO revision_docente VALUES (?,?,?,?)", (intento_id, puntaje, nota, ahora()))
 
 
-def alerta_casos():
-    """Casos donde más del 80% mantiene el error tras la pista, o nadie se equivoca."""
+def alerta_casos(codigos=None):
+    """Casos donde más del 80% mantiene el error tras la pista, o nadie se equivoca. Filtrado por grupos."""
+    f, params = _filtro_grupos(codigos)
     with conectar() as con:
-        rows = con.execute("""SELECT caso_id,
+        rows = con.execute(f"""SELECT i.caso_id,
                                 COUNT(*) n,
-                                SUM(eval_ini<>'correcta') err_ini,
-                                SUM(eval_ini<>'correcta' AND eval_fin<>'correcta') err_fin,
-                                SUM(reporta_duda) dudas
-                              FROM intentos WHERE cierre IS NOT NULL GROUP BY caso_id""").fetchall()
+                                SUM(i.eval_ini<>'correcta') err_ini,
+                                SUM(i.eval_ini<>'correcta' AND i.eval_fin<>'correcta') err_fin,
+                                SUM(i.reporta_duda) dudas
+                              FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo WHERE i.cierre IS NOT NULL{f} GROUP BY i.caso_id""", params).fetchall()
         alertas = []
         for r in rows:
             if r["n"] < 5:
@@ -361,6 +373,11 @@ CREATE TABLE IF NOT EXISTS casos_mapa (
     mapa_id   INTEGER NOT NULL,
     PRIMARY KEY (caso_id, mapa_id)
 );
+CREATE TABLE IF NOT EXISTS sesiones_alumno (
+    token     TEXT PRIMARY KEY,
+    seudonimo TEXT NOT NULL,
+    creado    TEXT NOT NULL
+);
 """
 
 
@@ -378,6 +395,8 @@ def _migrar():
         cols = [r[1] for r in con.execute("PRAGMA table_info(intentos)")]
         if "mapa_id" not in cols:
             con.execute("ALTER TABLE intentos ADD COLUMN mapa_id INTEGER")
+        if "repeticion" not in cols:
+            con.execute("ALTER TABLE intentos ADD COLUMN repeticion INTEGER DEFAULT 0")
         cols = [r[1] for r in con.execute("PRAGMA table_info(insignias)")]
         if "mapa_id" not in cols:
             con.executescript("""
@@ -457,13 +476,48 @@ def login_docente(usuario, password):
         return {"token": token, "usuario": usuario, "nombre": r["nombre"]}
 
 
+SESION_DOCENTE_HORAS = 12
+_fallos_login = {}   # usuario -> [n_fallos, hasta_cuando]
+
+
 def docente_por_token(token):
     if not token:
         return None
     with conectar() as con:
-        r = con.execute("""SELECT d.usuario, d.nombre FROM sesiones_docente s JOIN docentes d ON d.usuario=s.usuario
+        r = con.execute("""SELECT d.usuario, d.nombre, s.creado FROM sesiones_docente s JOIN docentes d ON d.usuario=s.usuario
                            WHERE s.token=? AND d.activo=1""", (token,)).fetchone()
-        return dict(r) if r else None
+        if not r:
+            return None
+        if (datetime.now() - datetime.fromisoformat(r["creado"])).total_seconds() > SESION_DOCENTE_HORAS * 3600:
+            con.execute("DELETE FROM sesiones_docente WHERE token=?", (token,))
+            return None
+        return {"usuario": r["usuario"], "nombre": r["nombre"]}
+
+
+def login_bloqueado(usuario):
+    f = _fallos_login.get(usuario)
+    return bool(f and f[0] >= 5 and datetime.now() < f[1])
+
+
+def registrar_fallo_login(usuario):
+    from datetime import timedelta
+    f = _fallos_login.setdefault(usuario, [0, datetime.now()])
+    f[0] += 1
+    if f[0] >= 5:
+        f[1] = datetime.now() + timedelta(seconds=60)
+
+
+def limpiar_fallos_login(usuario):
+    _fallos_login.pop(usuario, None)
+
+
+def intento_de_grupos(intento_id, codigos):
+    """True si el intento pertenece a un alumno de alguno de esos grupos (None = cualquiera)."""
+    with conectar() as con:
+        r = con.execute("SELECT a.grupo FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo WHERE i.id=?", (intento_id,)).fetchone()
+        if not r:
+            return False
+        return codigos is None or r["grupo"] in codigos
 
 
 def cerrar_sesion(token):
@@ -565,17 +619,35 @@ def renombrar_grupo(codigo, nombre, nivel=None):
 
 # ---------- Alumno ↔ grupo ----------
 def registrar_alumno_en_grupo(seudonimo, equipo, codigo):
+    """Entra un alumno. Si el seudónimo ya existe, solo puede volver a entrar en su mismo grupo y equipo
+    (así nadie traslada el historial de otro a otro grupo). Devuelve un token de sesión."""
     g = grupo(codigo)
     if not g:
         raise ValueError("Ese código de grupo no existe")
+    previo = obtener_alumno(seudonimo)
+    if previo and previo.get("grupo") and previo["grupo"] != g["codigo"]:
+        raise ValueError("Ese seudónimo ya está en otro grupo. Elige otro seudónimo")
+    if previo and previo["equipo"] != equipo.lower():
+        raise ValueError(f"Ese seudónimo ya es del equipo {previo['equipo']}. Entra con ese equipo o elige otro seudónimo")
     a = registrar_alumno(seudonimo, equipo)
     with conectar() as con:
         con.execute("UPDATE alumnos SET grupo=? WHERE seudonimo=?", (g["codigo"], seudonimo))
+        token = secrets.token_urlsafe(24)
+        con.execute("INSERT INTO sesiones_alumno VALUES (?,?,?)", (token, seudonimo, ahora()))
+    a["token"] = token
     a["grupo"] = g["codigo"]
     a["grupo_nombre"] = g["nombre"]
     a["nivel"] = g.get("nivel") or 2
     a["mapas"] = [{"id": m["id"], "nombre": m["nombre"], "docente": m["docente_nombre"] or m["docente"]} for m in mapas_de_grupo(g["codigo"])]
     return a
+
+
+def alumno_por_token(token):
+    if not token:
+        return None
+    with conectar() as con:
+        r = con.execute("SELECT seudonimo FROM sesiones_alumno WHERE token=?", (token,)).fetchone()
+        return r["seudonimo"] if r else None
 
 
 def grupo_de_alumno(seudonimo):
@@ -632,7 +704,7 @@ def universo(codigo, mision_de_caso, detective_ids=()):
             terr = {}
             rachas = {}   # seudonimo -> [equipo, racha_actual, ultima_mision]
             for r in con.execute("""SELECT a.equipo, a.seudonimo, i.caso_id, i.sentidos, i.eval_ini FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
-                                    WHERE i.cierre IS NOT NULL AND a.grupo=? AND i.mapa_id=? ORDER BY i.cierre""", (g["codigo"], m["id"])):
+                                    WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND a.grupo=? AND i.mapa_id=? ORDER BY i.cierre""", (g["codigo"], m["id"])):
                 mis = mision_de_caso.get(r["caso_id"])
                 if not mis:
                     continue
@@ -712,7 +784,7 @@ def tablero_equipos_grupo(codigo, mapa_id=None):
         for r in con.execute("SELECT equipo, COUNT(*) n FROM alumnos WHERE grupo=? GROUP BY equipo", (codigo,)):
             tab[r["equipo"]]["alumnos"] = r["n"]
         for r in con.execute(f"""SELECT a.equipo, i.sentidos FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
-                                WHERE i.cierre IS NOT NULL AND a.grupo=?{fm}""", (codigo,) + pm):
+                                WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND a.grupo=?{fm}""", (codigo,) + pm):
             s = json.loads(r["sentidos"] or "[]"); t = tab[r["equipo"]]
             t["sentidos"] += len(s); t["casos"] += 1
             for k in s:
@@ -769,7 +841,7 @@ def sugerencias_insignia_codigos(casos_por_postulado, codigos):
     f, params = _filtro_grupos(codigos)
     with conectar() as con:
         rows = con.execute(f"""SELECT i.seudonimo, i.caso_id, COALESCE(i.mapa_id, 0) mapa_id FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
-                              WHERE i.cierre IS NOT NULL AND i.eval_ini='correcta'{f}""", params).fetchall()
+                              WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND i.eval_ini='correcta'{f}""", params).fetchall()
         conteo = {}
         for r in rows:
             p = casos_por_postulado.get(r["caso_id"])

@@ -77,21 +77,21 @@
       "opciones": [
         {
           "clave": "A",
+          "texto": "No le creo nada a la IA y tampoco hago la cuenta.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
           "texto": "La anoto: la IA lo explicó clarito y suena lógico.",
           "correcta": false,
           "tipo_error": "acepta_sin_evidencia"
         },
         {
-          "clave": "B",
+          "clave": "C",
           "texto": "Hago las dos cuentas yo: 800 + 25% = 1000; 1000 − 25% = 750. No vuelve a 800.",
           "correcta": true,
           "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "No le creo nada a la IA y tampoco hago la cuenta.",
-          "correcta": false,
-          "tipo_error": "desconfia_de_todo"
         }
       ],
       "pista": "El segundo 25%, ¿se saca de 800 o de 1000?",
@@ -118,21 +118,21 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "La uso: dio una explicación y dijo que la neurociencia lo acepta.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        },
-        {
-          "clave": "B",
           "texto": "Lo busco en una fuente de ciencia real. \"Ampliamente aceptado\" no es una fuente, y la explicación suena a mito.",
           "correcta": true,
           "tipo_error": null
         },
         {
-          "clave": "C",
+          "clave": "B",
           "texto": "Descarto todo lo que una IA diga sobre ciencia.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "C",
+          "texto": "La uso: dio una explicación y dijo que la neurociencia lo acepta.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
         }
       ],
       "pista": "\"Ampliamente aceptado por la neurociencia\" ¿nombra a alguien o a algo que puedas revisar?",
@@ -200,21 +200,21 @@
       "opciones": [
         {
           "clave": "A",
+          "texto": "Dejo de creerle a cualquier libro.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
           "texto": "Lo anoto: la IA dijo el nombre del libro y la editorial.",
           "correcta": false,
           "tipo_error": "confia_en_cita"
         },
         {
-          "clave": "B",
+          "clave": "C",
           "texto": "Lo busco en un libro que sí exista. Las arañas tienen 8 patas; la IA se equivocó y además inventó el libro.",
           "correcta": true,
           "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Dejo de creerle a cualquier libro.",
-          "correcta": false,
-          "tipo_error": "desconfia_de_todo"
         }
       ],
       "pista": "¿Un nombre de libro que nadie encuentra sirve como prueba?",
@@ -241,21 +241,21 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Uso la cita: tiene autores, año y revista; seguro existe aunque yo no la encuentre.",
-          "correcta": false,
-          "tipo_error": "confia_en_cita"
-        },
-        {
-          "clave": "B",
           "texto": "No la uso. Una cita que no puedo encontrar no es una fuente. Busco un estudio real sobre sueño y adolescentes.",
           "correcta": true,
           "tipo_error": null
         },
         {
-          "clave": "C",
+          "clave": "B",
           "texto": "Dejo de usar IA para cualquier trabajo escolar.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "C",
+          "texto": "Uso la cita: tiene autores, año y revista; seguro existe aunque yo no la encuentre.",
+          "correcta": false,
+          "tipo_error": "confia_en_cita"
         }
       ],
       "pista": "Una cita puede tener formato perfecto y aun así no existir. ¿Qué prueba que es real?",
@@ -323,21 +323,21 @@
       "opciones": [
         {
           "clave": "A",
+          "texto": "Descarto la fuente: si la IA la citó, no es confiable.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
           "texto": "La uso: la fuente existe y es seria.",
           "correcta": false,
           "tipo_error": "confia_en_cita"
         },
         {
-          "clave": "B",
+          "clave": "C",
           "texto": "La corrijo: la fuente existe pero no dice lo que la IA afirma. Cito lo que la resolución dice en realidad.",
           "correcta": true,
           "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Descarto la fuente: si la IA la citó, no es confiable.",
-          "correcta": false,
-          "tipo_error": "desconfia_de_todo"
         }
       ],
       "pista": "Verificar que la fuente existe es el primer paso. ¿Cuál es el segundo?",
@@ -364,21 +364,21 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Lo copio: la IA dijo que es un dato bien establecido.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        },
-        {
-          "clave": "B",
           "texto": "Lo busco en un atlas escolar o en el INEGI y comparo.",
           "correcta": true,
           "tipo_error": null
         },
         {
-          "clave": "C",
+          "clave": "B",
           "texto": "No lo uso: las IA siempre fallan en geografía.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "C",
+          "texto": "Lo copio: la IA dijo que es un dato bien establecido.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
         }
       ],
       "pista": "Decir \"es un dato bien establecido\" no es mostrar de dónde salió. ¿Dónde lo puedes comprobar?",
@@ -446,21 +446,21 @@
       "opciones": [
         {
           "clave": "A",
+          "texto": "Concluyo que los paneles solares no sirven.",
+          "correcta": false,
+          "tipo_error": "generaliza"
+        },
+        {
+          "clave": "B",
           "texto": "La doy por buena: los números son claros y la conclusión también.",
           "correcta": false,
           "tipo_error": "ignora_contexto"
         },
         {
-          "clave": "B",
+          "clave": "C",
           "texto": "No aplica a mi caso: la IA no preguntó dónde vivo, si la casa es mía ni cuánto sol hay. Pregunto de nuevo con esos datos y busco cifras de mi región.",
           "correcta": true,
           "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Concluyo que los paneles solares no sirven.",
-          "correcta": false,
-          "tipo_error": "generaliza"
         }
       ],
       "pista": "¿Para quién son esos 4 a 6 años? ¿Para una casa propia con sol todo el año o para la tuya?",
@@ -487,21 +487,21 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "La acepto; es obvia y la IA respondió sin dudar.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        },
-        {
-          "clave": "B",
           "texto": "La compruebo: si la pelota cuesta 10, el bate cuesta 110 y juntos dan 120, no 110. Algo falla.",
           "correcta": true,
           "tipo_error": null
         },
         {
-          "clave": "C",
+          "clave": "B",
           "texto": "La descarto sin revisar; las IA fallan en matemáticas.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "C",
+          "texto": "La acepto; es obvia y la IA respondió sin dudar.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
         }
       ],
       "pista": "Si la pelota cuesta 10 y el bate 100 más, ¿cuánto cuesta el bate? ¿Cuánto suman?",
@@ -569,21 +569,21 @@
       "opciones": [
         {
           "clave": "A",
+          "texto": "Que nunca hay que usar IA para estudiar.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
           "texto": "Que una de las dos veces tenía razón; me quedo con la primera.",
           "correcta": false,
           "tipo_error": "acepta_sin_evidencia"
         },
         {
-          "clave": "B",
+          "clave": "C",
           "texto": "Que ese \"100%\" no mide nada: la IA lo dice aunque se contradiga. Verifico por otro lado.",
           "correcta": true,
           "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Que nunca hay que usar IA para estudiar.",
-          "correcta": false,
-          "tipo_error": "desconfia_de_todo"
         }
       ],
       "pista": "Si dos respuestas distintas vienen con la misma seguridad, ¿qué vale esa seguridad?",
@@ -610,19 +610,19 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Sostengo el 24: la IA y yo coincidimos.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        },
-        {
-          "clave": "B",
           "texto": "Vuelvo a pensarlo: si el día 48 está lleno y cada día se duplica, el día 47 estaba a la mitad. Cambio mi respuesta a 47.",
           "correcta": true,
           "tipo_error": null
         },
         {
-          "clave": "C",
+          "clave": "B",
           "texto": "Digo que las dos respuestas son válidas y dejo el tema.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "C",
+          "texto": "Sostengo el 24: la IA y yo coincidimos.",
           "correcta": false,
           "tipo_error": "acepta_sin_evidencia"
         }
@@ -692,21 +692,21 @@
       "opciones": [
         {
           "clave": "A",
+          "texto": "Concluyo que las encuestas y las IA no sirven para nada.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
           "texto": "Defiendo mi conclusión: la IA dijo que era contundente y mis 5 compañeros sí son parte del grupo.",
           "correcta": false,
           "tipo_error": "ignora_contexto"
         },
         {
-          "clave": "B",
+          "clave": "C",
           "texto": "Cambio la conclusión: 5 personas no representan a 32, y la IA llamó \"contundente\" a una muestra diminuta y probablemente sesgada. La evidencia nueva manda.",
           "correcta": true,
           "tipo_error": null
-        },
-        {
-          "clave": "C",
-          "texto": "Concluyo que las encuestas y las IA no sirven para nada.",
-          "correcta": false,
-          "tipo_error": "desconfia_de_todo"
         }
       ],
       "pista": "¿Tus 5 compañeros se parecen al resto del grupo, o son justo los que piensan como tú? ¿La IA preguntó eso?",
@@ -733,21 +733,21 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Tiene lógica; la IA sabe de estas cosas.",
-          "correcta": false,
-          "tipo_error": "generaliza"
-        },
-        {
-          "clave": "B",
           "texto": "Es injusto: ser alto no te hace líder y ser niña no te quita ganas de jugar. Pregunto quién conoce el juego y sabe organizar al equipo.",
           "correcta": true,
           "tipo_error": null
         },
         {
-          "clave": "C",
+          "clave": "B",
           "texto": "Está mal, así que mejor que no haya capitán.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "C",
+          "texto": "Tiene lógica; la IA sabe de estas cosas.",
+          "correcta": false,
+          "tipo_error": "generaliza"
         }
       ],
       "pista": "¿Conoces a alguien bajito que organiza bien? ¿A una niña que juega mejor que muchos?",
@@ -815,25 +815,25 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Lo incluyo: describe lo que uno ve en la realidad.",
+          "texto": "Lo invierto: los buenos ingenieros son mujeres de familias sin universidad.",
           "correcta": false,
           "tipo_error": "generaliza"
         },
         {
           "clave": "B",
-          "texto": "Lo rechazo: mezcla rasgos de la profesión (análisis, técnica) con estereotipos de género y de origen que no son requisitos de nada. Me quedo solo con las habilidades y busco datos reales.",
-          "correcta": true,
-          "tipo_error": null
+          "texto": "Lo incluyo: describe lo que uno ve en la realidad.",
+          "correcta": false,
+          "tipo_error": "generaliza"
         },
         {
           "clave": "C",
-          "texto": "Lo invierto: los buenos ingenieros son mujeres de familias sin universidad.",
-          "correcta": false,
-          "tipo_error": "generaliza"
+          "texto": "Lo rechazo: mezcla rasgos de la profesión (análisis, técnica) con estereotipos de género y de origen que no son requisitos de nada. Me quedo solo con las habilidades y busco datos reales.",
+          "correcta": true,
+          "tipo_error": null
         }
       ],
       "pista": "Separa la respuesta en frases. ¿Cuáles describen una habilidad y cuáles describen a un grupo de personas?",
-      "explicacion": "La IA reprodujo un sesgo de sus datos de entrenamiento: convirtió una estadística (quiénes han sido ingenieros históricamente) en un requisito (\"suele ser hombre\", \"ventaja natural\"). Que algo haya sido frecuente no lo hace necesario ni justo. La opción C comete el mismo error con otro grupo. Pensar con justicia es separar la habilidad de la persona que la tiene.",
+      "explicacion": "La IA reprodujo un sesgo de sus datos de entrenamiento: convirtió una estadística (quiénes han sido ingenieros históricamente) en un requisito (\"suele ser hombre\", \"ventaja natural\"). Que algo haya sido frecuente no lo hace necesario ni justo. La opción A comete el mismo error con otro grupo. Pensar con justicia es separar la habilidad de la persona que la tiene.",
       "reflexion": "¿Por qué una IA puede repetir estereotipos aunque nadie se los haya pedido?",
       "rubrica_reflexion": [
         "Menciona que aprende de textos escritos por personas.",
@@ -856,19 +856,19 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Doy todo: lo dice la app y sin eso no funciona.",
-          "correcta": false,
-          "tipo_error": "comparte_datos"
-        },
-        {
-          "clave": "B",
           "texto": "No doy ninguno de esos datos. Una app de tareas no necesita mi dirección ni mi contraseña. Le cuento a un adulto de confianza.",
           "correcta": true,
           "tipo_error": null
         },
         {
-          "clave": "C",
+          "clave": "B",
           "texto": "Doy mis datos pero no los de mi amigo, porque esos no son míos.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
+        },
+        {
+          "clave": "C",
+          "texto": "Doy todo: lo dice la app y sin eso no funciona.",
           "correcta": false,
           "tipo_error": "comparte_datos"
         }
@@ -938,21 +938,21 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Pego todo; la IA dijo que es confidencial y así me entiende mejor.",
+          "texto": "Pego la conversación pero borro mi nombre.",
           "correcta": false,
           "tipo_error": "comparte_datos"
         },
         {
           "clave": "B",
-          "texto": "No pego nada de él. Describo la situación con mis palabras, sin nombres, números ni fotos: esa información es suya y yo no decido por él dónde termina.",
-          "correcta": true,
-          "tipo_error": null
+          "texto": "Pego todo; la IA dijo que es confidencial y así me entiende mejor.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
         },
         {
           "clave": "C",
-          "texto": "Pego la conversación pero borro mi nombre.",
-          "correcta": false,
-          "tipo_error": "comparte_datos"
+          "texto": "No pego nada de él. Describo la situación con mis palabras, sin nombres, números ni fotos: esa información es suya y yo no decido por él dónde termina.",
+          "correcta": true,
+          "tipo_error": null
         }
       ],
       "pista": "¿Tu amigo te autorizó a subir lo que te contó a un servicio de internet? ¿La IA puede prometer confidencialidad?",
@@ -979,21 +979,21 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Pongo mi nombre y lo entrego; la IA dijo que así está bien.",
-          "correcta": false,
-          "tipo_error": "entrega_como_propio"
-        },
-        {
-          "clave": "B",
           "texto": "No lo firmo como mío. Uso la idea del perro astronauta y escribo mi propio cuento; si uso algo de la IA, se lo digo a mi maestra.",
           "correcta": true,
           "tipo_error": null
         },
         {
-          "clave": "C",
+          "clave": "B",
           "texto": "Borro todo; pedirle ideas a una IA siempre es trampa.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "C",
+          "texto": "Pongo mi nombre y lo entrego; la IA dijo que así está bien.",
+          "correcta": false,
+          "tipo_error": "entrega_como_propio"
         }
       ],
       "pista": "Si tu maestra te pregunta cómo se te ocurrió el final, ¿qué le dirías?",
@@ -1107,21 +1107,21 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Le pido la dosis y voy a la farmacia; dio una respuesta clara.",
+          "texto": "Le pregunto a otra IA para comparar las dos respuestas.",
           "correcta": false,
           "tipo_error": "no_consulta"
         },
         {
           "clave": "B",
-          "texto": "No le hago caso: un dolor fuerte de dos días lo tiene que ver un adulto y un médico. La IA no me puede examinar.",
-          "correcta": true,
-          "tipo_error": null
+          "texto": "Le pido la dosis y voy a la farmacia; dio una respuesta clara.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
         },
         {
           "clave": "C",
-          "texto": "Le pregunto a otra IA para comparar las dos respuestas.",
-          "correcta": false,
-          "tipo_error": "no_consulta"
+          "texto": "No le hago caso: un dolor fuerte de dos días lo tiene que ver un adulto y un médico. La IA no me puede examinar.",
+          "correcta": true,
+          "tipo_error": null
         }
       ],
       "pista": "La IA no te puede examinar ni sabe tu historial. ¿Quién sí puede?",
@@ -1173,19 +1173,19 @@
       "opciones": [
         {
           "clave": "A",
-          "texto": "Sigo el consejo: la IA analizó la situación y fue clara.",
-          "correcta": false,
-          "tipo_error": "no_consulta"
-        },
-        {
-          "clave": "B",
           "texto": "No decido con eso. La IA solo conoce una versión y no conoce a ninguna de las dos; hablo con ambas y, si hace falta, con un adulto de confianza.",
           "correcta": true,
           "tipo_error": null
         },
         {
-          "clave": "C",
+          "clave": "B",
           "texto": "Le pido a la IA que me escriba el mensaje para Sofía.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
+        },
+        {
+          "clave": "C",
+          "texto": "Sigo el consejo: la IA analizó la situación y fue clara.",
           "correcta": false,
           "tipo_error": "no_consulta"
         }

@@ -25,7 +25,7 @@
       <div id="grupo-ok" class="peq" style="min-height:20px;margin-top:4px"></div>
 
       <label for="seudonimo">Tu seudónimo <span class="suave peq">(no uses tu nombre real)</span></label>
-      <input type="text" id="seudonimo" placeholder="por ejemplo: zorro07" maxlength="24" autocomplete="off">
+      <input type="text" id="seudonimo" placeholder="por ejemplo: zorro07" maxlength="24" autocomplete="off" pattern="[A-Za-z0-9_\-]{3,24}">
 
       <label>Tu equipo</label>
       <div class="equipos" id="equipos"></div>
@@ -98,7 +98,7 @@
     grupoValido = null; okG.textContent = ''; validar();
     clearTimeout(t);
     if (inpG.value.length === 6) t = setTimeout(async () => {
-      try { const g = await api(`/grupo/${inpG.value}`); grupoValido = g.codigo; okG.innerHTML = `<span style="color:var(--hierba);font-weight:700">Grupo ${g.nombre}</span>`; }
+      try { const g = await api(`/grupo/${inpG.value}`); grupoValido = g.codigo; okG.innerHTML = `<span style="color:var(--hierba);font-weight:700">Grupo ${esc(g.nombre)}</span>`; }
       catch { okG.innerHTML = '<span style="color:var(--sello)">Ese código no existe. Revísalo con tu maestro.</span>'; }
       validar();
     }, 250);
@@ -121,7 +121,7 @@
     if (a.grupo_nombre) document.getElementById('mapa-sub').textContent = `Grupo ${a.grupo_nombre}${mapaActual ? ' · ' + mapaActual.nombre : ''}. Abre una parada y elige un caso.`;
     // selector de mapas (una materia por profesor dentro del mismo grupo)
     const sel = document.getElementById('mapas-sel');
-    sel.innerHTML = (a.mapas || []).length > 1 ? (a.mapas || []).map(m => `<button type="button" class="mapa-tab ${m.id === mapaId ? 'activo' : ''}" data-id="${m.id}">${m.nombre}<small>${m.docente || ''}</small></button>`).join('') : '';
+    sel.innerHTML = (a.mapas || []).length > 1 ? (a.mapas || []).map(m => `<button type="button" class="mapa-tab ${m.id === mapaId ? 'activo' : ''}" data-id="${+m.id}">${esc(m.nombre)}<small>${esc(m.docente || '')}</small></button>`).join('') : '';
     [...sel.querySelectorAll('.mapa-tab')].forEach(b => b.onclick = () => { Sesion.elegirMapa(+b.dataset.id); mostrarMapa(Sesion.leer()); });
     if (a.grupo) { document.getElementById('lnk-tablero').href = `tablero.html?grupo=${a.grupo}${mapaId ? '&mapa=' + mapaId : ''}`; document.getElementById('lnk-universo').href = `universo.html?grupo=${a.grupo}`; }
 
@@ -165,7 +165,7 @@
           <div class="pins">
             ${vacia ? '<span class="pin hecho">próximamente</span>' : lista.map(c => {
               const h = prog.casos[c.id];
-              return `<a class="pin ${h ? 'hecho' : 'pendiente'} ${c.provisional ? 'provisional' : ''}" href="caso.html?id=${c.id}">${c.titulo}${h ? `<span class="n">${h.sentidos.length}/3</span>` : ''}</a>`;
+              return `<a class="pin ${h ? 'hecho' : 'pendiente'} ${c.provisional ? 'provisional' : ''}" href="caso.html?id=${encodeURIComponent(c.id)}">${esc(c.titulo)}${h ? `<span class="n">${h.sentidos.length}/3</span>` : ''}</a>`;
             }).join('')}
           </div>
         </div>
@@ -181,9 +181,9 @@
       el.innerHTML = `
         <div class="marca"><span style="width:26px;height:26px;display:block">${abierto ? ICONO.lupa : ICONO.candado}</span></div>
         <div>
-          <div class="nombre">${det.titulo}</div>
+          <div class="nombre">${esc(det.titulo)}</div>
           <div class="desc">${abierto ? 'Abierto. Un caso para resolver con tu equipo y presentar al grupo.' : `Se abre con ${prog.racha_para_detective} casos seguidos bien revisados: atinar sin pista, o corregirte después de la pista.`}</div>
-          ${abierto ? `<div class="pins"><a class="pin ${hecho ? 'hecho' : 'pendiente'}" href="caso.html?id=${det.id}">${hecho ? 'Resuelto' : 'Abrir el caso'}</a></div>` : ''}
+          ${abierto ? `<div class="pins"><a class="pin ${hecho ? 'hecho' : 'pendiente'}" href="caso.html?id=${encodeURIComponent(det.id)}">${hecho ? 'Resuelto' : 'Abrir el caso'}</a></div>` : ''}
         </div>
         ${hecho ? `<div class="sello">${ICONO.sello}</div>` : ''}`;
       send.appendChild(el);

@@ -240,7 +240,7 @@ async function pintar() {
   dibujarContinente(u, misNombre);
   document.getElementById('regiones').innerHTML = u.mapas.length ? `<div class="resumen-regiones">${u.mapas.map(m => `
     <div class="reflexion-card" style="margin:0;background:#fff;border:1.5px solid var(--tinta);border-radius:10px;padding:10px 14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div><b style="font-family:var(--serif);font-size:17px">${m.nombre}</b><div class="peq suave">Mapa de ${m.docente}</div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div><b style="font-family:var(--serif);font-size:17px">${esc(m.nombre)}</b><div class="peq suave">Mapa de ${esc(m.docente)}</div></div>
       ${m.dueno ? `<div class="dueno" style="padding:4px 10px">${escudoHtml(m.dueno)}${cap(m.dueno)}</div>` : '<div class="dueno neutral" style="padding:4px 10px">sin dueño</div>'}</div>
       <div class="insig-row" style="margin-top:8px">Territorios: ${Object.keys(COLOR).map(e => `<span>${escudoHtml(e)}${m.territorios.filter(t => t.dueno === e).length}</span>`).join('')}</div>
       <div class="insig-row" style="margin-top:4px">Insignias: ${Object.entries(m.insignias).map(([e, v]) => `<span>${escudoHtml(e)}${v}</span>`).join('')}</div>

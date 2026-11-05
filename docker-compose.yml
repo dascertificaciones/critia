@@ -11,7 +11,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DOCENTE_TOKEN=${DOCENTE_TOKEN:-docente}
+      - DOCENTE_TOKEN=${DOCENTE_TOKEN:-}
       - ADMIN_TOKEN=${ADMIN_TOKEN:-}
       - SEXTO_DB=/data/historial.db
       - LLM_API_KEY=${LLM_API_KEY:-}
