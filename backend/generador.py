@@ -125,7 +125,8 @@ def validar(caso, familias):
 
 
 def segunda_opinion(caso, api_key=None):
-    """Otro llamado sin ver la clave: debe elegir la misma opción correcta."""
+    """Filtro de consistencia: otro llamado al MISMO modelo, sin ver la clave, debe elegir la misma opción.
+    Detecta casos ambiguos; no verifica hechos."""
     ops = "\n".join(f"{o['clave']}) {o['texto']}" for o in caso["opciones"])
     msg = [{"role": "system", "content": "Eres un experto en pensamiento crítico. Responde solo con la letra de la mejor opción."},
            {"role": "user", "content": f"{caso['situacion']}\n\n{caso['pregunta']}\n{ops}\n\nResponde en JSON: {{\"letra\": \"A\"}}"}]
@@ -166,12 +167,12 @@ def generar(tema, nivel_cog, postulado, formato="tres_opciones", n=2, mision=Non
         if not motivos:
             so = segunda_opinion(c, api_key=api_key)
             if so is False:
-                motivos.append("segunda opinión ciega no coincide con la clave")
+                motivos.append("filtro de consistencia: el modelo no llegó a la misma respuesta sin ver la clave")
             elif so is None:
-                motivos.append("no se pudo obtener segunda opinión (se marca para lectura completa)")
+                motivos.append("no se pudo correr el filtro de consistencia (se marca para lectura completa)")
         grupos = GRUPOS.search(c.get("situacion", "") + " ".join(o.get("texto", "") for o in c.get("opciones", [])))
         nivel_final = 3 if (grupos or postulado in (8, 10, 11)) else nivel
-        if motivos and any("segunda opinión ciega" in m for m in motivos):
+        if motivos and any("filtro de consistencia:" in m for m in motivos):
             rechazados.append({"caso": c, "motivos": motivos}); continue
         if motivos and not all("no se pudo obtener" in m for m in motivos):
             rechazados.append({"caso": c, "motivos": motivos}); continue
