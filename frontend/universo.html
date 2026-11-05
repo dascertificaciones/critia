@@ -54,7 +54,7 @@
   </header>
 
   <h1 id="titulo">El universo</h1>
-  <p class="suave" style="margin:0;max-width:70ch" id="sub">Cada materia es una región con ocho territorios, uno por misión. Un territorio es del equipo que más sentidos ha ganado ahí; la materia es del equipo con más insignias. Todo se puede perder: nada está asegurado.</p>
+  <p class="suave" style="margin:0;max-width:70ch" id="sub">Cada materia es una región con ocho territorios, uno por misión. Un territorio es del equipo que más sentidos ha ganado ahí; la materia es del equipo con más insignias. Cada insignia iza una bandera en un castillo. Una racha personal de 3 o más aporta puntos extra al territorio donde ese alumno está jugando. La isla del detective se gana resolviendo en equipo el caso del detective. Todo se puede perder: nada está asegurado.</p>
   <div class="leyenda"><span><i style="background:#fff;border-style:dashed"></i>Neutral</span><span><i style="background:repeating-linear-gradient(45deg,#fff 0 3px,#999 3px 5px)"></i>En disputa (empate)</span><span><i style="background:var(--azul)"></i>Conquistado</span></div>
 
   <div class="totales" id="totales"></div>
@@ -103,6 +103,31 @@ const CAPA = { mar: new Image(), tierra: new Image() }; CAPA.mar.src = 'assets/i
 const capasListas = () => CAPA.mar.complete && CAPA.mar.naturalWidth && CAPA.tierra.complete && CAPA.tierra.naturalWidth;
 function rng(seed) { let t = seed >>> 0; return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296; }; }
 const TINTE = { rojo: [200, 64, 47], azul: [47, 95, 168], verde: [79, 122, 74], violeta: [107, 45, 158] };
+// Castillos dibujados en la ilustración (coordenadas sobre 1600x1024): ahí se izan las banderas de las insignias
+const CASTILLOS = [[576, 389], [884, 207], [779, 473], [1010, 445], [394, 683], [737, 766], [1010, 669]];
+// Lugares del mar donde caben las islas del detective (una por materia), sobre 1600x1024
+const ISLAS = [[150, 880], [160, 170], [1440, 130], [1470, 470], [330, 960], [1100, 60]];
+function bandera(ctx, x, y, color, n, esc) {
+  ctx.save(); ctx.lineWidth = 2 * esc; ctx.strokeStyle = '#2a1d10'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - 30 * esc); ctx.stroke();
+  ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x, y - 30 * esc); ctx.lineTo(x + 22 * esc, y - 24 * esc); ctx.lineTo(x, y - 17 * esc); ctx.closePath(); ctx.fill(); ctx.stroke();
+  if (n) { ctx.fillStyle = '#fff'; ctx.font = `700 ${9 * esc}px "Atkinson Hyperlegible", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(n, x + 8 * esc, y - 23.5 * esc); }
+  ctx.restore();
+}
+function isla(ctx, x, y, esc, dueno, disputa, nombre) {
+  // islita del detective en el mar, junto a la región
+  ctx.save(); ctx.translate(x, y);
+  const forma = () => { ctx.beginPath(); ctx.moveTo(-46 * esc, 6 * esc); ctx.bezierCurveTo(-50 * esc, -22 * esc, -14 * esc, -34 * esc, 10 * esc, -26 * esc); ctx.bezierCurveTo(40 * esc, -30 * esc, 56 * esc, -4 * esc, 40 * esc, 16 * esc); ctx.bezierCurveTo(24 * esc, 32 * esc, -24 * esc, 32 * esc, -46 * esc, 6 * esc); ctx.closePath(); };
+  forma(); ctx.fillStyle = '#D9C48F'; ctx.fill(); ctx.lineWidth = 3 * esc; ctx.strokeStyle = '#3b2a18'; ctx.stroke();
+  if (dueno) { const c = TINTE[dueno]; forma(); ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},.5)`; ctx.fill(); }
+  else if (disputa) { forma(); ctx.fillStyle = 'rgba(90,80,70,.35)'; ctx.fill(); }
+  // palmera/árbol sencillo
+  ctx.strokeStyle = '#3b2a18'; ctx.lineWidth = 2 * esc; ctx.beginPath(); ctx.moveTo(-18 * esc, 8 * esc); ctx.lineTo(-14 * esc, -12 * esc); ctx.stroke();
+  ctx.fillStyle = '#4F7A4A'; ctx.beginPath(); ctx.arc(-13 * esc, -15 * esc, 7 * esc, 0, 7); ctx.fill();
+  ctx.fillStyle = '#1F2A44'; ctx.font = `700 ${11 * esc}px "Atkinson Hyperlegible", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.lineWidth = 3 * esc; ctx.strokeStyle = 'rgba(255,250,235,.9)'; ctx.strokeText('Isla del detective', 0, 44 * esc); ctx.fillText('Isla del detective', 0, 44 * esc);
+  ctx.font = `400 ${10 * esc}px "Atkinson Hyperlegible", sans-serif`; ctx.strokeText(nombre, 0, 57 * esc); ctx.fillText(nombre, 0, 57 * esc);
+  ctx.restore();
+}
 let ULTIMO = null, CACHE = null;
 function particion(u, W, H) {
   // máscara de tierra desde el alfa de la ilustración
@@ -176,6 +201,19 @@ function dibujarContinente(u, misNombre) {
     ctx.font = `400 ${12 * esc}px "Atkinson Hyperlegible", sans-serif`; ctx.fillStyle = '#5a4630'; halo(`mapa de ${m.docente}`, x, y + 31 * esc);
     if (m.dueno && IMG[m.dueno].complete) ctx.drawImage(IMG[m.dueno], x - tw / 2 - 52 * esc, y - 26 * esc, 48 * esc, 52 * esc);
   });
+  // banderas de insignias en los castillos de cada región (una bandera por insignia, con el número del postulado)
+  const porRegion = regiones.map(() => []);
+  CASTILLOS.forEach(([cxp, cyp]) => { const x = Math.round(cxp * W / 1600), y = Math.round(cyp * H / 1024); const r = reg[y * W + x]; if (r >= 0) porRegion[r].push([x, y]); });
+  u.mapas.forEach((m, k) => {
+    const cast = porRegion[k].length ? porRegion[k] : null; if (!cast) return;
+    const usados = cast.map(() => 0);
+    (m.banderas || []).forEach(([eq, post], j) => { const ci = j % cast.length; const [x, y] = cast[ci]; const c = TINTE[eq];
+      bandera(ctx, x + 26 * esc + usados[ci] * 12 * esc, y - 10 * esc, `rgb(${c[0]},${c[1]},${c[2]})`, post, esc); usados[ci]++; });
+  });
+  // islas del detective: una por materia, en lugares fijos del mar
+  u.mapas.forEach((m, k) => { const [ix, iy] = ISLAS[k % ISLAS.length]; const x = ix * W / 1600, y = iy * H / 1024;
+    isla(ctx, x, y, esc, m.isla?.dueno, m.isla?.disputa, m.nombre);
+    if (m.isla?.dueno && IMG[m.isla.dueno].complete) ctx.drawImage(IMG[m.isla.dueno], x + 6 * esc, y - 24 * esc, 24 * esc, 26 * esc); });
   ULTIMO = { reg, ter, regiones, W, H, mapas: u.mapas };
 }
 document.getElementById('continente').addEventListener('mousemove', ev => {
@@ -196,7 +234,7 @@ async function pintar() {
   const topT = Math.max(...eq.map(e => u.totales[e].territorios));
   document.getElementById('totales').innerHTML = eq.map(e => { const t = u.totales[e]; const lider = topT > 0 && t.territorios === topT; return `
     <div class="tot ${e} ${lider ? 'lider' : ''}">${escudoHtml(e)}<div><div class="nom">Equipo ${cap(e)}</div>
-      <div class="cifras"><span><b>${t.territorios}</b>territorios</span><span><b>${t.materias}</b>materias</span><span><b>${t.insignias}</b>insignias</span><span><b>${u.alumnos[e] || 0}</b>jugadores</span></div></div>
+      <div class="cifras"><span><b>${t.territorios}</b>territorios</span><span><b>${t.materias}</b>materias</span><span><b>${t.insignias}</b>insignias</span><span><b>${t.rachas}</b>rachas activas</span><span><b>${u.alumnos[e] || 0}</b>jugadores</span></div></div>
       ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>`; }).join('');
   const misNombre = Object.fromEntries(u.misiones.map(m => [m.n, m.nombre]));
   dibujarContinente(u, misNombre);

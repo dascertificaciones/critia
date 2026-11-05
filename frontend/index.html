@@ -127,6 +127,16 @@
 
     const puntos = Array.from({ length: prog.racha_para_detective }, (_, k) => `<i class="${k < prog.racha ? 'on' : ''}"></i>`).join('');
     document.getElementById('racha').innerHTML = `<span class="racha-num">${prog.racha}</span><span class="peq">en racha <span class="racha-puntos">${puntos}</span></span>`;
+    // lo que tu progreso aporta al equipo (siempre visible, aunque el equipo vaya perdiendo)
+    if (a.grupo) api(`/universo/${a.grupo}`).then(u => {
+      const m = (u.mapas || []).find(x => x.id === mapaId) || (u.mapas || [])[0]; if (!m) return;
+      const mios = m.territorios.filter(t => t.dueno === a.equipo).length;
+      const bono = prog.racha >= u.reglas.racha_bono;
+      const txt = `Tu equipo tiene <b>${mios}</b> de 8 territorios en este mapa` + (m.isla?.dueno === a.equipo ? ' y la isla del detective' : '') + '. ' +
+        (bono ? `Tu racha de ${prog.racha} aporta <b>+${u.reglas.puntos_bono}</b> al territorio donde juegas.` : `Con ${u.reglas.racha_bono} casos seguidos bien revisados, tu racha aporta +${u.reglas.puntos_bono} a tu equipo.`);
+      let el = document.getElementById('aporte'); if (!el) { el = document.createElement('p'); el.id = 'aporte'; el.className = 'peq suave'; el.style.margin = '6px 0 0'; document.getElementById('racha').after(el); }
+      el.innerHTML = txt;
+    }).catch(() => {});
 
     const todos = Object.values(casos).flat();
     const det = todos.find(c => c.especial === 'detective');

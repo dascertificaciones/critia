@@ -311,7 +311,8 @@ def tablero(grupo: Optional[str] = None, mapa: Optional[int] = None):
 def universo(codigo: str):
     """Vista global del grupo: territorios por mapa (materia) y totales por equipo."""
     todos, _ = motor.cargar_casos()
-    u = historial.universo(codigo, {c["id"]: c["mision"] for c in todos.values()})
+    u = historial.universo(codigo, {c["id"]: c["mision"] for c in todos.values()},
+                           [c["id"] for c in todos.values() if c.get("especial") == "detective"])
     if not u:
         raise HTTPException(404, "Grupo no existe")
     u["misiones"] = [{"n": m["n"], "nombre": m["nombre"]} for m in META["misiones"]]

@@ -609,33 +609,53 @@ def mapas_del_caso(caso_id):
 
 
 # ---------- Universo: territorios por mapa ----------
-def universo(codigo, mision_de_caso):
-    """Para cada mapa del grupo: sentidos por equipo en cada misión (territorio) e insignias por equipo.
-    mision_de_caso: {caso_id: mision}."""
+RACHA_BONO = 3        # racha personal (casos seguidos bien revisados) desde la que el alumno aporta bono a su equipo
+PUNTOS_BONO = 2       # puntos que aporta esa racha en la misión donde el alumno está jugando
+DETECTIVE_OK = 3      # criterios cumplidos (de 4) para que la reflexión del detective cuente para la isla
+
+
+def universo(codigo, mision_de_caso, detective_ids=()):
+    """Para cada mapa del grupo: sentidos por equipo en cada misión (territorio), insignias por equipo,
+    bono de rachas personales e isla del detective. mision_de_caso: {caso_id: mision}."""
     g = grupo(codigo)
     if not g:
         return None
+    detective_ids = set(detective_ids)
     with conectar() as con:
         alumnos_eq = {e: 0 for e in EQUIPOS}
         for r in con.execute("SELECT equipo, COUNT(*) n FROM alumnos WHERE grupo=? GROUP BY equipo", (g["codigo"],)):
             alumnos_eq[r["equipo"]] = r["n"]
         mapas = mapas_de_grupo(g["codigo"])
         salida = []
-        totales = {e: {"territorios": 0, "insignias": 0, "sentidos": 0, "materias": 0} for e in EQUIPOS}
+        totales = {e: {"territorios": 0, "insignias": 0, "sentidos": 0, "materias": 0, "rachas": 0, "islas": 0} for e in EQUIPOS}
         for m in mapas:
             terr = {}
-            for r in con.execute("""SELECT a.equipo, i.caso_id, i.sentidos FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
-                                    WHERE i.cierre IS NOT NULL AND a.grupo=? AND i.mapa_id=?""", (g["codigo"], m["id"])):
+            rachas = {}   # seudonimo -> [equipo, racha_actual, ultima_mision]
+            for r in con.execute("""SELECT a.equipo, a.seudonimo, i.caso_id, i.sentidos, i.eval_ini FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                    WHERE i.cierre IS NOT NULL AND a.grupo=? AND i.mapa_id=? ORDER BY i.cierre""", (g["codigo"], m["id"])):
                 mis = mision_de_caso.get(r["caso_id"])
                 if not mis:
                     continue
-                n = len(json.loads(r["sentidos"] or "[]"))
+                sent = json.loads(r["sentidos"] or "[]")
+                n = len(sent)
                 terr.setdefault(mis, {e: 0 for e in EQUIPOS})[r["equipo"]] += n
                 totales[r["equipo"]]["sentidos"] += n
+                st = rachas.setdefault(r["seudonimo"], [r["equipo"], 0, mis])
+                st[1] = st[1] + 1 if _bien_revisado(sent, r["eval_ini"]) else 0
+                st[2] = mis
+            # bono de racha: cada alumno con racha >= RACHA_BONO empuja la misión donde está
+            bonos = {}
+            for eq, racha, mis in rachas.values():
+                if racha >= RACHA_BONO:
+                    terr.setdefault(mis, {e: 0 for e in EQUIPOS})[eq] += PUNTOS_BONO
+                    bonos[eq] = bonos.get(eq, 0) + 1
+                    totales[eq]["rachas"] += 1
             ins = {e: 0 for e in EQUIPOS}
-            for r in con.execute("""SELECT a.equipo, COUNT(*) n FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
-                                    WHERE a.grupo=? AND i.mapa_id=? GROUP BY a.equipo""", (g["codigo"], m["id"])):
-                ins[r["equipo"]] = r["n"]
+            ins_det = []  # [(equipo, postulado)] para las banderas
+            for r in con.execute("""SELECT a.equipo, i.postulado FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                    WHERE a.grupo=? AND i.mapa_id=?""", (g["codigo"], m["id"])):
+                ins[r["equipo"]] += 1
+                ins_det.append([r["equipo"], r["postulado"]])
             territorios = []
             for mis in range(1, 9):
                 pts = terr.get(mis, {e: 0 for e in EQUIPOS})
@@ -645,6 +665,21 @@ def universo(codigo, mision_de_caso):
                 if dueno:
                     totales[dueno]["territorios"] += 1
                 territorios.append({"mision": mis, "dueno": dueno, "disputa": len(lideres) > 1, "puntos": pts})
+            # isla del detective: equipo con más reflexiones del caso del detective aprobadas por el docente
+            isla = {e: 0 for e in EQUIPOS}
+            if detective_ids:
+                q = ",".join("?" * len(detective_ids))
+                for r in con.execute(f"""SELECT a.equipo, COUNT(*) n FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                         JOIN revision_docente rd ON rd.intento_id=i.id
+                                         WHERE a.grupo=? AND i.mapa_id=? AND i.caso_id IN ({q}) AND rd.puntaje>=? GROUP BY a.equipo""",
+                                     (g["codigo"], m["id"], *detective_ids, DETECTIVE_OK)):
+                    isla[r["equipo"]] = r["n"]
+            top = max(isla.values())
+            lid = [e for e, v in isla.items() if v == top and v > 0]
+            isla_dueno = lid[0] if len(lid) == 1 else None
+            if isla_dueno:
+                totales[isla_dueno]["territorios"] += 1
+                totales[isla_dueno]["islas"] += 1
             top = max(ins.values())
             lid = [e for e, v in ins.items() if v == top and v > 0]
             dueno_materia = lid[0] if len(lid) == 1 else None
@@ -653,9 +688,11 @@ def universo(codigo, mision_de_caso):
             for e in EQUIPOS:
                 totales[e]["insignias"] += ins[e]
             salida.append({"id": m["id"], "nombre": m["nombre"], "docente": m["docente_nombre"] or m["docente"],
-                           "territorios": territorios, "insignias": ins, "dueno": dueno_materia})
+                           "territorios": territorios, "insignias": ins, "banderas": ins_det, "dueno": dueno_materia,
+                           "rachas": bonos, "isla": {"dueno": isla_dueno, "disputa": len(lid) > 1, "puntos": isla}})
         return {"grupo": {"codigo": g["codigo"], "nombre": g["nombre"], "nivel": g.get("nivel") or 2},
-                "alumnos": alumnos_eq, "mapas": salida, "totales": totales}
+                "alumnos": alumnos_eq, "mapas": salida, "totales": totales,
+                "reglas": {"racha_bono": RACHA_BONO, "puntos_bono": PUNTOS_BONO, "detective_ok": DETECTIVE_OK}}
 
 
 # ---------- Vistas filtradas por grupo ----------
