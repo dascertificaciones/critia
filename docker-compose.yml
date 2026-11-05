@@ -1,12 +1,12 @@
 # Sexto Sentido — modo IP (sin dominio). Expone el puerto 8000.
 # Cuando haya dominio, cambiar a la versión con Traefik (docker-compose.traefik.yml).
 services:
-  sexto:
+  critia:
     build:
       context: .
       args:
         APP_VERSION: ${APP_VERSION:-dev}
-    container_name: sexto-sentido
+    container_name: critia
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -18,8 +18,8 @@ services:
       - LLM_BASE_URL=${LLM_BASE_URL:-https://api.deepseek.com}
       - LLM_MODEL=${LLM_MODEL:-deepseek-chat}
     volumes:
-      - sexto_data:/data
+      - critia_data:/data
       - ./backend/casos/docente:/app/backend/casos/docente
 
 volumes:
-  sexto_data:
+  critia_data:

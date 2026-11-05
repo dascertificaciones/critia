@@ -3,12 +3,12 @@
 #   docker compose -f docker-compose.traefik.yml up -d --build
 # Variables en .env: DOMINIO, DOCENTE_TOKEN
 services:
-  sexto:
+  critia:
     build:
       context: .
       args:
         APP_VERSION: ${APP_VERSION:-dev}
-    container_name: sexto-sentido
+    container_name: critia
     restart: unless-stopped
     ports:
       - "127.0.0.1:8000:8000"
@@ -20,14 +20,14 @@ services:
       - LLM_BASE_URL=${LLM_BASE_URL:-https://api.deepseek.com}
       - LLM_MODEL=${LLM_MODEL:-deepseek-chat}
     volumes:
-      - sexto_data:/data
+      - critia_data:/data
       - ./backend/casos/docente:/app/backend/casos/docente
     labels:
       - traefik.enable=true
-      - traefik.http.routers.sexto.rule=Host(`${DOMINIO}`)
-      - traefik.http.routers.sexto.entrypoints=websecure
-      - traefik.http.routers.sexto.tls.certresolver=letsencrypt
-      - traefik.http.services.sexto.loadbalancer.server.url=http://127.0.0.1:8000
+      - traefik.http.routers.critia.rule=Host(`${DOMINIO}`)
+      - traefik.http.routers.critia.entrypoints=websecure
+      - traefik.http.routers.critia.tls.certresolver=letsencrypt
+      - traefik.http.services.critia.loadbalancer.server.url=http://127.0.0.1:8000
 
 volumes:
-  sexto_data:
+  critia_data:

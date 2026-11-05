@@ -1,7 +1,7 @@
 """
 sesion.py — Critia
 Flujo de un caso: abrir → responder (fase inicial) → revisar (fase final) → reflexionar.
-Lo usan tanto la consola (sexto.py) como la API (main.py).
+Lo usan tanto la consola (critia.py) como la API (main.py).
 """
 import motor
 import historial

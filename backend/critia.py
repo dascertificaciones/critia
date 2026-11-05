@@ -1,8 +1,8 @@
 """
-sexto.py — Critia (consola)
+critia.py — Critia (consola)
 Uso:
-    python sexto.py --alumno seudonimo01 --equipo rojo --caso ABC-ESC-002
-    python sexto.py --alumno seudonimo01 --equipo rojo            (recorre todos los casos)
+    python critia.py --alumno seudonimo01 --equipo rojo --caso ABC-ESC-002
+    python critia.py --alumno seudonimo01 --equipo rojo            (recorre todos los casos)
 """
 import argparse
 import motor
