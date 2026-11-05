@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="assets/css/estilo.css">
 </head>
 <body>
-<div class="contenedor">
+<div class="contenedor ancho">
   <header class="cabecera">
     <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Critia</a>
     <div class="jugador" id="jugador"></div>
@@ -15,16 +15,61 @@
 
   <!-- Entrada -->
   <section id="entrada">
-    <h1>Una expedición para aprender a usar la IA sin que piense por ti.</h1>
-    <p class="objetivo">Critia te acompaña a aprender a usar la IA mientras haces cualquier tarea de investigación. Aquí practicas con respuestas de IA como las que vas a encontrar en tu tarea: las lees, decides qué hacer, recibes pistas progresivas y revisas tu decisión. El tutor pregunta y da pistas, nunca resuelve por ti. Cuando ganas la insignia, llevas esa forma de revisar a tu investigación real, y tu maestro ve en qué necesitas apoyo. Hack4Edu 2026 · Reto 04.</p>
-    <p class="suave" style="max-width:56ch">Ocho paradas. En cada una decides, dudas, revisas. Ganas <b>habilidades</b> por justificar, por corregirte y por ajustar tu confianza. No por atinar a la primera.</p>
+    <div class="heroe">
+      <div class="heroe-txt">
+        <div class="nota-mano">cuaderno de expedición · Hack4Edu 2026, Reto 04</div>
+        <h1>Aprende a usar la IA <span class="marca">sin que piense por ti.</span></h1>
+        <p class="lead">Critia te acompaña mientras haces cualquier tarea de investigación. Practicas con respuestas de IA como las que vas a encontrar, y el tutor te hace pensar antes de darte la respuesta.</p>
+        <div class="heroe-acc">
+          <a class="btn btn-primario" href="#ficha">Empezar la expedición</a>
+          <a href="#como">Cómo se recorre una parada</a>
+        </div>
+      </div>
+      <div class="hoja">
+        <span class="cinta c1"></span><span class="cinta c2"></span>
+        <svg viewBox="0 0 560 440" role="img" aria-label="Mapa de una expedición: un camino punteado sube por las colinas pasando por tres paradas, leer lo que dijo la IA, decidir y recibir pistas, hasta un castillo con una bandera roja">
+          <path d="M0 330C80 290 150 300 230 320C320 342 420 300 560 310V440H0Z" fill="#EAE3D3"/>
+          <path d="M0 380C100 350 200 370 300 372C400 374 490 352 560 360V440H0Z" fill="#DED5C0"/>
+          <path d="M300 250C360 190 430 200 480 230C520 254 540 250 560 244V320C470 296 380 330 300 300Z" fill="#F0EADA"/>
+          <g fill="none" stroke="#1F2A44" stroke-width="2" stroke-linecap="round" opacity=".5"><path d="M0 330C80 290 150 300 230 320C320 342 420 300 560 310"/><path d="M0 380C100 350 200 370 300 372C400 374 490 352 560 360"/></g>
+          <g fill="#DED5C0" stroke="#1F2A44" stroke-width="2.5" stroke-linejoin="round"><path d="M52 330L68 296L84 330Z"/><path d="M468 358L482 328L496 358Z"/><path d="M510 340L522 314L534 340Z"/><path d="M330 402L344 374L358 402Z"/></g>
+          <g stroke="#1F2A44" stroke-width="2.5"><path d="M68 330V340M482 358V366M522 340V348M344 402V410"/></g>
+          <path d="M96 392C130 350 170 360 206 330C246 298 214 262 262 244C312 226 330 262 370 226C400 198 404 170 430 140" fill="none" stroke="#1F2A44" stroke-width="3.5" stroke-dasharray="2 10" stroke-linecap="round"/>
+          <g transform="translate(426 52)"><path d="M0 90V30H12V20H22V30H34V20H44V30H56V20H66V30H78V90Z" fill="#F3EEE2" stroke="#1F2A44" stroke-width="3" stroke-linejoin="round"/><path d="M30 90V66C30 56 48 56 48 66V90Z" fill="#1F2A44"/><path d="M39 20V-18" stroke="#1F2A44" stroke-width="3" stroke-linecap="round"/><path d="M39 -18L66 -8L39 2Z" fill="#C8402F" stroke="#1F2A44" stroke-width="2.5" stroke-linejoin="round"/></g>
+          <g transform="translate(30 30)"><circle cx="30" cy="30" r="26" fill="none" stroke="#1F2A44" stroke-width="2.5"/><path d="M30 6L36 30L30 54L24 30Z" fill="#C8402F" stroke="#1F2A44" stroke-width="2" stroke-linejoin="round"/><path d="M6 30L30 24L54 30L30 36Z" fill="#F3EEE2" stroke="#1F2A44" stroke-width="2" stroke-linejoin="round"/><text x="30" y="-2" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="14" fill="#1F2A44">N</text></g>
+          <g font-family="Fraunces, Georgia, serif" font-weight="900" font-size="20" text-anchor="middle">
+            <g transform="translate(206 330)"><circle r="17" fill="#F3EEE2" stroke="#1F2A44" stroke-width="3"/><text y="7" fill="#1F2A44">1</text></g>
+            <g transform="translate(262 244)"><circle r="17" fill="#F3EEE2" stroke="#1F2A44" stroke-width="3"/><text y="7" fill="#1F2A44">2</text></g>
+            <g transform="translate(370 226)"><circle r="17" fill="#C8402F" stroke="#1F2A44" stroke-width="3"/><text y="7" fill="#fff">3</text></g>
+          </g>
+          <g font-family="Caveat, cursive" font-weight="600" font-size="23" fill="#1F2A44"><text x="228" y="368">lees lo que dijo la IA</text><text x="176" y="214" transform="rotate(-4 176 214)">decides y dudas</text><text x="326" y="296">pistas, no la solución</text><text x="300" y="86" fill="#C8402F" transform="rotate(-3 300 86)">tu tarea real</text></g>
+        </svg>
+      </div>
+    </div>
 
-    <div class="tarjeta" style="margin-top:22px">
-      <label for="grupo" style="margin-top:0">Código de tu grupo <span class="suave peq">(te lo da tu maestro o maestra)</span></label>
-      <input type="text" id="grupo" placeholder="6 letras, por ejemplo: K7PQ2M" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:3px;font-family:var(--serif);font-weight:700;font-size:22px">
+    <div class="pasos" id="como">
+      <div class="pasos-cab">
+        <h2>Una parada, tres movimientos</h2>
+        <p class="suave">Son ocho paradas. Cada una entrena una habilidad; con ellas ganas insignias que izan la bandera de tu equipo en el Universo.</p>
+      </div>
+      <ol class="pasos-lista">
+        <li><span class="num">1</span><div><h3>Lee lo que respondió la IA</h3><p>Suena segura y convincente. Tú decides qué hacer con esa respuesta.</p></div></li>
+        <li><span class="num">2</span><div><h3>Decide, explica y marca tu confianza</h3><p>Eliges una opción, dices por qué y qué tan seguro estás.</p></div></li>
+        <li><span class="num">3</span><div><h3>Recibe pistas, no la solución</h3><p>Primero una pregunta, luego un señalamiento. No se gana por atinar: se gana por justificar y corregirte.</p></div></li>
+      </ol>
+    </div>
+
+    <div class="ficha" id="ficha">
+      <span class="cinta c3"></span>
+      <div class="nota-mano">ficha de expedición</div>
+      <h2>Apunta tu nombre de explorador</h2>
+      <p class="suave" style="margin:0 0 14px">Usa un seudónimo, no tu nombre real. Tu maestro o maestra te da el código del grupo y puede ver cómo vas.</p>
+
+      <label for="grupo">Código del grupo (6 letras)</label>
+      <input type="text" id="grupo" placeholder="K7PQ2M" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:3px;font-family:var(--serif);font-weight:700;font-size:22px">
       <div id="grupo-ok" class="peq" style="min-height:20px;margin-top:4px"></div>
 
-      <label for="seudonimo">Tu seudónimo <span class="suave peq">(no uses tu nombre real)</span></label>
+      <label for="seudonimo">Seudónimo</label>
       <input type="text" id="seudonimo" placeholder="por ejemplo: zorro07" maxlength="24" autocomplete="off" pattern="[A-Za-z0-9_\-]{3,24}">
 
       <label>Tu equipo</label>
@@ -43,6 +88,7 @@
     <div class="aviso">
       <b>Sobre este acompañante.</b> Puedo ayudarte a practicar cómo revisar lo que responde una IA mientras haces tu tarea de investigación, y a decidir qué evidencia hace falta. Uso ejercicios escritos por personas y reglas explícitas. No veo lo que haces con tu IA, no puedo verificar todo lo que hay en internet, ni saber cómo piensas, ni sustituir a tu maestro o maestra. Si algo involucra tu seguridad, tu privacidad o consecuencias serias, consulta a una persona de confianza.
     </div>
+    <p class="peq suave" style="margin:12px 0 0">¿Eres docente? <a href="guia.html">Guía</a> · <a href="docente.html">Panel docente</a></p>
   </section>
 
   <!-- Mapa -->
@@ -111,6 +157,7 @@
 
   // ---- Mapa ----
   async function mostrarMapa(a) {
+    document.querySelector('.contenedor').classList.remove('ancho');
     document.getElementById('entrada').classList.add('oculto');
     document.getElementById('mapa-seccion').classList.remove('oculto');
     a = await Sesion.conMapas() || a;
