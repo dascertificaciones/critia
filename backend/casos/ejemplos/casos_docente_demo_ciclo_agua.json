@@ -1,0 +1,372 @@
+{
+  "casos": [
+    {
+      "id": "DOC-AGUA-M1",
+      "nivel": 1,
+      "mision": 1,
+      "postulado": 2,
+      "habilidad": "exactitud",
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "docente": "profe",
+      "tema": "El ciclo del agua",
+      "titulo": "La lluvia salada",
+      "situacion": "Le pediste a una IA: \"¿Por qué la lluvia no sabe a sal si el agua viene del mar?\"\n\nLa IA respondió con mucha seguridad:\n\"Porque la sal también se evapora junto con el agua, pero en las nubes se pierde y la lluvia sale limpia.\"",
+      "pregunta": "¿Qué haces con esa respuesta?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "No le creo nada a la IA y tampoco reviso el tema.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
+          "texto": "La anoto en mi tarea: lo explicó clarito y suena lógico.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "C",
+          "texto": "Busco en mi libro de ciencias qué pasa con la sal cuando el agua se evapora y comparo.",
+          "correcta": true,
+          "tipo_error": null
+        }
+      ],
+      "pista": "Cuando el agua del mar se evapora, ¿qué pasa con la sal que estaba disuelta en ella?",
+      "pista_suave": "Antes de creerle: ¿qué tendrías que ver para saber que es cierto, y no solo que suena bien?",
+      "pista_fuerte": "Cuando el agua del mar se evapora, ¿qué pasa con la sal que estaba disuelta en ella?",
+      "explicacion": "Al evaporarse, solo el agua pasa a vapor. La sal se queda en el mar. Por eso la lluvia no sabe a sal. La respuesta de la IA sonaba ordenada, pero la parte de \"la sal se pierde en las nubes\" no tiene apoyo: había que comprobarla.",
+      "reflexion": "¿Qué parte de la respuesta te hizo creerle?",
+      "rubrica_reflexion": [
+        "Reconoce que la claridad no prueba que sea cierto.",
+        "Nombra algo concreto que podría comprobar."
+      ],
+      "revisado_por_docente": true
+    },
+    {
+      "id": "DOC-AGUA-M2",
+      "nivel": 1,
+      "mision": 2,
+      "postulado": 3,
+      "habilidad": "evaluacion",
+      "familia_error": "confia_en_cita",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "docente": "profe",
+      "tema": "El ciclo del agua",
+      "titulo": "El atlas del agua",
+      "situacion": "Le pediste a una IA: \"¿Cuánta del agua del planeta es dulce?\"\n\nLa IA respondió:\n\"Según el Atlas Hídrico Escolar, 2019 (libro inventado para este ejemplo), el 90 % del agua del planeta es dulce y se puede beber.\"",
+      "pregunta": "¿Qué haces con el dato?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Dudo de todo lo que diga y no lo uso.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
+          "texto": "Lo uso: la cita trae título y año, así que es confiable.",
+          "correcta": false,
+          "tipo_error": "confia_en_cita"
+        },
+        {
+          "clave": "C",
+          "texto": "Busco el dato en una fuente que sí puedo abrir, como mi libro de texto o una página oficial, y comparo.",
+          "correcta": true,
+          "tipo_error": null
+        }
+      ],
+      "pista": "Ese atlas no lo puedes encontrar. ¿Dónde podrías ver tú mismo cuánta agua dulce hay?",
+      "pista_suave": "Una cita con título y año, ¿es lo mismo que una fuente que puedes abrir y leer?",
+      "pista_fuerte": "Ese atlas no lo puedes encontrar. ¿Dónde podrías ver tú mismo cuánta agua dulce hay?",
+      "explicacion": "Casi toda el agua del planeta, cerca del 97 %, es salada. El agua dulce es muy poca y gran parte está congelada. Un título con año no prueba que la fuente exista: la IA lo puede inventar.",
+      "reflexion": "¿Dónde buscarías tú este dato?",
+      "rubrica_reflexion": [
+        "Menciona una fuente concreta que pueda abrir.",
+        "Explica que una cita bonita no prueba que exista."
+      ],
+      "revisado_por_docente": true
+    },
+    {
+      "id": "DOC-AGUA-M3",
+      "nivel": 1,
+      "mision": 3,
+      "postulado": 7,
+      "habilidad": "relevancia_amplitud",
+      "familia_error": "ignora_contexto",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "docente": "profe",
+      "tema": "El ciclo del agua",
+      "titulo": "¿Cuánto tarda una gota?",
+      "situacion": "Le pediste a una IA: \"¿Cuánto tarda una gota de lluvia en llegar al mar?\"\n\nLa IA respondió:\n\"Una gota de lluvia tarda tres días en llegar al mar.\"",
+      "pregunta": "¿Qué haces con esa respuesta?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "La descarto: las IA no saben nada del agua.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
+          "texto": "La anoto para mi tarea: tres días.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "C",
+          "texto": "Le cuento dónde cae la gota (montaña, ciudad, cerca de un río) y le pido de qué depende el tiempo.",
+          "correcta": true,
+          "tipo_error": null
+        }
+      ],
+      "pista": "No es lo mismo una gota que cae en el mar, en un río o en la tierra. ¿Qué dato le falta a la pregunta?",
+      "pista_suave": "¿La respuesta toma en cuenta dónde cae la gota?",
+      "pista_fuerte": "No es lo mismo una gota que cae en el mar, en un río o en la tierra. ¿Qué dato le falta a la pregunta?",
+      "explicacion": "El tiempo depende de dónde cae la gota. Si cae en el mar, no viaja. Si cae en un río, puede tardar días. Si se mete bajo la tierra, puede tardar mucho más. Una respuesta general no aplica a tu caso hasta que das el contexto.",
+      "reflexion": "¿Qué le dirías a la IA para que te responda mejor?",
+      "rubrica_reflexion": [
+        "Da un dato de contexto concreto.",
+        "Pide que la respuesta explique de qué depende."
+      ],
+      "revisado_por_docente": true
+    },
+    {
+      "id": "DOC-AGUA-M4",
+      "nivel": 1,
+      "mision": 4,
+      "postulado": 5,
+      "habilidad": "autorregulacion",
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "docente": "profe",
+      "tema": "El ciclo del agua",
+      "titulo": "La hora exacta de la lluvia",
+      "situacion": "Le pediste a una IA: \"¿Va a llover hoy en mi casa?\"\n\nLa IA respondió:\n\"Sí. Hoy va a llover en tu casa a las 4:15 de la tarde, sin falta.\"",
+      "pregunta": "¿Qué tan seguro puedes estar de esa respuesta?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Totalmente seguro: dio hasta la hora exacta.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Nada seguro: los pronósticos nunca sirven y no reviso nada.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "C",
+          "texto": "Pongo una confianza media y reviso el pronóstico de un servicio meteorológico, que da la probabilidad de lluvia.",
+          "correcta": true,
+          "tipo_error": null
+        }
+      ],
+      "pista": "¿La IA muestra de dónde sacó la hora exacta? ¿Qué pasaría si revisas la probabilidad de lluvia?",
+      "pista_suave": "¿De dónde sale tu seguridad: de algo que comprobaste o de cómo sonó la respuesta?",
+      "pista_fuerte": "¿La IA muestra de dónde sacó la hora exacta? ¿Qué pasaría si revisas la probabilidad de lluvia?",
+      "explicacion": "Un pronóstico no puede dar una hora exacta sin dudas. Los servicios meteorológicos hablan de probabilidades. Tu confianza debe subir o bajar según la evidencia que encuentres, no según lo segura que suene la IA.",
+      "reflexion": "¿Qué evidencia cambiaría tu nivel de confianza?",
+      "rubrica_reflexion": [
+        "Relaciona su confianza con la evidencia.",
+        "Nombra dónde consultaría el pronóstico."
+      ],
+      "revisado_por_docente": true
+    },
+    {
+      "id": "DOC-AGUA-M5",
+      "nivel": 1,
+      "mision": 5,
+      "postulado": 8,
+      "habilidad": "justicia",
+      "familia_error": "generaliza",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "docente": "profe",
+      "tema": "El ciclo del agua",
+      "titulo": "¿Quién gasta más agua?",
+      "situacion": "Le pediste a una IA: \"¿Quién desperdicia más agua?\"\n\nLa IA respondió:\n\"La gente de las colonias populares desperdicia más agua; es parte de su forma de ser.\"",
+      "pregunta": "¿Qué haces con esa respuesta?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "No me sirve, así que dejo el tema del agua.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
+          "texto": "La uso en mi cartel: así son esas personas.",
+          "correcta": false,
+          "tipo_error": "generaliza"
+        },
+        {
+          "clave": "C",
+          "texto": "Pido datos de consumo por hogar y por tipo de uso, medidos igual para todos, y me quedo con eso.",
+          "correcta": true,
+          "tipo_error": null
+        }
+      ],
+      "pista": "¿Un dato sobre un grupo entero dice algo cierto de cada persona? ¿Qué medirías igual para todos?",
+      "pista_suave": "¿Esa respuesta juzga a personas por el lugar donde viven?",
+      "pista_fuerte": "¿Un dato sobre un grupo entero dice algo cierto de cada persona? ¿Qué medirías igual para todos?",
+      "explicacion": "Decir que un grupo entero hace algo es una generalización. El gasto de agua se mide por hogar y por uso (riego, fugas, baños), con el mismo criterio para todos. Eso sí te dice algo comprobable.",
+      "reflexion": "¿Qué dato te serviría para el cartel sin juzgar a nadie?",
+      "rubrica_reflexion": [
+        "Rechaza el juicio sobre el grupo.",
+        "Propone un criterio igual para todos."
+      ],
+      "revisado_por_docente": true
+    },
+    {
+      "id": "DOC-AGUA-M6",
+      "nivel": 1,
+      "mision": 6,
+      "postulado": 10,
+      "habilidad": "juicio_consecuencias",
+      "familia_error": "comparte_datos",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "docente": "profe",
+      "tema": "El ciclo del agua",
+      "titulo": "Medir la lluvia con una app",
+      "situacion": "Quieres medir la lluvia de tu colonia para tu proyecto. Una app para medir lluvia te pide para registrarte:\n\"Escribe tu nombre completo, tu dirección y sube una foto de tu casa.\"",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Mando todo: así me registran más rápido.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
+        },
+        {
+          "clave": "B",
+          "texto": "Mando mi dirección completa, pero no mi nombre.",
+          "correcta": false,
+          "tipo_error": "comparte_datos"
+        },
+        {
+          "clave": "C",
+          "texto": "Le pregunto a un adulto y, si me registro, uso un seudónimo y la zona general, sin dirección ni foto de mi casa.",
+          "correcta": true,
+          "tipo_error": null
+        }
+      ],
+      "pista": "Una dirección y una foto de tu casa dicen dónde vives. ¿Para medir lluvia hace falta eso?",
+      "pista_suave": "¿Quién más podría ver lo que mandas?",
+      "pista_fuerte": "Una dirección y una foto de tu casa dicen dónde vives. ¿Para medir lluvia hace falta eso?",
+      "explicacion": "Para medir la lluvia basta saber la zona general. La dirección y la foto de tu casa pueden usarse para ubicar a una persona. Antes de dar datos, piensa quién queda expuesto y pregunta a un adulto.",
+      "reflexion": "¿Qué datos sí darías y cuáles no?",
+      "rubrica_reflexion": [
+        "Distingue datos necesarios de innecesarios.",
+        "Menciona consultar a un adulto."
+      ],
+      "revisado_por_docente": true
+    },
+    {
+      "id": "DOC-AGUA-M7",
+      "nivel": 1,
+      "mision": 7,
+      "postulado": 12,
+      "habilidad": "responsabilidad",
+      "familia_error": "entrega_como_propio",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "docente": "profe",
+      "tema": "El ciclo del agua",
+      "titulo": "El párrafo del ciclo",
+      "situacion": "Tu maestra pidió explicar el ciclo del agua. Le pediste a una IA que lo escribiera.\n\nLa IA respondió:\n\"El agua del mar y de los ríos se evapora por el calor del sol, el vapor se enfría y forma nubes, cae como lluvia o nieve y regresa a los ríos y al mar.\"",
+      "pregunta": "¿Qué haces con ese texto?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "No lo uso y no digo nada de la IA, así nadie se entera.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        },
+        {
+          "clave": "B",
+          "texto": "Lo copio y lo entrego con mi nombre.",
+          "correcta": false,
+          "tipo_error": "entrega_como_propio"
+        },
+        {
+          "clave": "C",
+          "texto": "Lo reescribo con mis palabras, lo comparo con mi libro y escribo en la tarea que usé una IA para empezar.",
+          "correcta": true,
+          "tipo_error": null
+        }
+      ],
+      "pista": "Si entregas el texto tal cual, ¿quién lo escribió? ¿Qué le diría tu nombre a quien lo lea?",
+      "pista_suave": "Si tu maestra te preguntara cómo hiciste la tarea, ¿qué le dirías?",
+      "pista_fuerte": "Si entregas el texto tal cual, ¿quién lo escribió? ¿Qué le diría tu nombre a quien lo lea?",
+      "explicacion": "Usar una IA no está mal, pero la tarea lleva tu nombre. Revisa lo que escribió, dilo con tus palabras y cuenta cómo la usaste. Así tu maestra sabe qué aprendiste tú.",
+      "reflexion": "¿Cómo explicarías, en una frase, cómo usaste la IA?",
+      "rubrica_reflexion": [
+        "Dice que usó la IA.",
+        "Explica qué hizo él o ella con el texto."
+      ],
+      "revisado_por_docente": true
+    },
+    {
+      "id": "DOC-AGUA-M8",
+      "nivel": 1,
+      "mision": 8,
+      "postulado": 11,
+      "habilidad": "limite_juicio",
+      "familia_error": "no_consulta",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "docente": "profe",
+      "tema": "El ciclo del agua",
+      "titulo": "¿Se puede beber agua de lluvia?",
+      "situacion": "Juntaste agua de lluvia en un cubo para un experimento. Le preguntaste a una IA: \"¿Puedo beberla?\"\n\nLa IA respondió:\n\"Sí, el agua de lluvia es pura y siempre se puede beber.\"",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "La bebo: la IA lo dijo muy claro.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
+        },
+        {
+          "clave": "B",
+          "texto": "La bebo solo si se ve transparente.",
+          "correcta": false,
+          "tipo_error": "no_consulta"
+        },
+        {
+          "clave": "C",
+          "texto": "Se lo pregunto a mi maestra o a un adulto de confianza antes de beberla.",
+          "correcta": true,
+          "tipo_error": null
+        }
+      ],
+      "pista": "Que el agua se vea limpia, ¿prueba que sea segura? ¿A quién deberías preguntarle antes de beberla?",
+      "pista_suave": "¿Es una decisión que la IA debería tomar por ti?",
+      "pista_fuerte": "Que el agua se vea limpia, ¿prueba que sea segura? ¿A quién deberías preguntarle antes de beberla?",
+      "explicacion": "El agua de lluvia puede juntar polvo, suciedad y microbios del techo o del cubo. Decidir si algo es seguro para tu salud necesita a una persona que sepa y que te conozca. Una IA no puede revisar tu cubo.",
+      "reflexion": "¿Qué decisiones le dejarías a una persona y no a una IA?",
+      "rubrica_reflexion": [
+        "Reconoce que hay decisiones de salud que necesitan a una persona.",
+        "Nombra a quién consultaría."
+      ],
+      "revisado_por_docente": true
+    }
+  ]
+}
