@@ -94,7 +94,7 @@
     if (YO.admin && activa === 'grupos') activa = 'resumen';
     $('login').classList.add('oculto'); $('panel').classList.remove('oculto');
     META = await api('/meta');
-    $('estado').innerHTML = `<span class="peq">${esc(YO.nombre)}</span><button class="btn btn-enlace" id="salir">salir</button>`;
+    $('estado').innerHTML = `<span class="peq">${esc(YO.nombre)}</span><a class="btn btn-enlace" href="guia.html" target="_blank">guía</a><button class="btn btn-enlace" id="salir">salir</button>`;
     $('salir').onclick = async () => { if (auth?.tipo === 'docente') { try { await api('/docente/logout', 'POST', null, H()); } catch {} } try { sessionStorage.removeItem('ss_auth'); } catch {} location.reload(); };
     if (!YO.admin && !YO.grupos.length) { activa = 'grupos'; toast('Crea tu primer grupo para que tus alumnos puedan entrar', 5000); }
     await pintarPestanas();

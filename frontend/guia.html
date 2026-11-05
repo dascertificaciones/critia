@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Critia · Guía para docentes</title>
+<link rel="stylesheet" href="assets/css/estilo.css">
+<style>
+  .contenedor { max-width: 760px; }
+  .guia h2 { margin-top: 36px; padding-top: 14px; border-top: var(--trazo) solid var(--tinta); }
+  .guia h3 { font-family: var(--serif); font-size: 18px; margin: 22px 0 6px; }
+  .guia p, .guia li { max-width: 68ch; }
+  .guia ol, .guia ul { padding-left: 22px; }
+  .guia li { margin: 6px 0; }
+  .nota { background: var(--ambar-claro); border: var(--trazo) solid var(--tinta); border-radius: var(--r); padding: 12px 16px; margin: 16px 0; }
+  .ficha { border: var(--trazo) solid var(--tinta); border-radius: var(--r); padding: 14px 16px; margin: 14px 0; background: #fff; }
+  .ficha b { font-family: var(--serif); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; margin: 12px 0; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--papel-3); vertical-align: top; }
+  th { border-bottom: var(--trazo) solid var(--tinta); font-size: 13px; color: var(--tinta-suave); }
+  .indice { columns: 2; column-gap: 24px; font-size: 15px; }
+  .indice a { display: block; margin: 4px 0; text-decoration: none; }
+  @media print {
+    .cabecera .jugador, .no-print { display: none !important; }
+    body { background: #fff; font-size: 12pt; }
+    .guia h2 { break-before: page; }
+    .guia h2:first-of-type { break-before: auto; }
+  }
+  @media (max-width: 600px) { .indice { columns: 1; } }
+</style>
+</head>
+<body>
+<div class="contenedor guia">
+  <header class="cabecera">
+    <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Critia</a>
+    <div class="jugador"><a class="btn btn-secundario no-print" href="docente.html">Panel docente</a><button class="btn btn-secundario no-print" onclick="window.print()">Imprimir</button></div>
+  </header>
+
+  <h1>Guía para docentes</h1>
+  <p class="objetivo">Critia es un tutor para que estudiantes de secundaria practiquen el uso crítico y responsable de la inteligencia artificial. Esta guía explica qué hace, cómo correr una sesión en clase, qué registra y cómo leer el panel.</p>
+
+  <div class="indice">
+    <a href="#que-es">1. Qué es y qué no es</a>
+    <a href="#como-funciona">2. Cómo funciona un caso</a>
+    <a href="#antes">3. Antes de la primera clase</a>
+    <a href="#sesion">4. Una sesión de 50 minutos</a>
+    <a href="#juego">5. Sentidos, racha, insignias y detective</a>
+    <a href="#panel">6. El panel docente</a>
+    <a href="#generar">7. Generar casos desde un tema</a>
+    <a href="#postulados">8. Los 12 postulados y las 8 misiones</a>
+    <a href="#privacidad">9. Privacidad y límites</a>
+    <a href="#problemas">10. Si algo falla</a>
+  </div>
+
+  <h2 id="que-es">1. Qué es y qué no es</h2>
+  <p>Critia presenta situaciones breves donde una IA responde algo que suena convincente. El estudiante decide qué hacer, dice qué tan seguro está, recibe una pista y vuelve a decidir. Cada intervención del tutor sale de reglas explícitas, no de un modelo de lenguaje, y siempre trae un motivo visible.</p>
+  <div class="ficha"><b>Lo que sí hace:</b> practicar la revisión de afirmaciones, la verificación de fuentes, la calibración de la confianza y el reconocimiento de cuándo consultar a una persona. Registra el proceso (respuesta inicial, confianza, pista, respuesta revisada) y no solo el resultado.</div>
+  <div class="ficha"><b>Lo que no hace:</b> no califica respuestas abiertas (eso lo haces tú con la rúbrica), no diagnostica al estudiante, no genera respuestas en vivo durante la sesión y no sustituye al docente. Un error repetido es una observación para la clase, no una etiqueta sobre el alumno.</div>
+
+  <h2 id="como-funciona">2. Cómo funciona un caso</h2>
+  <ol>
+    <li><b>Decidir.</b> El estudiante lee la situación, elige una opción (A, B o C), marca su confianza de 0 a 100 y escribe en una línea por qué.</li>
+    <li><b>Pista.</b> El tutor responde con una acción y un motivo, por ejemplo: "Vamos a comprobarlo paso a paso" porque "se aceptó una afirmación sin evidencia con confianza alta". Si la respuesta fue incorrecta, da una pista que no revela la respuesta.</li>
+    <li><b>Revisar.</b> El estudiante puede mantener o cambiar su respuesta, y ajustar su confianza.</li>
+    <li><b>Cierre.</b> Ve qué sentidos ganó, lee la explicación completa y responde una pregunta de reflexión que llega a tu panel.</li>
+  </ol>
+  <div class="nota">La respuesta correcta nunca aparece antes del cierre. Si un estudiante cree que el caso está mal planteado, puede marcarlo con "Creo que este caso está mal"; eso te llega como alerta.</div>
+
+  <h2 id="antes">3. Antes de la primera clase</h2>
+  <ol>
+    <li>Pide al administrador tu usuario y contraseña.</li>
+    <li>Entra a <b>hackaton.proyecto.digital/docente.html</b>.</li>
+    <li>En <b>Mis grupos</b>, crea un grupo (por ejemplo "2°A"). Recibirás un código de 6 letras. Ese código es lo único que tus alumnos necesitan.</li>
+    <li>Revisa los casos del banco en la pestaña <b>Casos</b>. Los del banco base ya están aprobados. Si generas casos nuevos, apruébalos para tu grupo antes de la clase.</li>
+    <li>Decide con qué misión empiezan. Recomendación: misión 1 en la primera sesión.</li>
+    <li>Prepara un seudónimo por alumno o deja que lo elijan. No deben usar su nombre real.</li>
+  </ol>
+
+  <h2 id="sesion">4. Una sesión de 50 minutos</h2>
+  <table>
+    <tr><th>Minutos</th><th>Qué pasa</th></tr>
+    <tr><td>0 a 5</td><td>Proyecta el tablero del grupo (desde Mis grupos → Tablero). Explica la regla central: no se gana por atinar, se gana por justificar, revisar y calibrar.</td></tr>
+    <tr><td>5 a 10</td><td>Los alumnos entran con el código del grupo, su seudónimo y su equipo. En parejas funciona mejor: discuten antes de poner la confianza.</td></tr>
+    <tr><td>10 a 35</td><td>Trabajan 3 a 5 casos de la misión del día. Cada caso toma de 4 a 6 minutos.</td></tr>
+    <tr><td>35 a 45</td><td>Plenaria. Proyecta un caso y pregunta: ¿quién cambió de respuesta?, ¿qué les hizo dudar?, ¿cómo lo habrían verificado sin pista? Sin nombres: usa el tablero por equipos.</td></tr>
+    <tr><td>45 a 50</td><td>Conecta con algo real: una tarea hecha con IA, una cita inventada, un mensaje que pide datos.</td></tr>
+  </table>
+  <div class="nota">Si un equipo tiene el doble de alumnos que otro, sus sentidos no son comparables. El tablero muestra cuántos jugadores tiene cada equipo justo para eso.</div>
+
+  <h2 id="juego">5. Sentidos, racha, insignias y detective</h2>
+  <h3>Sentidos</h3>
+  <p>Hasta 3 por caso: <b>Justificar</b> (escribió por qué), <b>Revisar</b> (después de la pista cambió a la correcta) y <b>Calibrar</b> (su confianza se movió en la dirección correcta). Acertar a la primera sin justificar da cero. Es intencional.</p>
+  <h3>Racha</h3>
+  <p>Cuenta casos seguidos "bien revisados": atinar sin pista o corregirse después de la pista. Un caso que sigue mal después de la pista la reinicia.</p>
+  <h3>Caso del detective</h3>
+  <p>Con una racha de 3 se abre un caso especial de reflexión abierta: tres IA coinciden en una afirmación sin evidencia. Está pensado para resolverse en equipo y presentarse al grupo. Tú lo calificas con rúbrica.</p>
+  <h3>Insignias</h3>
+  <p>Una por postulado. El sistema sugiere una insignia cuando un alumno aplicó el mismo postulado en 2 casos distintos sin necesitar pista. Tú la confirmas desde el panel; el sistema nunca la otorga solo.</p>
+
+  <h2 id="panel">6. El panel docente</h2>
+  <table>
+    <tr><th>Pestaña</th><th>Para qué</th></tr>
+    <tr><td>Resumen</td><td>Cuántos alumnos activos, casos resueltos y porcentaje de errores corregidos tras la pista. Por caso: barra verde (acertó sin pista), ámbar (corrigió), roja (siguió mal), y la confianza promedio antes y después. Abajo, las familias de error más frecuentes del grupo.</td></tr>
+    <tr><td>Mis grupos</td><td>Crear grupos, ver el código y abrir el tablero para proyectar.</td></tr>
+    <tr><td>Generar casos</td><td>Escribir un tema y obtener casos nuevos para revisar (sección 7).</td></tr>
+    <tr><td>Casos</td><td>Arriba, los casos por aprobar: edítalos, marca los grupos y aprueba. Abajo, el banco aprobado.</td></tr>
+    <tr><td>Reflexiones</td><td>Respuestas abiertas de tus alumnos con la rúbrica de cada caso. Marcas los criterios que cumple; el puntaje se calcula solo.</td></tr>
+    <tr><td>Insignias</td><td>Sugerencias para confirmar, o otorgar a mano.</td></tr>
+    <tr><td>Alertas</td><td>Casos donde más del 80% sigue mal tras la pista (la clave o la pista pueden estar mal), casos donde nadie se equivoca, o casos que varios alumnos marcaron como dudosos. Se calculan con al menos 5 intentos.</td></tr>
+    <tr><td>Alumnos</td><td>Lista por grupo y equipo. Al hacer clic en uno, su historial completo: respuesta inicial, acción del tutor, respuesta revisada, sentidos y reflexión.</td></tr>
+  </table>
+  <div class="nota">Un dato aislado no dice nada sobre un alumno. Lo útil es el patrón a lo largo de varias sesiones y, sobre todo, lo que el grupo muestra en el Resumen.</div>
+
+  <h2 id="generar">7. Generar casos desde un tema</h2>
+  <ol>
+    <li>En <b>Generar casos</b>, escribe el tema de tu clase (por ejemplo "fracciones", "la Independencia", "alimentación"), elige el postulado que quieres practicar, el grado y cuántos casos (1 a 5).</li>
+    <li>El sistema redacta los casos con un modelo de lenguaje y los pasa por filtros: estructura completa, una sola opción correcta, familias de error válidas, sin datos personales, y una "segunda opinión ciega" (otro llamado al modelo que, sin ver la clave, debe elegir la misma respuesta). Los que no pasan aparecen aparte con el motivo.</li>
+    <li>Los que pasan quedan como <b>provisionales</b>. Léelos, corrige lo que haga falta (título, situación, opciones, cuál es la correcta, pista, explicación), marca los grupos que lo verán y aprueba.</li>
+  </ol>
+  <table>
+    <tr><th>Nivel de revisión</th><th>Qué significa</th></tr>
+    <tr><td>Automático</td><td>Cálculos, lógica, inferencias. Los filtros bastan, pero igual dale una leída.</td></tr>
+    <tr><td>Aprobación rápida</td><td>Fuentes, contexto, integridad académica. Revisa la clave y la pista.</td></tr>
+    <tr><td>Lectura completa</td><td>Estereotipos, datos personales, cuándo consultar a un adulto. Lee todo antes de aprobar; aquí un error del modelo puede hacer daño.</td></tr>
+  </table>
+  <div class="nota">Nada llega a los alumnos sin tu aprobación. Los casos generados son tuyos: otros profesores no los ven ni los editan.</div>
+
+  <h2 id="postulados">8. Los 12 postulados y las 8 misiones</h2>
+  <table>
+    <tr><th>Misión</th><th>Postulados</th></tr>
+    <tr><td>1. El sentido de la duda</td><td>1. Toda afirmación necesita evidencia · 2. Que suene claro no significa que sea cierto</td></tr>
+    <tr><td>2. La fuente fantasma</td><td>3. Las fuentes se verifican</td></tr>
+    <tr><td>3. Lo que falta</td><td>1. Evidencia · 7. Considera el contexto antes de generalizar</td></tr>
+    <tr><td>4. El termómetro</td><td>5. La confianza sigue a la evidencia · 6. Cambiar de opinión con mejores razones</td></tr>
+    <tr><td>5. El criterio justo</td><td>8. Las generalizaciones sobre personas requieren criterios justos</td></tr>
+    <tr><td>6. La bóveda</td><td>10. La información personal se protege</td></tr>
+    <tr><td>7. Mi nombre, mi trabajo</td><td>9. Explicar el propio razonamiento · 12. Usar herramientas no quita la responsabilidad</td></tr>
+    <tr><td>8. El sexto sentido</td><td>4. Revisa si las premisas están completas · 11. Hay decisiones que requieren consultar a alguien</td></tr>
+  </table>
+  <p class="peq suave">Los postulados se basan en los estándares intelectuales de Paul y Elder, las habilidades del Informe Delphi (Facione) y la disposición a la apertura de Ennis y Lipman.</p>
+
+  <h2 id="privacidad">9. Privacidad y límites</h2>
+  <ul>
+    <li>Los alumnos entran con seudónimo. No pidas ni registres nombres reales en el sistema.</li>
+    <li>El tablero muestra equipos, nunca alumnos. Si proyectas una reflexión en plenaria, quita cualquier dato que identifique a quien la escribió.</li>
+    <li>Los casos de la misión 6 (privacidad) usan datos ficticios. No los sustituyas por datos reales de la escuela.</li>
+    <li>El sistema no hace diagnósticos. Si ves algo en una reflexión que te preocupa, es un tema para hablar con el alumno o con orientación, no para anotar en el sistema.</li>
+  </ul>
+
+  <h2 id="problemas">10. Si algo falla</h2>
+  <table>
+    <tr><th>Qué pasa</th><th>Qué hacer</th></tr>
+    <tr><td>Un alumno dice que el código no existe</td><td>Revisa que escribió las 6 letras correctas; el código no usa 0, O, 1 ni I.</td></tr>
+    <tr><td>Un alumno no ve un caso que generaste</td><td>En Casos, revisa que el caso esté aprobado y que su grupo esté marcado.</td></tr>
+    <tr><td>Un alumno cerró el navegador a medio caso</td><td>Al volver a abrir el mismo caso, retoma donde iba.</td></tr>
+    <tr><td>Olvidaste tu contraseña</td><td>El administrador la restablece desde su panel.</td></tr>
+    <tr><td>El generador dice que no hay clave del modelo</td><td>Es configuración del servidor; avisa al administrador.</td></tr>
+    <tr><td>Un caso parece mal planteado</td><td>Edítalo en Casos si es tuyo; si es del banco base, avisa al administrador. Los alumnos también pueden marcarlo.</td></tr>
+  </table>
+
+  <div class="pie-inst"><img src="assets/img/udemex.png" alt="Universidad Digital del Estado de México"><span>Hack4Edu 2026</span></div>
+</div>
+<script src="assets/js/iconos.js"></script>
+<script>document.getElementById('logo-ojo').innerHTML = ICONO.ojo;</script>
+</body>
+</html>

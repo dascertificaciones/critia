@@ -492,6 +492,240 @@
         "Detecta que la IA 3 inventa una experiencia que no puede tener.",
         "Propone al menos un paso concreto de verificación."
       ]
+    },
+    {
+      "id": "RAZ-001",
+      "mision": 4,
+      "postulado": 5,
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "El bate y la pelota",
+      "situacion": "Un bate y una pelota cuestan juntos 110 pesos. El bate cuesta 100 pesos más que la pelota. Le preguntas a una IA cuánto cuesta la pelota y responde al instante: \"La pelota cuesta 10 pesos. Es evidente: 110 menos 100.\"",
+      "pregunta": "¿Qué haces con esa respuesta?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "La acepto; es obvia y la IA respondió sin dudar.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "La compruebo: si la pelota cuesta 10, el bate cuesta 110 y juntos dan 120, no 110. Algo falla.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "La descarto sin revisar; las IA fallan en matemáticas.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Si la pelota cuesta 10 y el bate 100 más, ¿cuánto cuesta el bate? ¿Cuánto suman?",
+      "explicacion": "La respuesta rápida es la trampa. Si la pelota costara 10, el bate costaría 110 y juntos sumarían 120. La pelota cuesta 5: el bate 105, y 105 + 5 = 110. Que una respuesta llegue rápido y sin dudas no la hace correcta; comprobarla toma diez segundos.",
+      "reflexion": "¿Qué tan seguro estabas antes de comprobar? ¿Cambió después?",
+      "rubrica_reflexion": [
+        "Compara su confianza antes y después de comprobar.",
+        "Reconoce que la rapidez de la respuesta influyó."
+      ]
+    },
+    {
+      "id": "RAZ-002",
+      "mision": 4,
+      "postulado": 5,
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Cien por ciento seguro",
+      "situacion": "En un examen de opción múltiple, una IA te dice: \"La respuesta es la C, estoy 100% seguro\". Luego le haces la misma pregunta en otra ventana y responde: \"La respuesta es la B, estoy 100% seguro\".",
+      "pregunta": "¿Qué concluyes sobre ese \"100% seguro\"?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Que una de las dos veces tenía razón; me quedo con la primera.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Que el \"100% seguro\" no mide nada: la IA dice lo mismo aunque se contradiga. Tengo que verificar por otro lado.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Que nunca hay que usar IA para estudiar.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "Si dos respuestas distintas vienen con la misma seguridad, ¿qué vale esa seguridad?",
+      "explicacion": "La seguridad que declara una IA no está conectada con que la respuesta sea correcta; puede decir \"100% seguro\" de dos cosas opuestas. Tu propia confianza debe depender de la evidencia que tú puedas revisar (el libro, el procedimiento, otra fuente), no de qué tan convencida suene la respuesta.",
+      "reflexion": "¿En qué te fijas tú para decidir qué tan seguro estás de algo?",
+      "rubrica_reflexion": [
+        "Menciona algo verificable (fuente, procedimiento, comprobación).",
+        "Distingue entre sonar seguro y estar en lo correcto."
+      ]
+    },
+    {
+      "id": "RAZ-003",
+      "mision": 4,
+      "postulado": 6,
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Los nenúfares del estanque",
+      "situacion": "En un estanque hay nenúfares que duplican su área cada día. Tardan 48 días en cubrir todo el estanque. Tú dijiste en voz alta: \"Entonces en 24 días cubren la mitad\". Una compañera te dice: \"No, piénsalo: si cada día se duplica, la mitad fue apenas el día anterior al 48\".",
+      "pregunta": "¿Qué haces?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Sostengo mi respuesta; ya la dije y 24 es la mitad de 48.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Reviso su razón: si el día 48 está lleno y cada día se duplica, el día 47 estaba a la mitad. Ella tiene razón; cambio de respuesta.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Digo que los dos podemos tener razón y dejo el tema.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        }
+      ],
+      "pista": "Ve hacia atrás desde el día 48: ¿cómo estaba el estanque el día 47?",
+      "explicacion": "Si el día 48 está lleno y el área se duplica cada día, el día 47 estaba a la mitad. La respuesta correcta es 47, no 24. Cambiar de opinión cuando alguien da una razón mejor no es perder; es exactamente lo que hace alguien que piensa bien. Y \"los dos tenemos razón\" no es una salida cuando hay una respuesta comprobable.",
+      "reflexion": "¿Qué te cuesta más: cambiar de respuesta frente a otros, o aceptar que el otro tenía razón? ¿Por qué?",
+      "rubrica_reflexion": [
+        "Reconoce que cambiar de opinión con razones es correcto.",
+        "Da una razón personal, no genérica."
+      ]
+    },
+    {
+      "id": "RAZ-004",
+      "mision": 4,
+      "postulado": 5,
+      "familia_error": "confunde_resultado_y_razonamiento",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "Las cinco máquinas",
+      "situacion": "Si 5 máquinas tardan 5 minutos en hacer 5 piezas, ¿cuánto tardan 100 máquinas en hacer 100 piezas? Una IA responde: \"100 minutos. Como todo se multiplica por 20, el tiempo también\". Tú tienes una confianza de 80 en que es correcto porque \"suena proporcional\".",
+      "pregunta": "¿Qué harías con tu confianza de 80?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "La mantengo: la proporción es clara y la IA lo explicó.",
+          "correcta": false,
+          "tipo_error": "confunde_resultado_y_razonamiento"
+        },
+        {
+          "clave": "B",
+          "texto": "La bajo hasta comprobar: ¿cuánto tarda UNA máquina en hacer UNA pieza? 5 minutos. Entonces 100 máquinas hacen 100 piezas en 5 minutos.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "La subo a 100: dos de nosotros pensamos lo mismo.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        }
+      ],
+      "pista": "¿Cuánto tarda una sola máquina en hacer una sola pieza?",
+      "explicacion": "Cada máquina hace una pieza en 5 minutos. Con 100 máquinas trabajando a la vez, 100 piezas salen en los mismos 5 minutos. \"Suena proporcional\" es una sensación, no un cálculo. Y que la IA y tú coincidan no suma evidencia: los dos usaron el mismo atajo.",
+      "reflexion": "Pon un ejemplo de algo que te \"sonaba\" correcto y resultó no serlo.",
+      "rubrica_reflexion": [
+        "Da un ejemplo concreto.",
+        "Explica qué lo hacía sonar correcto."
+      ]
+    },
+    {
+      "id": "RAZ-005",
+      "mision": 4,
+      "postulado": 6,
+      "familia_error": "ignora_contexto",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "La encuesta del salón",
+      "situacion": "Preguntaste a 5 amigos si prefieren examen o proyecto final; los 5 dijeron proyecto. Concluiste con confianza 95: \"Todo el salón prefiere proyecto\". Tu maestra te muestra que en una encuesta a los 32 del grupo, 18 prefirieron examen.",
+      "pregunta": "¿Qué haces con tu conclusión?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "La defiendo: mis 5 amigos son parte del salón y todos dijeron proyecto.",
+          "correcta": false,
+          "tipo_error": "ignora_contexto"
+        },
+        {
+          "clave": "B",
+          "texto": "La cambio: 5 amigos no representan a 32 personas, y la encuesta completa dice otra cosa. Mi confianza de 95 estaba mal puesta.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Digo que las encuestas no sirven para nada.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "¿Tus 5 amigos se parecen al resto del salón, o son justo los que piensan como tú?",
+      "explicacion": "Preguntar a 5 amigos no es preguntar al salón: son pocos y probablemente parecidos a ti. Con esa muestra, una confianza de 95 era demasiada. Cuando aparece una evidencia mejor (los 32 completos), lo correcto es cambiar la conclusión y bajar la confianza, no defender lo primero que dijiste.",
+      "reflexion": "¿Cuánta confianza habría sido razonable con solo 5 opiniones? ¿Por qué?",
+      "rubrica_reflexion": [
+        "Propone una confianza menor y la justifica.",
+        "Menciona el tamaño o el sesgo de la muestra."
+      ]
+    },
+    {
+      "id": "RAZ-006",
+      "mision": 4,
+      "postulado": 5,
+      "familia_error": "acepta_sin_evidencia",
+      "formato": "tres_opciones",
+      "nivel_revision": 1,
+      "provisional": false,
+      "titulo": "La moneda que ya cayó cinco veces",
+      "situacion": "Lanzas una moneda normal y sale cara cinco veces seguidas. Una app de \"predicciones\" te dice: \"Ya toca cruz. Probabilidad de cruz en el siguiente lanzamiento: 90%\".",
+      "pregunta": "¿Qué tan seguro estás de que la app tiene razón?",
+      "opciones": [
+        {
+          "clave": "A",
+          "texto": "Muy seguro: después de cinco caras, ya es casi obligatorio que salga cruz.",
+          "correcta": false,
+          "tipo_error": "acepta_sin_evidencia"
+        },
+        {
+          "clave": "B",
+          "texto": "Nada seguro: la moneda no tiene memoria. Cada lanzamiento sigue siendo 50% y la app inventa un número.",
+          "correcta": true,
+          "tipo_error": null
+        },
+        {
+          "clave": "C",
+          "texto": "Da igual; nadie puede saber nada de probabilidad.",
+          "correcta": false,
+          "tipo_error": "desconfia_de_todo"
+        }
+      ],
+      "pista": "¿La moneda sabe lo que salió antes?",
+      "explicacion": "Una moneda normal no recuerda sus lanzamientos anteriores: cada uno es 50% cara, 50% cruz, sin importar la racha. El \"90%\" de la app no sale de ningún cálculo; es una cifra que suena científica. Tu confianza debe seguir a lo que sabes de la moneda, no a un número bonito en pantalla.",
+      "reflexion": "¿Por qué crees que un número como \"90%\" convence más que decir \"probablemente\"?",
+      "rubrica_reflexion": [
+        "Reconoce que un número da apariencia de precisión.",
+        "Señala que el número no tenía respaldo."
+      ]
     }
   ]
 }

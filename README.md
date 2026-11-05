@@ -34,3 +34,11 @@ Abrir http://localhost:8000
 
     RACHA_PARA_DETECTIVE = 3
     CASOS_PARA_INSIGNIA = 2
+
+## Respaldo diario (VPS)
+
+    chmod +x /opt/critia/respaldo.sh
+    (crontab -l 2>/dev/null; echo "15 3 * * * /opt/critia/respaldo.sh >> /var/log/critia-respaldo.log 2>&1") | crontab -
+
+Guarda `/opt/critia-respaldos/critia-AAAA-MM-DD.tar.gz` (base de datos + casos generados), 30 días.
+Restaurar la base: `docker cp historial.db critia:/data/historial.db && docker restart critia`.
