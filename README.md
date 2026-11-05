@@ -1,6 +1,8 @@
 # Critia · La expedición
 
-Tutor gamificado de pensamiento crítico y uso responsable de IA, para secundaria (12-15 años).
+Tutor gamificado de pensamiento crítico y uso responsable de IA, para estudiantes de 11 a 17 años. Hack4Edu 2026 · Reto 04 "Un tutor que no te da la respuesta".
+
+**Cómo se usa en clase:** antes de dejar una investigación, el docente define el mapa según su tema; los alumnos entrenan la habilidad de pensamiento crítico con respuestas de IA, reciben pistas (nunca la solución) y ganan la insignia; después entregan la tarea real. El docente ve en qué conceptos necesita apoyo cada estudiante.
 
 ## Correr en local
 
