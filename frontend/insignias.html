@@ -15,7 +15,7 @@
   .insignia:not(.obtenida) { background: transparent; border-style: dashed; }
   .insignia:not(.obtenida) .img img { filter: grayscale(1) opacity(.35); }
   .insignia .corto { font-family: var(--serif); font-weight: 700; font-size: 17px; }
-  .insignia .nombre { font-size: 13px; color: var(--tinta-suave); margin-top: 4px; min-height: 36px; }
+  .insignia .nombre { font-size: 13px; color: var(--tinta-suave); margin-top: 4px; min-height: 52px; }
   .insignia .avance { margin-top: 10px; font-size: 13px; font-weight: 700; }
   .insignia .puntos { display: flex; gap: 5px; justify-content: center; margin-top: 6px; }
   .insignia .puntos span { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--tinta-suave); }
@@ -62,8 +62,8 @@
         <div class="img">
           <img src="${i.imagen}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'num',textContent:'${i.n}'}))">
         </div>
-        <div class="corto">${i.corto}</div>
-        <div class="nombre">${i.nombre}</div>
+        <div class="corto">${i.insignia || i.corto}</div>
+        <div class="nombre">Postulado ${i.n}: ${i.nombre}${i.habilidad_nombre ? `<br><span class="peq">Habilidad: ${i.habilidad_nombre} · ${i.habilidad_autor}</span>` : ''}</div>
         <div class="avance">${i.obtenida ? 'Obtenida' : (i.avance >= i.meta ? 'Lista para confirmar' : `${i.avance} de ${i.meta}`)}</div>
         <div class="puntos">${puntos}</div>
       </div>`;

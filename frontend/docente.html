@@ -246,16 +246,19 @@
         ${est.configurado ? '' : '<p class="tag mal" style="display:inline-block;margin-bottom:10px">El servidor no tiene clave del modelo (LLM_API_KEY). Pídele al administrador que la configure.</p>'}
         <label for="g-tema">Tema</label>
         <input type="text" id="g-tema" placeholder="por ejemplo: porcentajes y descuentos, la Independencia de México, alimentación" maxlength="120">
-        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
-          <div><label for="g-post">Postulado a practicar</label>
-            <select id="g-post">
-              ${META.postulados.map(p => { const h = (META.marco_teorico?.habilidades || []).find(x => x.clave === p.habilidad); return `<option value="${p.n}">${p.n}. ${esc(p.corto)}${h ? ' · ' + esc(h.nombre) + ' (' + esc(h.autor) + ')' : ''} · misión: ${esc(misionDe(p.n))}</option>`; }).join('')}
-            </select></div>
+        <label>Postulados a practicar <span class="suave peq">(elige uno o varios; cada uno genera sus propios casos y apunta a su insignia)</span></label>
+        <div class="post-grid">
+          ${META.postulados.map(p => { const h = habDe({ postulado: p.n }) || {}; return `<label class="post-card"><input type="checkbox" class="g-post" value="${p.n}">
+            <div><div class="post-titulo">${p.n}. ${esc(p.corto)} <span class="suave" style="font-weight:400">· ${esc(p.nombre)}</span></div>
+            <div class="peq">${esc(p.descripcion || '')}</div>
+            <div class="peq"><b>Habilidad:</b> ${esc(h.nombre || '')} <span class="suave">(${esc(h.autor || '')})</span> · <b>Insignia:</b> ${esc(p.insignia || '')} · <span class="suave">misión ${esc(misionDe(p.n))}</span></div></div></label>`; }).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:480px">
           <div><label for="g-nivel">Nivel</label>
             <select id="g-nivel">
               ${(META.marco_teorico?.niveles || []).map(n => `<option value="${n.n}" ${n.n === 2 ? 'selected' : ''}>${n.n} · ${esc(n.edad)}</option>`).join('')}
             </select></div>
-          <div><label for="g-n">Cuántos</label>
+          <div><label for="g-n">Cuántos por postulado</label>
             <select id="g-n">
               <option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option>
             </select></div>
@@ -265,9 +268,12 @@
       $('g-go').onclick = async () => {
         const tema = $('g-tema').value.trim();
         if (tema.length < 3) { toast('Escribe un tema'); return; }
-        $('g-go').disabled = true; $('g-estado').textContent = 'Generando y revisando... esto tarda entre 20 y 60 segundos.';
+        const posts = [...$('contenido').querySelectorAll('.g-post:checked')].map(x => +x.value);
+        if (!posts.length) { toast('Elige al menos un postulado'); return; }
+        if (posts.length > 4) { toast('Máximo 4 postulados por vez'); return; }
+        $('g-go').disabled = true; $('g-estado').textContent = `Generando y revisando ${posts.length} postulado(s)... entre 20 y 60 segundos por cada uno.`;
         try {
-          const r = await api('/docente/generar', 'POST', { tema, nivel: +$('g-nivel').value, postulado: +$('g-post').value, n: +$('g-n').value }, H());
+          const r = await api('/docente/generar', 'POST', { tema, nivel: +$('g-nivel').value, postulados: posts, n: +$('g-n').value }, H());
           $('g-estado').textContent = '';
           $('g-resultado').innerHTML = `
             <h2 style="font-size:16px;margin-top:20px">${r.aceptados.length} caso(s) listos para revisar · ${r.rechazados.length} descartado(s) por los filtros</h2>
@@ -330,7 +336,7 @@
 
     async insignias() {
       const sug = await api('/docente/sugerencias', 'GET', null, H());
-      const nombre = n => (META.postulados.find(p => p.n === n) || {}).corto || n;
+      const nombre = n => { const p = META.postulados.find(p => p.n === n) || {}; return p.insignia ? `${p.insignia} (postulado ${n}: ${p.corto})` : p.corto || n; };
       $('contenido').innerHTML = `<h2>Insignias por confirmar</h2>
         <p class="suave peq">El sistema sugiere cuando un alumno aplicó un postulado en ${sug[0]?.casos?.length || 2}+ casos sin pista. Tú decides si la otorgas.</p>
         ${sug.length ? `<table><thead><tr><th>Alumno</th><th>Postulado</th><th>Casos</th><th></th></tr></thead><tbody>
@@ -341,7 +347,7 @@
         <h2 style="font-size:16px;margin-top:20px">Otorgar a mano</h2>
         <div class="fila-acciones">
           <input type="text" id="ins-seu" placeholder="seudónimo">
-          <select id="ins-p" style="width:auto">${META.postulados.map(p => `<option value="${p.n}">${p.n}. ${esc(p.corto)}</option>`).join('')}</select>
+          <select id="ins-p" style="width:auto">${META.postulados.map(p => `<option value="${p.n}">${p.n}. ${esc(p.insignia || p.corto)} · ${esc(p.corto)}</option>`).join('')}</select>
           <button class="btn btn-secundario btn-peq" id="ins-ok">Otorgar</button>
         </div>`;
       [...$('contenido').querySelectorAll('button[data-s]')].forEach(b => b.onclick = async () => {

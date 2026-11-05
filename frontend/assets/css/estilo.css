@@ -182,3 +182,11 @@ input[type=range] { width: 100%; accent-color: var(--ambar); margin: 10px 0 4px;
 .habilidad-caja .icono{width:26px;height:26px;flex:none;color:var(--hierba)}
 .habilidad-caja .icono svg{width:26px;height:26px}
 .habilidad-caja:empty{display:none}
+
+/* Selector de postulados en el generador */
+.post-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin:6px 0 14px}
+.post-card{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1.5px solid var(--tinta);border-radius:10px;background:#fff;cursor:pointer;font-weight:400;margin:0}
+.post-card:has(input:checked){background:rgba(217,154,43,.14);border-color:var(--sello);box-shadow:0 0 0 2px var(--ambar-claro)}
+.post-card input{margin-top:4px;flex:none}
+.post-card .post-titulo{font-family:var(--serif);font-weight:700;font-size:16px}
+.post-card .peq{margin-top:3px}

@@ -75,73 +75,97 @@
       "n": 1,
       "nombre": "Toda afirmación necesita evidencia",
       "corto": "Evidencia",
-      "habilidad": "exactitud"
+      "habilidad": "exactitud",
+      "insignia": "Buscador de evidencia",
+      "descripcion": "Pide de dónde salió un dato antes de creerlo, aunque la IA lo diga con seguridad."
     },
     {
       "n": 2,
       "nombre": "Que suene claro no significa que sea cierto",
       "corto": "Claridad no es verdad",
-      "habilidad": "exactitud"
+      "habilidad": "exactitud",
+      "insignia": "Detector de seguridad falsa",
+      "descripcion": "Distingue entre una respuesta que suena bien y una que es cierta."
     },
     {
       "n": 3,
       "nombre": "Las fuentes se verifican",
       "corto": "Fuentes",
-      "habilidad": "evaluacion"
+      "habilidad": "evaluacion",
+      "insignia": "Verificador de fuentes",
+      "descripcion": "Comprueba que una cita existe y que dice lo que la IA afirma."
     },
     {
       "n": 4,
       "nombre": "Revisa si las premisas están completas",
       "corto": "Premisas",
-      "habilidad": "analisis"
+      "habilidad": "analisis",
+      "insignia": "Analista de premisas",
+      "descripcion": "Detecta qué le falta a una respuesta para que la conclusión se sostenga."
     },
     {
       "n": 5,
       "nombre": "La confianza sigue a la evidencia",
       "corto": "Calibración",
-      "habilidad": "autorregulacion"
+      "habilidad": "autorregulacion",
+      "insignia": "Termómetro calibrado",
+      "descripcion": "Ajusta qué tan seguro está según la evidencia, no según el tono de la IA."
     },
     {
       "n": 6,
       "nombre": "Cambiar de opinión con mejores razones",
       "corto": "Apertura",
-      "habilidad": "apertura"
+      "habilidad": "apertura",
+      "insignia": "Mente abierta",
+      "descripcion": "Cambia de respuesta cuando encuentra una razón mejor, aunque ya la hubiera escrito."
     },
     {
       "n": 7,
       "nombre": "Considera el contexto antes de generalizar",
       "corto": "Contexto",
-      "habilidad": "relevancia_amplitud"
+      "habilidad": "relevancia_amplitud",
+      "insignia": "Lector de contexto",
+      "descripcion": "Nota cuando una respuesta general no aplica a su caso y pregunta mejor."
     },
     {
       "n": 8,
       "nombre": "Las generalizaciones sobre personas requieren criterios justos",
       "corto": "Justicia",
-      "habilidad": "justicia"
+      "habilidad": "justicia",
+      "insignia": "Criterio justo",
+      "descripcion": "Reconoce cuando la IA juzga a personas por un grupo y busca un criterio que valga igual para todos."
     },
     {
       "n": 9,
       "nombre": "Explicar el propio razonamiento es parte de pensar bien",
       "corto": "Explicación",
-      "habilidad": "explicacion"
+      "habilidad": "explicacion",
+      "insignia": "Explicador de su razonamiento",
+      "descripcion": "Explica cómo verificó, de forma que otra persona pueda repetirlo."
     },
     {
       "n": 10,
       "nombre": "La información personal se protege",
       "corto": "Privacidad",
-      "habilidad": "juicio_consecuencias"
+      "habilidad": "juicio_consecuencias",
+      "insignia": "Guardián de datos",
+      "descripcion": "Piensa en quién queda expuesto antes de compartir datos con una app o una IA."
     },
     {
       "n": 11,
       "nombre": "Hay decisiones que requieren consultar a alguien",
       "corto": "Consulta",
-      "habilidad": "limite_juicio"
+      "habilidad": "limite_juicio",
+      "insignia": "Sabe cuándo preguntar",
+      "descripcion": "Reconoce las decisiones que necesitan a una persona, no a una IA."
     },
     {
       "n": 12,
       "nombre": "Usar herramientas no quita la responsabilidad",
       "corto": "Responsabilidad",
-      "habilidad": "responsabilidad"
+      "habilidad": "responsabilidad",
+      "insignia": "Firma propia",
+      "descripcion": "No firma como propio lo que hizo la IA y dice cómo la usó."
     }
   ],
   "sentidos": [

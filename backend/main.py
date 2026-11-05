@@ -115,7 +115,8 @@ class InsigniaIn(BaseModel):
 class GenerarIn(BaseModel):
     tema: str
     nivel: int = 2
-    postulado: int
+    postulado: Optional[int] = None
+    postulados: Optional[list[int]] = None
     formato: str = "tres_opciones"
     n: int = 2
 
@@ -215,7 +216,9 @@ def insignias(seudonimo: str):
     todos, _ = motor.cargar_casos()
     prog = historial.progreso_alumno(seudonimo, {c["id"]: c["postulado"] for c in todos.values()})
     return [p | {"obtenida": p["n"] in prog["insignias"], "avance": prog["avance_insignias"].get(str(p["n"]), 0),
-                 "meta": prog["casos_para_insignia"], "imagen": f"/assets/insignias/p{p['n']:02d}.png"} for p in META["postulados"]]
+                 "meta": prog["casos_para_insignia"], "imagen": f"/assets/insignias/p{p['n']:02d}.png",
+                 "habilidad_nombre": (motor.habilidad_de({"postulado": p["n"]}) or {}).get("nombre"),
+                 "habilidad_autor": (motor.habilidad_de({"postulado": p["n"]}) or {}).get("autor")} for p in META["postulados"]]
 
 
 @app.post("/api/caso/{caso_id}/abrir")
@@ -439,10 +442,15 @@ def docente_generar(d: GenerarIn, x_admin: str = Header(default=""), x_sesion: s
     q = _quien(x_admin, x_sesion)
     if not 1 <= d.n <= 5:
         raise HTTPException(400, "n debe estar entre 1 y 5")
-    if d.postulado not in generador.POSTULADOS:
-        raise HTTPException(400, "postulado inválido")
+    posts = d.postulados or ([d.postulado] if d.postulado else [])
+    if not posts or len(posts) > 4 or any(p not in generador.POSTULADOS for p in posts):
+        raise HTTPException(400, "elige entre 1 y 4 postulados válidos")
     try:
-        return generador.generar(d.tema.strip(), d.nivel, d.postulado, d.formato, d.n, docente=q.usuario)
+        total = {"aceptados": [], "rechazados": [], "archivo": None}
+        for p in posts:
+            r = generador.generar(d.tema.strip(), d.nivel, p, d.formato, d.n, docente=q.usuario)
+            total["aceptados"] += r["aceptados"]; total["rechazados"] += r["rechazados"]; total["archivo"] = r["archivo"]
+        return total
     except RuntimeError as e:
         raise HTTPException(400, str(e))
     except Exception as e:
