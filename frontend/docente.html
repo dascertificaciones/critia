@@ -51,10 +51,13 @@
   <!-- Clave -->
   <section id="login" class="tarjeta" style="max-width:520px">
     <h1>Panel docente</h1>
-    <p class="suave">Escribe la clave para entrar. Nada de lo que veas aquí llega a los alumnos.</p>
-    <label for="clave">Clave</label>
-    <input type="password" id="clave" placeholder="clave de docente">
+    <p class="suave">Nada de lo que veas aquí llega a los alumnos.</p>
+    <label for="usuario">Usuario</label>
+    <input type="text" id="usuario" placeholder="tu usuario" autocomplete="username">
+    <label for="clave">Contraseña</label>
+    <input type="password" id="clave" placeholder="tu contraseña" autocomplete="current-password">
     <div class="acciones"><button class="btn btn-primario" id="entrar">Entrar</button></div>
+    <p class="peq suave" style="margin-top:14px">¿Eres el administrador? Deja el usuario vacío y escribe la clave de administrador.</p>
   </section>
 
   <!-- Panel -->
@@ -70,34 +73,46 @@
 <script>
 (function () {
   document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
-  let clave = '';
-  try { clave = sessionStorage.getItem('ss_docente') || ''; } catch {}
-  const H = () => ({ 'x-docente': clave });
+  let auth = null;   // {tipo:'admin', clave} | {tipo:'docente', token}
+  try { auth = JSON.parse(sessionStorage.getItem('ss_auth') || 'null'); } catch {}
+  const H = () => auth?.tipo === 'admin' ? { 'x-admin': auth.clave } : { 'x-sesion': auth?.token || '' };
+  let YO = null;     // {admin, usuario, nombre, grupos}
   const $ = s => document.getElementById(s);
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let META = null;
 
-  const PESTANAS = [
-    ['resumen', 'Resumen'], ['generar', 'Generar casos'], ['casos', 'Casos'], ['reflexiones', 'Reflexiones'],
-    ['insignias', 'Insignias'], ['alertas', 'Alertas'], ['alumnos', 'Alumnos'],
+  const PESTANAS_BASE = [
+    ['resumen', 'Resumen'], ['grupos', 'Mis grupos'], ['generar', 'Generar casos'], ['casos', 'Casos'],
+    ['reflexiones', 'Reflexiones'], ['insignias', 'Insignias'], ['alertas', 'Alertas'], ['alumnos', 'Alumnos'],
   ];
+  let PESTANAS = PESTANAS_BASE;
   let activa = 'resumen';
 
+  async function abrirPanel() {
+    YO = await api('/docente/yo', 'GET', null, H());
+    PESTANAS = YO.admin ? [...PESTANAS_BASE.filter(p => p[0] !== 'grupos'), ['profesores', 'Profesores']] : PESTANAS_BASE;
+    if (YO.admin && activa === 'grupos') activa = 'resumen';
+    $('login').classList.add('oculto'); $('panel').classList.remove('oculto');
+    META = await api('/meta');
+    $('estado').innerHTML = `<span class="peq">${esc(YO.nombre)}</span><button class="btn btn-enlace" id="salir">salir</button>`;
+    $('salir').onclick = async () => { if (auth?.tipo === 'docente') { try { await api('/docente/logout', 'POST', null, H()); } catch {} } try { sessionStorage.removeItem('ss_auth'); } catch {} location.reload(); };
+    if (!YO.admin && !YO.grupos.length) { activa = 'grupos'; toast('Crea tu primer grupo para que tus alumnos puedan entrar', 5000); }
+    await pintarPestanas();
+  }
+
   async function entrar() {
-    clave = $('clave').value.trim();
+    const u = $('usuario').value.trim(), c = $('clave').value;
     try {
-      await api('/docente/alumnos', 'GET', null, H());
-      try { sessionStorage.setItem('ss_docente', clave); } catch {}
-      $('login').classList.add('oculto'); $('panel').classList.remove('oculto');
-      META = await api('/meta');
-      $('estado').innerHTML = `<button class="btn btn-enlace" id="salir">salir</button>`;
-      $('salir').onclick = () => { try { sessionStorage.removeItem('ss_docente'); } catch {} location.reload(); };
-      await pintarPestanas();
-    } catch (e) { toast('Clave incorrecta'); }
+      if (!u) { auth = { tipo: 'admin', clave: c }; await api('/docente/yo', 'GET', null, H()); }
+      else { const s = await api('/docente/login', 'POST', { usuario: u, password: c }); auth = { tipo: 'docente', token: s.token }; }
+      try { sessionStorage.setItem('ss_auth', JSON.stringify(auth)); } catch {}
+      await abrirPanel();
+    } catch (e) { auth = null; toast(u ? 'Usuario o contraseña incorrectos' : 'Clave de administrador incorrecta'); }
   }
   $('entrar').onclick = entrar;
   $('clave').onkeydown = e => { if (e.key === 'Enter') entrar(); };
-  if (clave) { $('clave').value = clave; entrar(); }
+  $('usuario').onkeydown = e => { if (e.key === 'Enter') $('clave').focus(); };
+  if (auth) abrirPanel().catch(() => { auth = null; try { sessionStorage.removeItem('ss_auth'); } catch {} });
 
   async function pintarPestanas() {
     const [ref, sug, ale] = await Promise.all([
@@ -127,9 +142,11 @@
       <label>Pista</label><input type="text" class="f-pista" value="${esc(c.pista)}">
       <label>Explicación</label><textarea class="f-explicacion">${esc(c.explicacion)}</textarea>
       <label>Reflexión</label><input type="text" class="f-reflexion" value="${esc(c.reflexion || '')}">
+      <label>Grupos que verán este caso</label>
+      <div class="grupos-sel">${(YO?.grupos || []).map(g => `<label style="display:inline-flex;gap:6px;align-items:center;margin:0 14px 6px 0;font-weight:400"><input type="checkbox" value="${esc(g.codigo)}" ${(c.grupos || []).includes(g.codigo) ? 'checked' : ''}> ${esc(g.nombre)} <span class="peq suave">${esc(g.codigo)}</span></label>`).join('') || '<span class="peq suave">No tienes grupos todavía. Créalos en "Mis grupos".</span>'}</div>
       <div class="fila-acciones">
         <button class="btn btn-secundario btn-peq guardar-caso">Guardar cambios</button>
-        ${c.provisional ? '<button class="btn btn-primario btn-peq aprobar-caso">Aprobar</button>' : ''}
+        ${c.provisional ? '<button class="btn btn-primario btn-peq aprobar-caso">Aprobar para esos grupos</button>' : '<button class="btn btn-secundario btn-peq asignar-caso">Actualizar grupos</button>'}
         <button class="btn btn-enlace btn-peq borrar-caso" style="color:var(--mal)">Descartar</button>
       </div></div>`;
   }
@@ -153,13 +170,61 @@
         await api(`/docente/casos/${id}`, 'PUT', { cambios }, H());
       };
       card.querySelector('.guardar-caso').onclick = async () => { try { await guardar(); toast('Guardado'); } catch (e) { toast(e.message); } };
+      const gruposSel = () => [...card.querySelectorAll('.grupos-sel input:checked')].map(i => i.value);
       const ap = card.querySelector('.aprobar-caso');
-      if (ap) ap.onclick = async () => { try { await guardar(); await api(`/docente/casos/${id}/aprobar`, 'POST', null, H()); toast('Caso aprobado: ya lo ven los alumnos'); card.querySelector('.tag.aviso').outerHTML = '<span class="tag ok">aprobado</span>'; ap.remove(); } catch (e) { toast(e.message); } };
+      if (ap) ap.onclick = async () => {
+        const gs = gruposSel();
+        if (!gs.length) { toast('Marca al menos un grupo'); return; }
+        try { await guardar(); await api(`/docente/casos/${id}/aprobar`, 'POST', { grupos: gs }, H()); toast(`Aprobado para ${gs.length} grupo(s)`); card.querySelector('.tag.aviso').outerHTML = '<span class="tag ok">aprobado</span>'; ap.outerHTML = '<button class="btn btn-secundario btn-peq asignar-caso">Actualizar grupos</button>'; enlazarTarjetas(); } catch (e) { toast(e.message); }
+      };
+      const asg = card.querySelector('.asignar-caso');
+      if (asg) asg.onclick = async () => { try { await api(`/docente/casos/${id}/grupos`, 'PUT', { grupos: gruposSel() }, H()); toast('Grupos actualizados'); } catch (e) { toast(e.message); } };
       card.querySelector('.borrar-caso').onclick = async () => { try { await api(`/docente/casos/${id}`, 'DELETE', null, H()); card.remove(); toast('Descartado'); } catch (e) { toast(e.message); } };
     });
   }
 
   const VISTAS = {
+    async grupos() {
+      const yo = await api('/docente/yo', 'GET', null, H()); YO = yo;
+      $('contenido').innerHTML = `<h2>Mis grupos</h2>
+        <p class="suave" style="max-width:60ch">Cada grupo tiene un código de 6 letras. Dáselo a tus alumnos: lo escriben al entrar y así solo ven los casos que apruebes para ese grupo.</p>
+        <div class="fila-acciones" style="max-width:520px"><input type="text" id="g-nombre" placeholder="Nombre del grupo, por ejemplo 2°A" maxlength="40"><button class="btn btn-primario btn-peq" id="g-crear">Crear grupo</button></div>
+        ${yo.grupos.length ? `<table style="margin-top:18px"><thead><tr><th>Grupo</th><th>Código</th><th>Alumnos</th><th></th></tr></thead><tbody>
+          ${yo.grupos.map(g => `<tr><td><b>${esc(g.nombre)}</b></td><td><span style="font-family:var(--serif);font-weight:900;font-size:22px;letter-spacing:3px">${esc(g.codigo)}</span></td><td>${g.alumnos}</td>
+            <td><a class="btn btn-secundario btn-peq" href="tablero.html?grupo=${esc(g.codigo)}" target="_blank">Tablero</a></td></tr>`).join('')}
+          </tbody></table>` : '<div class="vacio">Todavía no tienes grupos.</div>'}`;
+      $('g-crear').onclick = async () => {
+        const n = $('g-nombre').value.trim(); if (!n) return;
+        try { const g = await api('/docente/grupos', 'POST', { nombre: n }, H()); toast(`Grupo creado. Código: ${g.codigo}`, 6000); VISTAS.grupos(); } catch (e) { toast(e.message); }
+      };
+    },
+
+    async profesores() {
+      const lista = await api('/admin/docentes', 'GET', null, H());
+      $('contenido').innerHTML = `<h2>Profesores</h2>
+        <p class="suave" style="max-width:60ch">Crea una cuenta por profesor. Cada uno entra con su usuario y contraseña, crea sus grupos y solo ve lo suyo.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;max-width:800px">
+          <div><label>Usuario</label><input type="text" id="d-usuario" placeholder="p. ej. mlopez" maxlength="30"></div>
+          <div><label>Nombre</label><input type="text" id="d-nombre" placeholder="María López" maxlength="60"></div>
+          <div><label>Contraseña</label><input type="text" id="d-pass" placeholder="mínimo 6 caracteres" maxlength="60"></div>
+          <button class="btn btn-primario btn-peq" id="d-crear" style="margin-bottom:2px">Crear</button>
+        </div>
+        ${lista.length ? `<table style="margin-top:18px"><thead><tr><th>Nombre</th><th>Usuario</th><th>Grupos</th><th>Estado</th><th></th></tr></thead><tbody>
+          ${lista.map(d => `<tr><td><b>${esc(d.nombre)}</b></td><td>${esc(d.usuario)}</td><td>${d.grupos}</td><td>${d.activo ? '<span class="tag ok">activo</span>' : '<span class="tag mal">inactivo</span>'}</td>
+            <td class="fila-acciones" style="margin:0"><button class="btn btn-secundario btn-peq d-pass" data-u="${esc(d.usuario)}">Nueva contraseña</button><button class="btn btn-enlace btn-peq d-act" data-u="${esc(d.usuario)}" data-a="${d.activo ? 0 : 1}">${d.activo ? 'Desactivar' : 'Activar'}</button></td></tr>`).join('')}
+          </tbody></table>` : '<div class="vacio">Todavía no hay profesores.</div>'}`;
+      $('d-crear').onclick = async () => {
+        try { await api('/admin/docentes', 'POST', { usuario: $('d-usuario').value, nombre: $('d-nombre').value, password: $('d-pass').value }, H()); toast('Profesor creado'); VISTAS.profesores(); } catch (e) { toast(e.message, 5000); }
+      };
+      [...$('contenido').querySelectorAll('.d-pass')].forEach(b => b.onclick = async () => {
+        const p = prompt(`Nueva contraseña para ${b.dataset.u} (mínimo 6 caracteres):`); if (!p) return;
+        try { await api(`/admin/docentes/${b.dataset.u}/password`, 'PUT', { password: p }, H()); toast('Contraseña cambiada'); } catch (e) { toast(e.message); }
+      });
+      [...$('contenido').querySelectorAll('.d-act')].forEach(b => b.onclick = async () => {
+        try { await api(`/admin/docentes/${b.dataset.u}/activo?activo=${b.dataset.a === '1'}`, 'PUT', null, H()); VISTAS.profesores(); } catch (e) { toast(e.message); }
+      });
+    },
+
     async generar() {
       const est = await api('/docente/generador/estado', 'GET', null, H());
       const misionDe = n => (META.misiones.find(m => m.postulados.includes(n)) || {}).nombre || '';
@@ -307,8 +372,8 @@
     async alumnos() {
       const lista = await api('/docente/alumnos', 'GET', null, H());
       $('contenido').innerHTML = `<h2>Alumnos</h2><p class="suave peq">Solo seudónimos. Haz clic en uno para ver su historial.</p>
-        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Equipo</th><th>Casos</th><th>Sentidos</th><th>Insignias</th></tr></thead><tbody>
-        ${lista.map(a => `<tr style="cursor:pointer" data-s="${esc(a.seudonimo)}"><td><b>${esc(a.seudonimo)}</b></td><td><span class="ficha-equipo ${a.equipo}"></span>${a.equipo}</td><td>${a.casos}</td><td>${a.sentidos}</td><td>${a.insignias}</td></tr>`).join('')}
+        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Sentidos</th><th>Insignias</th></tr></thead><tbody>
+        ${lista.map(a => `<tr style="cursor:pointer" data-s="${esc(a.seudonimo)}"><td><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td><span class="ficha-equipo ${a.equipo}"></span>${a.equipo}</td><td>${a.casos}</td><td>${a.sentidos}</td><td>${a.insignias}</td></tr>`).join('')}
         </tbody></table><div id="hist"></div>` : '<div class="vacio">Nadie se ha registrado todavía.</div>'}`;
       [...$('contenido').querySelectorAll('tr[data-s]')].forEach(tr => tr.onclick = async () => {
         const h = await api(`/docente/alumnos/${tr.dataset.s}`, 'GET', null, H());

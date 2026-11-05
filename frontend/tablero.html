@@ -35,7 +35,7 @@
   </header>
 
   <h1>Tablero de la expedición</h1>
-  <p class="suave" style="margin:0">Sentidos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.</p>
+  <p class="suave" style="margin:0" id="sub">Sentidos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.</p>
 
   <div class="tablero" id="tablero"></div>
 
@@ -47,8 +47,11 @@
 <script src="assets/js/api.js"></script>
 <script>
 document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
+const grupoParam = new URLSearchParams(location.search).get('grupo') || (Sesion.leer() || {}).grupo || '';
 async function pintar() {
-  const t = await api('/tablero');
+  const r = await api('/tablero' + (grupoParam ? `?grupo=${grupoParam}` : ''));
+  const t = r.equipos;
+  if (r.grupo) document.getElementById('sub').textContent = `Grupo ${r.grupo.nombre} · sentidos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.`;
   const equipos = Object.keys(t);
   const max = Math.max(1, ...equipos.map(e => t[e].sentidos));
   const tope = Math.max(...equipos.map(e => t[e].sentidos));

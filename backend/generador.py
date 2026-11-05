@@ -170,12 +170,12 @@ def generar(tema, grado, postulado, formato="tres_opciones", n=2, mision=None, d
     return {"aceptados": aceptados, "rechazados": rechazados, "archivo": archivo.name}
 
 
-def actualizar_caso(caso_id, cambios):
-    """Edita campos de un caso provisional en la carpeta docente/."""
+def actualizar_caso(caso_id, cambios, solo_de=None):
+    """Edita campos de un caso en la carpeta docente/. solo_de: usuario dueño (None = cualquiera)."""
     for f in (motor.CASOS_DIR / "docente").glob("*.json"):
         datos = json.loads(f.read_text(encoding="utf-8"))
         for c in datos.get("casos", []):
-            if c["id"] == caso_id:
+            if c["id"] == caso_id and (solo_de is None or c.get("docente") == solo_de):
                 for k in ["titulo", "situacion", "pregunta", "opciones", "pista", "explicacion", "reflexion", "rubrica_reflexion", "mision", "nivel_revision"]:
                     if k in cambios:
                         c[k] = cambios[k]
@@ -184,11 +184,11 @@ def actualizar_caso(caso_id, cambios):
     raise KeyError(caso_id)
 
 
-def eliminar_caso(caso_id):
+def eliminar_caso(caso_id, solo_de=None):
     for f in (motor.CASOS_DIR / "docente").glob("*.json"):
         datos = json.loads(f.read_text(encoding="utf-8"))
         antes = len(datos.get("casos", []))
-        datos["casos"] = [c for c in datos.get("casos", []) if c["id"] != caso_id]
+        datos["casos"] = [c for c in datos.get("casos", []) if not (c["id"] == caso_id and (solo_de is None or c.get("docente") == solo_de))]
         if len(datos["casos"]) != antes:
             f.write_text(json.dumps(datos, ensure_ascii=False, indent=2), encoding="utf-8")
             return True

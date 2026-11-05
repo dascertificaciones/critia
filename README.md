@@ -11,13 +11,15 @@ Tutor gamificado de pensamiento crítico y uso responsable de IA, para secundari
 Abrir http://localhost:8000
 
 - Alumno: `/` (mapa), `/caso.html?id=...`, `/insignias.html`, `/tablero.html`
-- Docente: `/docente.html` (clave por defecto `docente`; cambiar con la variable `DOCENTE_TOKEN`)
+- Docente: `/docente.html` (usuario y contraseña que crea el administrador)
+- Administrador: `/docente.html` con usuario vacío y la clave `ADMIN_TOKEN` (o `DOCENTE_TOKEN`); crea profesores
 - API: `/docs`
 
 ## Variables de entorno
 
 - `SEXTO_DB` ruta de la base SQLite (por defecto `backend/historial.db`)
-- `DOCENTE_TOKEN` clave del panel docente
+- `ADMIN_TOKEN` clave de administrador (alias: `DOCENTE_TOKEN`)
+- `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` modelo para generar casos (DeepSeek por defecto)
 
 ## Estructura
 

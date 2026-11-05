@@ -70,7 +70,7 @@ def registrar_alumno(seudonimo, equipo):
     if equipo not in EQUIPOS:
         raise ValueError(f"Equipo inválido: {equipo}")
     with conectar() as con:
-        con.execute("INSERT OR IGNORE INTO alumnos VALUES (?,?,?)", (seudonimo, equipo, ahora()))
+        con.execute("INSERT OR IGNORE INTO alumnos (seudonimo, equipo, creado) VALUES (?,?,?)", (seudonimo, equipo, ahora()))
         return dict(con.execute("SELECT * FROM alumnos WHERE seudonimo=?", (seudonimo,)).fetchone())
 
 
@@ -304,3 +304,262 @@ def historial_alumno(seudonimo):
         for r in rows:
             d = dict(r); d["sentidos"] = json.loads(d["sentidos"] or "[]"); out.append(d)
         return out
+
+
+# =====================================================================
+# Docentes y grupos
+# =====================================================================
+import hashlib, secrets, string
+
+ESQUEMA_V2 = """
+CREATE TABLE IF NOT EXISTS docentes (
+    usuario   TEXT PRIMARY KEY,
+    nombre    TEXT NOT NULL,
+    hash      TEXT NOT NULL,
+    sal       TEXT NOT NULL,
+    creado    TEXT NOT NULL,
+    activo    INTEGER DEFAULT 1
+);
+CREATE TABLE IF NOT EXISTS grupos (
+    codigo    TEXT PRIMARY KEY,
+    nombre    TEXT NOT NULL,
+    docente   TEXT NOT NULL,
+    creado    TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sesiones_docente (
+    token     TEXT PRIMARY KEY,
+    usuario   TEXT NOT NULL,
+    creado    TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS casos_grupo (
+    caso_id   TEXT NOT NULL,
+    codigo    TEXT NOT NULL,
+    PRIMARY KEY (caso_id, codigo)
+);
+"""
+
+
+def _migrar():
+    with conectar() as con:
+        con.executescript(ESQUEMA_V2)
+        cols = [r[1] for r in con.execute("PRAGMA table_info(alumnos)")]
+        if "grupo" not in cols:
+            con.execute("ALTER TABLE alumnos ADD COLUMN grupo TEXT")
+
+
+_migrar()
+
+
+def _hash(pw, sal):
+    return hashlib.pbkdf2_hmac("sha256", pw.encode(), sal.encode(), 120_000).hex()
+
+
+# ---------- Docentes ----------
+def crear_docente(usuario, nombre, password):
+    usuario = usuario.strip().lower()
+    if not usuario or not password or len(password) < 6:
+        raise ValueError("Usuario y contraseña (mínimo 6 caracteres) son obligatorios")
+    sal = secrets.token_hex(8)
+    with conectar() as con:
+        if con.execute("SELECT 1 FROM docentes WHERE usuario=?", (usuario,)).fetchone():
+            raise ValueError("Ese usuario ya existe")
+        con.execute("INSERT INTO docentes VALUES (?,?,?,?,?,1)", (usuario, nombre.strip(), _hash(password, sal), sal, ahora()))
+    return {"usuario": usuario, "nombre": nombre.strip()}
+
+
+def cambiar_password(usuario, password):
+    if len(password) < 6:
+        raise ValueError("Mínimo 6 caracteres")
+    sal = secrets.token_hex(8)
+    with conectar() as con:
+        con.execute("UPDATE docentes SET hash=?, sal=? WHERE usuario=?", (_hash(password, sal), sal, usuario))
+        con.execute("DELETE FROM sesiones_docente WHERE usuario=?", (usuario,))
+
+
+def listar_docentes():
+    with conectar() as con:
+        return [dict(r) for r in con.execute("""SELECT d.usuario, d.nombre, d.creado, d.activo,
+                    (SELECT COUNT(*) FROM grupos g WHERE g.docente=d.usuario) grupos FROM docentes d ORDER BY d.nombre""")]
+
+
+def activar_docente(usuario, activo):
+    with conectar() as con:
+        con.execute("UPDATE docentes SET activo=? WHERE usuario=?", (1 if activo else 0, usuario))
+        if not activo:
+            con.execute("DELETE FROM sesiones_docente WHERE usuario=?", (usuario,))
+
+
+def login_docente(usuario, password):
+    usuario = usuario.strip().lower()
+    with conectar() as con:
+        r = con.execute("SELECT * FROM docentes WHERE usuario=? AND activo=1", (usuario,)).fetchone()
+        if not r or _hash(password, r["sal"]) != r["hash"]:
+            return None
+        token = secrets.token_urlsafe(24)
+        con.execute("INSERT INTO sesiones_docente VALUES (?,?,?)", (token, usuario, ahora()))
+        return {"token": token, "usuario": usuario, "nombre": r["nombre"]}
+
+
+def docente_por_token(token):
+    if not token:
+        return None
+    with conectar() as con:
+        r = con.execute("""SELECT d.usuario, d.nombre FROM sesiones_docente s JOIN docentes d ON d.usuario=s.usuario
+                           WHERE s.token=? AND d.activo=1""", (token,)).fetchone()
+        return dict(r) if r else None
+
+
+def cerrar_sesion(token):
+    with conectar() as con:
+        con.execute("DELETE FROM sesiones_docente WHERE token=?", (token,))
+
+
+# ---------- Grupos ----------
+def _codigo_grupo():
+    alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # sin 0/O/1/I
+    return "".join(secrets.choice(alfabeto) for _ in range(6))
+
+
+def crear_grupo(docente, nombre):
+    with conectar() as con:
+        for _ in range(10):
+            cod = _codigo_grupo()
+            if not con.execute("SELECT 1 FROM grupos WHERE codigo=?", (cod,)).fetchone():
+                break
+        con.execute("INSERT INTO grupos VALUES (?,?,?,?)", (cod, nombre.strip(), docente, ahora()))
+        return {"codigo": cod, "nombre": nombre.strip(), "docente": docente}
+
+
+def grupos_de(docente):
+    with conectar() as con:
+        return [dict(r) for r in con.execute("""SELECT g.*, (SELECT COUNT(*) FROM alumnos a WHERE a.grupo=g.codigo) alumnos
+                    FROM grupos g WHERE g.docente=? ORDER BY g.creado""", (docente,))]
+
+
+def grupo(codigo):
+    with conectar() as con:
+        r = con.execute("SELECT * FROM grupos WHERE codigo=?", (codigo.upper().strip(),)).fetchone()
+        return dict(r) if r else None
+
+
+def renombrar_grupo(codigo, nombre):
+    with conectar() as con:
+        con.execute("UPDATE grupos SET nombre=? WHERE codigo=?", (nombre.strip(), codigo))
+
+
+# ---------- Alumno ↔ grupo ----------
+def registrar_alumno_en_grupo(seudonimo, equipo, codigo):
+    g = grupo(codigo)
+    if not g:
+        raise ValueError("Ese código de grupo no existe")
+    a = registrar_alumno(seudonimo, equipo)
+    with conectar() as con:
+        con.execute("UPDATE alumnos SET grupo=? WHERE seudonimo=?", (g["codigo"], seudonimo))
+    a["grupo"] = g["codigo"]
+    a["grupo_nombre"] = g["nombre"]
+    return a
+
+
+def grupo_de_alumno(seudonimo):
+    with conectar() as con:
+        r = con.execute("SELECT grupo FROM alumnos WHERE seudonimo=?", (seudonimo,)).fetchone()
+        return r["grupo"] if r else None
+
+
+# ---------- Casos ↔ grupo ----------
+def asignar_caso(caso_id, codigos):
+    with conectar() as con:
+        con.execute("DELETE FROM casos_grupo WHERE caso_id=?", (caso_id,))
+        con.executemany("INSERT OR IGNORE INTO casos_grupo VALUES (?,?)", [(caso_id, c) for c in codigos])
+
+
+def casos_del_grupo(codigo):
+    with conectar() as con:
+        return {r["caso_id"] for r in con.execute("SELECT caso_id FROM casos_grupo WHERE codigo=?", (codigo,))}
+
+
+def grupos_del_caso(caso_id):
+    with conectar() as con:
+        return [r["codigo"] for r in con.execute("SELECT codigo FROM casos_grupo WHERE caso_id=?", (caso_id,))]
+
+
+# ---------- Vistas filtradas por grupo ----------
+def _filtro_grupos(codigos):
+    if codigos is None:
+        return "", ()
+    if not codigos:
+        return " AND 1=0", ()
+    return f" AND a.grupo IN ({','.join('?'*len(codigos))})", tuple(codigos)
+
+
+def tablero_equipos_grupo(codigo):
+    with conectar() as con:
+        tab = {e: {"sentidos": 0, "casos": 0, "alumnos": 0, "insignias": 0, "justificar": 0, "revisar": 0, "calibrar": 0} for e in EQUIPOS}
+        for r in con.execute("SELECT equipo, COUNT(*) n FROM alumnos WHERE grupo=? GROUP BY equipo", (codigo,)):
+            tab[r["equipo"]]["alumnos"] = r["n"]
+        for r in con.execute("""SELECT a.equipo, i.sentidos FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                WHERE i.cierre IS NOT NULL AND a.grupo=?""", (codigo,)):
+            s = json.loads(r["sentidos"] or "[]"); t = tab[r["equipo"]]
+            t["sentidos"] += len(s); t["casos"] += 1
+            for k in s:
+                if k in t: t[k] += 1
+        for r in con.execute("""SELECT a.equipo, COUNT(*) n FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                WHERE a.grupo=? GROUP BY a.equipo""", (codigo,)):
+            tab[r["equipo"]]["insignias"] = r["n"]
+        return tab
+
+
+def resumen_grupo_codigos(codigos):
+    f, params = _filtro_grupos(codigos)
+    with conectar() as con:
+        por_caso = [dict(r) for r in con.execute(f"""
+            SELECT i.caso_id, COUNT(*) n, SUM(i.eval_ini='correcta') ok_ini,
+                   SUM(i.eval_ini<>'correcta' AND i.eval_fin='correcta') mejoraron,
+                   SUM(i.eval_ini<>'correcta' AND i.eval_fin<>'correcta') siguen_mal,
+                   ROUND(AVG(i.conf_ini)) conf_ini_prom, ROUND(AVG(i.conf_fin)) conf_fin_prom, SUM(i.reporta_duda) dudas
+            FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo WHERE i.cierre IS NOT NULL{f} GROUP BY i.caso_id ORDER BY i.caso_id""", params)]
+        por_familia = [dict(r) for r in con.execute(f"""
+            SELECT i.tipo_error_ini familia, COUNT(*) n FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+            WHERE i.cierre IS NOT NULL AND i.tipo_error_ini IS NOT NULL{f} GROUP BY i.tipo_error_ini ORDER BY n DESC""", params)]
+        totales = dict(con.execute(f"""
+            SELECT COUNT(DISTINCT i.seudonimo) alumnos, COUNT(*) intentos,
+                   SUM(i.eval_ini<>'correcta' AND i.eval_fin='correcta') mejoraron, SUM(i.eval_ini<>'correcta') errores_ini
+            FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo WHERE i.cierre IS NOT NULL{f}""", params).fetchone())
+        return {"totales": totales, "por_caso": por_caso, "por_familia": por_familia}
+
+
+def lista_alumnos_codigos(codigos):
+    f, params = _filtro_grupos(codigos)
+    with conectar() as con:
+        rows = con.execute(f"""
+            SELECT a.seudonimo, a.equipo, a.grupo, COUNT(i.id) casos,
+                   COALESCE(SUM(LENGTH(i.sentidos) - LENGTH(REPLACE(i.sentidos, ',', '')) + (i.sentidos <> '[]')), 0) sentidos,
+                   (SELECT COUNT(*) FROM insignias x WHERE x.seudonimo=a.seudonimo) insignias
+            FROM alumnos a LEFT JOIN intentos i ON i.seudonimo=a.seudonimo AND i.cierre IS NOT NULL
+            WHERE 1=1{f} GROUP BY a.seudonimo ORDER BY a.grupo, a.equipo, a.seudonimo""", params).fetchall()
+        return [dict(r) for r in rows]
+
+
+def reflexiones_pendientes_codigos(codigos):
+    f, params = _filtro_grupos(codigos)
+    with conectar() as con:
+        rows = con.execute(f"""SELECT i.id, i.seudonimo, i.caso_id, i.reflexion, i.cierre, a.grupo FROM intentos i
+                              JOIN alumnos a ON a.seudonimo=i.seudonimo
+                              LEFT JOIN revision_docente r ON r.intento_id=i.id
+                              WHERE i.reflexion IS NOT NULL AND i.reflexion<>'' AND r.intento_id IS NULL{f}
+                              ORDER BY i.cierre""", params).fetchall()
+        return [dict(r) for r in rows]
+
+
+def sugerencias_insignia_codigos(casos_por_postulado, codigos):
+    f, params = _filtro_grupos(codigos)
+    with conectar() as con:
+        rows = con.execute(f"""SELECT i.seudonimo, i.caso_id FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                              WHERE i.cierre IS NOT NULL AND i.eval_ini='correcta'{f}""", params).fetchall()
+        conteo = {}
+        for r in rows:
+            p = casos_por_postulado.get(r["caso_id"])
+            if p is None: continue
+            conteo.setdefault((r["seudonimo"], p), set()).add(r["caso_id"])
+        ya = {(r["seudonimo"], r["postulado"]) for r in con.execute("SELECT seudonimo, postulado FROM insignias")}
+        return [{"seudonimo": k[0], "postulado": k[1], "casos": sorted(v)} for k, v in conteo.items() if len(v) >= CASOS_PARA_INSIGNIA and k not in ya]

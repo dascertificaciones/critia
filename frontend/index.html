@@ -20,7 +20,11 @@
     <p class="suave" style="max-width:56ch">Ocho paradas. En cada una decides, dudas, revisas. Ganas <b>sentidos</b> por justificar, por corregirte y por ajustar tu confianza. No por atinar a la primera.</p>
 
     <div class="tarjeta" style="margin-top:22px">
-      <label for="seudonimo" style="margin-top:0">Tu seudónimo <span class="suave peq">(no uses tu nombre real)</span></label>
+      <label for="grupo" style="margin-top:0">Código de tu grupo <span class="suave peq">(te lo da tu maestro o maestra)</span></label>
+      <input type="text" id="grupo" placeholder="6 letras, por ejemplo: K7PQ2M" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:3px;font-family:var(--serif);font-weight:700;font-size:22px">
+      <div id="grupo-ok" class="peq" style="min-height:20px;margin-top:4px"></div>
+
+      <label for="seudonimo">Tu seudónimo <span class="suave peq">(no uses tu nombre real)</span></label>
       <input type="text" id="seudonimo" placeholder="por ejemplo: zorro07" maxlength="24" autocomplete="off">
 
       <label>Tu equipo</label>
@@ -46,13 +50,13 @@
     <div class="mapa-cab">
       <div>
         <h1>El mapa</h1>
-        <p class="suave" style="margin:0">Abre una parada y elige un caso. Los marcados como <em>nuevo</em> los está revisando tu maestro.</p>
+        <p class="suave" style="margin:0" id="mapa-sub">Abre una parada y elige un caso.</p>
       </div>
       <div class="racha" id="racha"></div>
     </div>
     <div class="enlaces">
       <a class="btn btn-secundario" href="insignias.html">Mis insignias</a>
-      <a class="btn btn-secundario" href="tablero.html">Tablero de equipos</a>
+      <a class="btn btn-secundario" href="tablero.html" id="lnk-tablero">Tablero de equipos</a>
     </div>
     <div class="sendero" id="sendero"></div>
   </section>
@@ -80,11 +84,25 @@
     cajaEquipos.appendChild(b);
   });
   const inp = document.getElementById('seudonimo');
+  const inpG = document.getElementById('grupo');
+  const okG = document.getElementById('grupo-ok');
   const btnEntrar = document.getElementById('entrar');
-  function validar() { btnEntrar.disabled = !(inp.value.trim().length >= 3 && equipoElegido); }
+  let grupoValido = null;
+  function validar() { btnEntrar.disabled = !(inp.value.trim().length >= 3 && equipoElegido && grupoValido); }
   inp.oninput = validar;
+  let t = null;
+  inpG.oninput = () => {
+    inpG.value = inpG.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    grupoValido = null; okG.textContent = ''; validar();
+    clearTimeout(t);
+    if (inpG.value.length === 6) t = setTimeout(async () => {
+      try { const g = await api(`/grupo/${inpG.value}`); grupoValido = g.codigo; okG.innerHTML = `<span style="color:var(--hierba);font-weight:700">Grupo ${g.nombre}</span>`; }
+      catch { okG.innerHTML = '<span style="color:var(--sello)">Ese código no existe. Revísalo con tu maestro.</span>'; }
+      validar();
+    }, 250);
+  };
   btnEntrar.onclick = async () => {
-    try { const a = await api('/alumno', 'POST', { seudonimo: inp.value.trim(), equipo: equipoElegido }); Sesion.guardar(a); mostrarMapa(a); }
+    try { const a = await api('/alumno', 'POST', { seudonimo: inp.value.trim(), equipo: equipoElegido, grupo: grupoValido }); Sesion.guardar(a); mostrarMapa(a); }
     catch (e) { toast(e.message); }
   };
 
@@ -92,8 +110,9 @@
   async function mostrarMapa(a) {
     document.getElementById('entrada').classList.add('oculto');
     document.getElementById('mapa-seccion').classList.remove('oculto');
-    const [casos, prog] = await Promise.all([api('/casos'), api(`/alumno/${a.seudonimo}/progreso`)]);
+    const [casos, prog] = await Promise.all([api(`/casos?seudonimo=${encodeURIComponent(a.seudonimo)}`), api(`/alumno/${a.seudonimo}/progreso`)]);
     pintarCabecera(a, prog.sentidos_total);
+    if (a.grupo_nombre) document.getElementById('mapa-sub').textContent = `Grupo ${a.grupo_nombre}. Abre una parada y elige un caso.`;
 
     const puntos = Array.from({ length: prog.racha_para_detective }, (_, k) => `<i class="${k < prog.racha ? 'on' : ''}"></i>`).join('');
     document.getElementById('racha').innerHTML = `<span class="racha-num">${prog.racha}</span><span class="peq">en racha <span class="racha-puntos">${puntos}</span></span>`;
@@ -175,7 +194,7 @@
   window.addEventListener('resize', () => { if (!document.getElementById('mapa-seccion').classList.contains('oculto')) dibujarSendero(); });
   document.fonts && document.fonts.ready.then(() => { if (!document.getElementById('mapa-seccion').classList.contains('oculto')) dibujarSendero(); });
 
-  if (alumno) mostrarMapa(alumno);
+  if (alumno) { if (alumno.grupo) document.getElementById('lnk-tablero').href = `tablero.html?grupo=${alumno.grupo}`; mostrarMapa(alumno); }
 })();
 </script>
 </body>
