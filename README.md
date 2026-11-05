@@ -54,3 +54,26 @@ Restaurar la base: `docker cp historial.db critia:/data/historial.db && docker r
 - El caso del detective se valida en el servidor (racha de 3 por mapa).
 - Los docentes solo revisan intentos, alertas y resúmenes de sus grupos, y solo asignan sus propios casos a sus propios mapas. Sesión de 12 h; 5 contraseñas falladas bloquean un minuto.
 - Todo texto de usuario o del modelo se escapa antes de insertarse en HTML.
+
+## Procedencia del trabajo
+
+Las bases de Hack4Edu 2026 piden identificar qué existía antes del hackatón y qué se desarrolló durante él.
+
+**Antes del hackatón: Sexto Sentido (documento de diseño, octubre–noviembre de 2026).** Un informe técnico-pedagógico, orientado entonces al Reto 07, que describía un prototipo *objetivo* (no ejecutado ni validado, como el propio documento aclara): un tutor de consola en Python con motor de decisión en Answer Set Programming (DLV), un banco previsto de 23 problemas de razonamiento, 4 actividades escolares y 8 escenarios de alfabetización en IA (AI-LIM-001 a 008), el ciclo decisión → confianza → intervención → revisión → explicación, la separación entre clave editorial y política pedagógica, y los límites de seguridad (no diagnosticar psicológicamente, no calificar prosa automáticamente). De ahí Critia conserva **las ideas**: el ciclo de interacción, la tutoría explicable por reglas ASP con acción y motivo, los 12 postulados de pensamiento crítico y la familia de errores. No se reutilizó código de Sexto Sentido: no existía una implementación funcional.
+
+**Durante el hackatón (Critia, 4–5 de noviembre de 2026), desarrollado desde cero:**
+- Backend FastAPI + SQLite, motor clingo con `diagnostico.dlv` y `tutor.dlv`, máquina de estados de intentos, sesiones de alumno y docente, controles de acceso.
+- Frontend web (mapa de expedición, caso, insignias, tablero, Universo, panel docente, guía) con diseño propio.
+- Banco de 31 casos escritos para este proyecto, centrados en respuestas de IA, en tres niveles por edad y con habilidad/autor explícitos (Paul y Elder, Facione, Ennis, Lipman).
+- Generador supervisado de casos con DeepSeek (filtros automáticos + aprobación docente), grupos compartidos, mapas por profesor, insignias por habilidad, territorios y Universo, bono de racha e isla del detective.
+- Despliegue en Hostinger (Docker + Traefik) en https://hackaton.proyecto.digital, respaldos diarios.
+- Reorientación al **Reto 04 "Un tutor que no te da la respuesta"** y la secuencia didáctica "entrenar antes de investigar".
+
+## Créditos y atribución
+
+- Autor y dirección del proyecto: Erandi Carrasco Alcántara (Universidad Digital del Estado de México, Hack4Edu 2026).
+- Código y contenidos redactados con asistencia de IA (Claude, Anthropic) bajo dirección y revisión del autor.
+- Ilustraciones del Universo (continente y mar) e insignias: generadas con Higgsfield a partir de indicaciones del autor. Escudos de equipo: aportados por el autor.
+- Logotipo de UDEMEX: propiedad de la Universidad Digital del Estado de México; se usa con fines institucionales del proyecto.
+- Modelo de lenguaje para generación de casos: DeepSeek (API). Motor lógico: clingo (Potassco).
+- Licencia del código: MIT (ver `LICENSE`). Los casos, la guía y los textos pedagógicos se comparten bajo la misma licencia.
