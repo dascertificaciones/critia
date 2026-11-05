@@ -1,5 +1,5 @@
 """
-sexto.py — Sexto Sentido (consola)
+sexto.py — Critia (consola)
 Uso:
     python sexto.py --alumno seudonimo01 --equipo rojo --caso ABC-ESC-002
     python sexto.py --alumno seudonimo01 --equipo rojo            (recorre todos los casos)
@@ -31,7 +31,7 @@ def pedir(msg, validar=None):
 def correr_caso(seudonimo, caso_id):
     a = sesion.abrir(seudonimo, caso_id)
     c = a["caso"]
-    print(f"\n{'='*60}\nSEXTO SENTIDO | Misión {c['mision']} | Caso {c['id']}: {c['titulo']}")
+    print(f"\n{'='*60}\nCRITIA | Misión {c['mision']} | Caso {c['id']}: {c['titulo']}")
     if c["provisional"]:
         print("(caso provisional: aún no revisado por el docente)")
     print(f"{'='*60}\n{c['situacion']}\n\n{c['pregunta']}")

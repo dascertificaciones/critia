@@ -1,5 +1,5 @@
 """
-main.py — Sexto Sentido (API con FastAPI)
+main.py — Critia (API con FastAPI)
 Arrancar:
     uvicorn main:app --host 0.0.0.0 --port 8000
 Variables de entorno:
@@ -34,7 +34,7 @@ ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN") or os.environ.get("DOCENTE_TOKEN", "
 META = json.loads((BASE / "misiones.json").read_text(encoding="utf-8"))
 VERSION = os.environ.get("APP_VERSION", "dev")
 
-app = FastAPI(title="Sexto Sentido", version="0.5")
+app = FastAPI(title="Critia", version="0.5")
 
 
 def _err(e):

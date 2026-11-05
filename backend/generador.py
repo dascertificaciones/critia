@@ -1,5 +1,5 @@
 """
-generador.py — Sexto Sentido
+generador.py — Critia
 Genera casos a partir de un tema usando un modelo (DeepSeek por defecto; API compatible con OpenAI),
 los valida con filtros automáticos y los guarda como provisionales en casos/docente/.
 

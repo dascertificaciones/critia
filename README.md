@@ -1,4 +1,4 @@
-# Sexto Sentido · La expedición
+# Critia · La expedición
 
 Tutor gamificado de pensamiento crítico y uso responsable de IA, para secundaria (12-15 años).
 

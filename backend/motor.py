@@ -1,5 +1,5 @@
 """
-motor.py — Sexto Sentido
+motor.py — Critia
 Carga el banco de casos, arma los hechos ASP, llama al solver
 (clingo por defecto; DLV si está instalado) y devuelve la acción y el motivo.
 """

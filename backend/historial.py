@@ -1,5 +1,5 @@
 """
-historial.py — Sexto Sentido
+historial.py — Critia
 Historial local en SQLite. Guarda alumnos (seudónimo + equipo), intentos por caso,
 sentidos ganados e insignias asignadas por el docente.
 """
