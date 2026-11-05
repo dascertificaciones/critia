@@ -219,23 +219,17 @@ input[type=range] { width: 100%; accent-color: var(--ambar); margin: 10px 0 4px;
 .cinta.c1 { top: -12px; left: 40px; transform: rotate(-6deg); }
 .cinta.c2 { top: -10px; right: 36px; transform: rotate(5deg); }
 .cinta.c3 { top: -13px; left: 50%; margin-left: -40px; transform: rotate(2deg); }
-.pasos { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 48px; padding: 44px 0 18px; }
-.pasos-cab h2 { font-size: 36px; line-height: 1.08; letter-spacing: -1px; margin: 0 0 10px; }
-.pasos-lista { list-style: none; margin: 0; padding: 0; }
-.pasos-lista li { display: flex; gap: 20px; padding: 18px 0; border-bottom: 2px dashed var(--tinta-suave); }
-.pasos-lista li:first-child { padding-top: 0; }
-.pasos-lista li:last-child { border-bottom: 0; padding-bottom: 0; }
-.pasos-lista .num { flex: 0 0 52px; font-family: var(--serif); font-weight: 900; font-size: 60px; line-height: .9; color: var(--sello); }
-.pasos-lista h3 { font-family: var(--serif); font-weight: 900; font-size: 22px; margin: 0 0 4px; }
-.pasos-lista p { margin: 0; color: #3C4560; }
 .ficha { position: relative; width: 100%; max-width: 720px; margin: 34px auto 0; background: #FBF7EC; border: var(--trazo) solid var(--tinta); border-radius: 4px; padding: 30px 34px 32px; transform: rotate(-.5deg); }
 .ficha h2 { font-size: 32px; letter-spacing: -.8px; margin: 0 0 6px; }
 .ficha label { font-size: 13px; letter-spacing: .8px; text-transform: uppercase; color: var(--tinta-suave); margin: 18px 0 4px; }
 .ficha input[type=text] { background: transparent; border: 0; border-bottom: var(--trazo) solid var(--tinta); border-radius: 0; padding-left: 0; }
 .ficha .acciones { margin-top: 24px; }
 @media (max-width: 760px) {
-  .pasos { grid-template-columns: 1fr; gap: 20px; padding-top: 32px; }
-  .heroe { gap: 30px; }
+    .heroe { gap: 30px; }
   .ficha { padding: 26px 20px 26px; }
-  .pasos-lista .num { flex-basis: 40px; font-size: 50px; }
-}
+  }
+.paradas { font-size: 16px; color: var(--tinta-suave); max-width: 32em; margin: -8px 0 22px; }
+.pie-site { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 24px 36px; margin: 44px auto 0; padding-top: 24px; border-top: 2px dashed var(--tinta-suave); }
+.pie-site .pie-udemex { width: 110px; height: auto; }
+.pie-site .pie-banner { width: 100%; max-width: 520px; height: auto; border-radius: 12px; display: block; }
+@media (max-width: 600px) { .pie-site { flex-direction: column; gap: 16px; } }
