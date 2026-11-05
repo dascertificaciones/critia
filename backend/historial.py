@@ -444,6 +444,9 @@ def _migrar():
         for col, tipo in (("pistas_usadas", "INTEGER DEFAULT 0"), ("pista_pedida", "INTEGER DEFAULT 0"), ("clave_med", "TEXT"), ("conf_med", "INTEGER")):
             if col not in cols:
                 con.execute(f"ALTER TABLE intentos ADD COLUMN {col} {tipo}")
+        cols = [r[1] for r in con.execute("PRAGMA table_info(mapas)")]
+        if "solo_propios" not in cols:
+            con.execute("ALTER TABLE mapas ADD COLUMN solo_propios INTEGER DEFAULT 0")
         cols = [r[1] for r in con.execute("PRAGMA table_info(insignias)")]
         if "mapa_id" not in cols:
             con.executescript("""
@@ -649,6 +652,12 @@ def crear_mapa(codigo, docente, nombre):
 def renombrar_mapa(mapa_id, nombre):
     with conectar() as con:
         con.execute("UPDATE mapas SET nombre=? WHERE id=?", (nombre.strip(), mapa_id))
+
+
+def fijar_solo_propios(mapa_id, valor):
+    """Si es verdadero, el mapa muestra únicamente los casos aprobados que el docente le asignó (sin el banco base)."""
+    with conectar() as con:
+        con.execute("UPDATE mapas SET solo_propios=? WHERE id=?", (1 if valor else 0, mapa_id))
 
 
 def grupo(codigo):

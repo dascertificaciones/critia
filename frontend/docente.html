@@ -229,10 +229,11 @@
                 <a class="btn btn-secundario btn-peq" href="universo.html?grupo=${esc(g.codigo)}" target="_blank">Universo</a>
               </div>
             </div>
-            <table style="margin-top:10px"><thead><tr><th>Mapa (materia o tema)</th><th>Profesor</th><th>Casos propios aprobados</th><th></th></tr></thead><tbody>
+            <table style="margin-top:10px"><thead><tr><th>Mapa (materia o tema)</th><th>Profesor</th><th>Casos propios aprobados</th><th>Mostrar</th><th></th></tr></thead><tbody>
               ${(g.mapas || []).map(m => `<tr><td><b>${esc(m.nombre)}</b></td><td>${esc(m.docente_nombre || m.docente)}</td><td>${m.casos_propios}</td>
+                <td>${(YO.admin || m.docente === YO.usuario) ? `<label style="display:flex;gap:6px;align-items:center;font-weight:400;margin:0"><input type="checkbox" class="m-solo" data-id="${m.id}" ${m.solo_propios ? 'checked' : ''}> solo los casos de este mapa</label>` : (m.solo_propios ? 'solo sus casos' : 'banco y sus casos')}</td>
                 <td class="fila-acciones" style="margin:0">${(YO.admin || m.docente === YO.usuario) ? `<button class="btn btn-enlace btn-peq m-ren" data-id="${m.id}" data-n="${esc(m.nombre)}">Renombrar</button>` : ''}
-                <a class="btn btn-enlace btn-peq" href="tablero.html?grupo=${esc(g.codigo)}&mapa=${m.id}" target="_blank">Tablero</a></td></tr>`).join('') || '<tr><td colspan="4" class="suave">Todavía no hay mapas en este grupo.</td></tr>'}
+                <a class="btn btn-enlace btn-peq" href="tablero.html?grupo=${esc(g.codigo)}&mapa=${m.id}" target="_blank">Tablero</a></td></tr>`).join('') || '<tr><td colspan="5" class="suave">Todavía no hay mapas en este grupo.</td></tr>'}
             </tbody></table>
             ${YO.admin ? '' : `<div class="fila-acciones" style="margin-top:8px"><input type="text" class="m-nombre" data-c="${esc(g.codigo)}" placeholder="Nuevo mapa: materia o tema, por ejemplo Geografía · Ríos de México" maxlength="60"><button class="btn btn-primario btn-peq m-crear" data-c="${esc(g.codigo)}">Crear mi mapa</button></div>`}
           </div>`).join('') : '<div class="vacio" style="margin-top:18px">Todavía no tienes grupos.</div>'}`;
@@ -250,6 +251,9 @@
       [...$('contenido').querySelectorAll('.m-crear')].forEach(b => b.onclick = async () => {
         const inp = $('contenido').querySelector(`.m-nombre[data-c="${b.dataset.c}"]`); const n = inp.value.trim(); if (n.length < 2) { toast('Escribe el nombre del mapa'); return; }
         try { await api('/docente/mapas', 'POST', { codigo: b.dataset.c, nombre: n }, H()); toast('Mapa creado'); VISTAS.grupos(); } catch (e) { toast(e.message); }
+      });
+      [...$('contenido').querySelectorAll('.m-solo')].forEach(c => c.onchange = async () => {
+        try { await api(`/docente/mapas/${c.dataset.id}/solo-propios`, 'PUT', { valor: c.checked }, H()); toast(c.checked ? 'Los alumnos verán solo los casos de este mapa' : 'Los alumnos verán el banco y los casos de este mapa'); } catch (e) { c.checked = !c.checked; toast(e.message); }
       });
       [...$('contenido').querySelectorAll('.m-ren')].forEach(b => b.onclick = async () => {
         const n = prompt('Nuevo nombre del mapa:', b.dataset.n); if (!n) return;

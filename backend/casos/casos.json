@@ -64,49 +64,6 @@
       "pista_suave": "Antes de creerle: ¿qué tendrías que ver para saber que es cierto, y no solo que suena bien?"
     },
     {
-      "id": "N1-M1-002",
-      "nivel": 1,
-      "mision": 1,
-      "postulado": 2,
-      "habilidad": "exactitud",
-      "familia_error": "acepta_sin_evidencia",
-      "formato": "tres_opciones",
-      "nivel_revision": 1,
-      "provisional": false,
-      "titulo": "El precio que sube y baja",
-      "situacion": "Le pediste a una IA: \"Una mochila cuesta 800 pesos. Sube 25% y luego baja 25%. ¿Vuelve a costar 800?\"\n\nLa IA respondió:\n\"¡Sí! Si sube 25% y luego baja 25%, los dos cambios se cancelan y el precio vuelve a 800 pesos. Es una regla sencilla.\"",
-      "pregunta": "¿Qué haces con esa respuesta?",
-      "opciones": [
-        {
-          "clave": "A",
-          "texto": "No le creo nada a la IA y tampoco hago la cuenta.",
-          "correcta": false,
-          "tipo_error": "desconfia_de_todo"
-        },
-        {
-          "clave": "B",
-          "texto": "La anoto: la IA lo explicó clarito y suena lógico.",
-          "correcta": false,
-          "tipo_error": "acepta_sin_evidencia"
-        },
-        {
-          "clave": "C",
-          "texto": "Hago las dos cuentas yo: 800 + 25% = 1000; 1000 − 25% = 750. No vuelve a 800.",
-          "correcta": true,
-          "tipo_error": null
-        }
-      ],
-      "pista": "El segundo 25%, ¿se saca de 800 o de 1000?",
-      "explicacion": "800 × 1.25 = 1000. Luego 1000 × 0.75 = 750. La IA sonó clara y amable, pero estaba mal. Hacer la cuenta tomó 20 segundos.",
-      "reflexion": "¿Qué te hizo confiar o dudar de la respuesta antes de hacer la cuenta?",
-      "rubrica_reflexion": [
-        "Señala algo del texto de la IA (tono, seguridad, la palabra 'sencilla').",
-        "Distingue entre cómo sonaba y si era correcta."
-      ],
-      "pista_fuerte": "El segundo 25%, ¿se saca de 800 o de 1000?",
-      "pista_suave": "Antes de creerle: ¿qué tendrías que ver para saber que es cierto, y no solo que suena bien?"
-    },
-    {
       "id": "N2-M1-001",
       "nivel": 2,
       "mision": 1,

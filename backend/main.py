@@ -225,10 +225,13 @@ def _casos_visibles(seudonimo=None, mapa_id=None):
     nivel = historial.nivel_de_alumno(seudonimo) if seudonimo else None
     mid = _mapa_de(seudonimo, mapa_id) if seudonimo else None
     permitidos = historial.casos_del_mapa(mid) if mid else set()
+    solo_propios = bool(mid and (historial.mapa(mid) or {}).get("solo_propios"))
     out = {}
     for cid, c in todos.items():
         es_generado = "generado_por" in c or c.get("origen")
         if not es_generado:
+            if solo_propios:
+                continue
             if nivel is None or c.get("nivel", 2) == nivel or c.get("especial"):
                 out[cid] = c
         elif not c.get("provisional") and cid in permitidos:
@@ -452,6 +455,19 @@ def renombrar_mapa(mapa_id: int, d: MapaIn, x_admin: str = Header(default=""), x
         raise HTTPException(403, "Ese mapa no es tuyo")
     historial.renombrar_mapa(mapa_id, d.nombre)
     return {"ok": True}
+
+
+class SoloPropiosIn(BaseModel):
+    valor: bool
+
+
+@app.put("/api/docente/mapas/{mapa_id}/solo-propios")
+def mapa_solo_propios(mapa_id: int, d: SoloPropiosIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    q = _quien(x_admin, x_sesion)
+    if not q.puede_mapa(mapa_id, solo_propio=True):
+        raise HTTPException(403, "Ese mapa no es tuyo")
+    historial.fijar_solo_propios(mapa_id, d.valor)
+    return {"ok": True, "solo_propios": d.valor}
 
 
 # =====================================================================
