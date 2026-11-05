@@ -203,7 +203,7 @@
       "nivel_revision": 1,
       "provisional": false,
       "titulo": "El libro que nadie encuentra",
-      "situacion": "Le pediste a una IA: \"¿Cuántas patas tiene una araña? Dime de dónde lo sacas.\"\n\nLa IA respondió:\n\"Las arañas tienen 6 patas. Lo dice el libro 'Insectos de México' de la editorial Sol Naciente.\"\n\nTu maestra tiene muchos libros de animales. Ese no está, y en internet tampoco aparece.",
+      "situacion": "Le pediste a una IA: \"¿Cuántas patas tiene una araña? Dime de dónde lo sacas.\"\n\nLa IA respondió:\n\"Las arañas tienen 6 patas. Lo dice el libro 'Insectos de México' de la editorial Sol Naciente.\"\n\nTu maestra tiene muchos libros de animales. Ese no está, y en internet tampoco aparece. (El libro y la editorial de este ejemplo son inventados.)",
       "pregunta": "¿Qué haces con el dato de 6 patas?",
       "opciones": [
         {
@@ -220,13 +220,13 @@
         },
         {
           "clave": "C",
-          "texto": "Lo busco en un libro que sí exista. Las arañas tienen 8 patas; la IA se equivocó y además inventó el libro.",
+          "texto": "Busco el dato en un libro que sí pueda abrir. No puedo comprobar ese libro y las arañas tienen 8 patas: la IA se equivocó.",
           "correcta": true,
           "tipo_error": null
         }
       ],
       "pista": "¿Un nombre de libro que nadie encuentra sirve como prueba?",
-      "explicacion": "Las arañas tienen 8 patas (los insectos tienen 6). La IA dio un dato falso y lo apoyó con un libro que no existe. Que una respuesta mencione un libro no la vuelve cierta: hay que poder abrir ese libro.",
+      "explicacion": "Las arañas tienen 8 patas (los insectos tienen 6). La IA dio un dato falso y lo apoyó con un libro que nadie puede mostrar. No encontrar una fuente no prueba por sí solo que no exista, pero si no puedes abrirla no sirve de apoyo: el dato se busca en una fuente que sí se pueda comprobar.",
       "reflexion": "¿Dónde buscarías tú para comprobar un dato de animales?",
       "rubrica_reflexion": [
         "Nombra una fuente real (libro, museo, página de una institución).",
@@ -246,12 +246,12 @@
       "nivel_revision": 2,
       "provisional": false,
       "titulo": "La fuente que no existe",
-      "situacion": "Le pediste a una IA: \"Dame un dato con fuente sobre cuánto afecta dormir poco a las calificaciones de los adolescentes.\"\n\nLa IA respondió:\n\"Claro. Según el estudio de Ramírez y Olvera (2019), publicado en la Revista Mexicana de Neurociencia Escolar, los adolescentes que duermen menos de 6 horas bajan en promedio 2 puntos en sus calificaciones. Este hallazgo ha sido replicado en varios países.\"\n\nBuscas la revista y el artículo en internet y en la biblioteca. No encuentras ninguno de los dos.",
+      "situacion": "Le pediste a una IA: \"Dame un dato con fuente sobre cuánto afecta dormir poco a las calificaciones de los adolescentes.\"\n\nLa IA respondió (el estudio y la revista son inventados para este ejemplo):\n\"Claro. Según el estudio de Ramírez y Olvera (2019), publicado en la Revista Mexicana de Neurociencia Escolar, los adolescentes que duermen menos de 6 horas bajan en promedio 2 puntos en sus calificaciones. Este hallazgo ha sido replicado en varios países.\"\n\nBuscas la revista y el artículo en internet y en la biblioteca, y no aparece ninguno de los dos.",
       "pregunta": "¿Qué decides?",
       "opciones": [
         {
           "clave": "A",
-          "texto": "No la uso. Una cita que no puedo encontrar no es una fuente. Busco un estudio real sobre sueño y adolescentes.",
+          "texto": "No la uso. Una cita que no puedo encontrar ni abrir no sirve como fuente. Busco un estudio sobre sueño y adolescentes que sí pueda leer.",
           "correcta": true,
           "tipo_error": null
         },
@@ -269,7 +269,7 @@
         }
       ],
       "pista": "Una cita puede tener formato perfecto y aun así no existir. ¿Qué prueba que es real?",
-      "explicacion": "Las IA pueden inventar referencias completas: autores, año, revista, incluso la frase \"ha sido replicado\". El formato no prueba nada; encontrarla sí. Si no aparece en un catálogo o buscador académico, no se usa.",
+      "explicacion": "Las IA pueden inventar referencias completas: autores, año, revista, incluso la frase \"ha sido replicado\". El formato no prueba nada; poder abrirla sí. No encontrarla no demuestra que no exista (puede estar en un lugar que no revisaste), pero una cita que no puedes abrir no se usa para apoyar un dato.",
       "reflexion": "Describe en dos pasos cómo comprobarías si una cita existe.",
       "rubrica_reflexion": [
         "Dice dónde buscaría (buscador académico, biblioteca, la revista).",
@@ -289,7 +289,7 @@
       "nivel_revision": 2,
       "provisional": false,
       "titulo": "El dato con enciclopedia",
-      "situacion": "Le pediste a una IA: \"¿Cuánto mide el Nevado de Toluca? Dame la fuente.\"\n\nLa IA respondió:\n\"El Nevado de Toluca mide 5,200 metros sobre el nivel del mar, según la Enciclopedia Escolar Mexicana, edición 2023, página 412.\"\n\nBuscas esa enciclopedia. No existe.",
+      "situacion": "Le pediste a una IA: \"¿Cuánto mide el Nevado de Toluca? Dame la fuente.\"\n\nLa IA respondió (la enciclopedia es inventada para este ejemplo):\n\"El Nevado de Toluca mide 5,200 metros sobre el nivel del mar, según la Enciclopedia Escolar Mexicana, edición 2023, página 412.\"\n\nBuscas esa enciclopedia y no encuentras ninguna con ese nombre.",
       "pregunta": "¿Qué haces con el dato de 5,200 metros?",
       "opciones": [
         {
@@ -312,7 +312,7 @@
         }
       ],
       "pista": "Un número de página hace que la cita suene más real. ¿La hace más real?",
-      "explicacion": "El Nevado de Toluca mide alrededor de 4,680 metros. La IA inventó la enciclopedia, la edición y la página. Cuantos más detalles tiene una cita falsa, más convincente parece; por eso se verifica la fuente, no el formato.",
+      "explicacion": "El Nevado de Toluca mide cerca de 4,700 metros; compruébalo en el INEGI o en un atlas. La IA dio una enciclopedia, una edición y una página que nadie puede mostrar. Cuantos más detalles tiene una cita dudosa, más convincente parece; por eso se verifica la fuente, no el formato.",
       "reflexion": "¿Por qué crees que un número de página te daba más confianza?",
       "rubrica_reflexion": [
         "Reconoce que los detalles dan apariencia de precisión.",
@@ -332,7 +332,7 @@
       "nivel_revision": 2,
       "provisional": false,
       "titulo": "La cita que sí existe (pero no dice eso)",
-      "situacion": "Le pediste a una IA: \"Dame una fuente académica que demuestre que los videojuegos causan violencia.\"\n\nLa IA respondió:\n\"La Asociación Americana de Psicología (APA) concluyó en su resolución de 2020 que los videojuegos violentos son una causa directa de conductas violentas en adolescentes.\"\n\nBuscas la resolución de la APA de 2020. Existe. La lees: dice que hay relación con conductas agresivas leves, pero que la evidencia no permite afirmar que causen violencia criminal.",
+      "situacion": "Le pediste a una IA: \"Dame una fuente académica que demuestre que los videojuegos causan violencia.\"\n\nLa IA respondió:\n\"El Instituto Ágora de Psicología Juvenil concluyó en su informe de 2020 que los videojuegos violentos son una causa directa de conductas violentas en adolescentes.\"\n\nAbres el informe (el instituto y el informe son inventados para este ejemplo). Sí existe, y dice: \"Encontramos una relación leve con conductas agresivas, pero la evidencia no permite afirmar que causen violencia criminal.\"",
       "pregunta": "¿Qué haces con la afirmación de la IA?",
       "opciones": [
         {
@@ -349,13 +349,13 @@
         },
         {
           "clave": "C",
-          "texto": "La corrijo: la fuente existe pero no dice lo que la IA afirma. Cito lo que la resolución dice en realidad.",
+          "texto": "La corrijo: la fuente existe pero no dice lo que la IA afirma. Cito lo que el informe dice en realidad.",
           "correcta": true,
           "tipo_error": null
         }
       ],
       "pista": "Verificar que la fuente existe es el primer paso. ¿Cuál es el segundo?",
-      "explicacion": "Este es el error más difícil de ver: la fuente es real, pero la IA exageró lo que dice (\"causa directa\" donde la APA habla de una relación limitada). Verificar una cita tiene dos pasos: que exista y que diga eso. La fuente sigue siendo buena; lo que no sirve es el resumen de la IA.",
+      "explicacion": "Este es el error más difícil de ver: la fuente es real, pero la IA exageró lo que dice (\"causa directa\" donde el informe habla de una relación leve). Verificar una cita tiene dos pasos: que exista y que diga eso. La fuente sigue siendo buena; lo que no sirve es el resumen de la IA.",
       "reflexion": "Escribe la frase que pondrías en tu ensayo citando correctamente lo que dice la resolución.",
       "rubrica_reflexion": [
         "Refleja el matiz (relación con agresividad, no causa de violencia).",
@@ -375,18 +375,18 @@
       "nivel_revision": 1,
       "provisional": false,
       "titulo": "Segura, pero falsa",
-      "situacion": "Le pediste a una IA: \"¿Cuál es el río más largo de México?\"\n\nLa IA respondió:\n\"El río más largo de México es el río Lerma, con 2,500 kilómetros. Es un dato bien establecido.\"",
+      "situacion": "Le pediste a una IA: \"¿Cuántos huesos tiene el cuerpo de una persona adulta?\"\n\nLa IA respondió:\n\"Una persona adulta tiene 306 huesos. Es un dato bien establecido.\"",
       "pregunta": "¿Qué haces antes de ponerlo en tu tarea?",
       "opciones": [
         {
           "clave": "A",
-          "texto": "Lo busco en un atlas escolar o en el INEGI y comparo.",
+          "texto": "Lo busco en el libro de ciencias o en una enciclopedia y comparo.",
           "correcta": true,
           "tipo_error": null
         },
         {
           "clave": "B",
-          "texto": "No lo uso: las IA siempre fallan en geografía.",
+          "texto": "No lo uso: las IA siempre fallan en ciencias.",
           "correcta": false,
           "tipo_error": "desconfia_de_todo"
         },
@@ -398,7 +398,7 @@
         }
       ],
       "pista": "Decir \"es un dato bien establecido\" no es mostrar de dónde salió. ¿Dónde lo puedes comprobar?",
-      "explicacion": "El dato es falso: el Lerma mide unos 750 km, y el río más largo de México es el Bravo (o el sistema Grijalva-Usumacinta, según cómo se mida). La IA sonó totalmente segura y estaba equivocada. La seguridad no es evidencia.",
+      "explicacion": "El dato es falso: una persona adulta tiene 206 huesos. La IA sonó totalmente segura y estaba equivocada. La seguridad no es evidencia.",
       "reflexion": "¿Qué frase de la IA te daba más confianza? ¿Por qué no era una prueba?",
       "rubrica_reflexion": [
         "Identifica una frase concreta.",
@@ -1269,7 +1269,7 @@
       "nivel_revision": 2,
       "provisional": false,
       "titulo": "Cierto, falso y lo de en medio",
-      "situacion": "Le pediste a una IA: \"Escríbeme un párrafo con datos para mi ensayo sobre el sueño en adolescentes.\"\n\nLa IA respondió:\n\"Los organismos de salud recomiendan que los adolescentes duerman entre 8 y 10 horas por noche. Sin embargo, un estudio reciente de una universidad mexicana encontró que el 73% de los estudiantes de bachillerato duerme menos de 6 horas, lo que se asocia con una caída del 18% en el rendimiento académico. Por ello, varios países han retrasado el horario de entrada a clases, con resultados positivos documentados.\"",
+      "situacion": "Le pediste a una IA: \"Escríbeme un párrafo con datos para mi ensayo sobre el sueño en adolescentes.\"\n\nLa IA respondió (el estudio y las cifras son inventados para este ejemplo):\n\"Los organismos de salud recomiendan que los adolescentes duerman entre 8 y 10 horas por noche. Sin embargo, un estudio reciente de una universidad mexicana encontró que el 73% de los estudiantes de bachillerato duerme menos de 6 horas, lo que se asocia con una caída del 18% en el rendimiento académico. Por ello, varios países han retrasado el horario de entrada a clases, con resultados positivos documentados.\"",
       "pregunta": "¿Qué parte de este párrafo puedes usar tal como está?",
       "opciones": [
         {

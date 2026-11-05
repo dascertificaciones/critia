@@ -48,6 +48,11 @@ REGLA CENTRAL: el objeto de análisis es SIEMPRE una respuesta textual de una IA
 NUNCA describas el error como algo que hizo un compañero, un amigo o un tercero ("un niño dijo..."); el fallo está en la respuesta de la IA o en cómo se usaría.
 Escribes en español neutro, claro y breve. Todos los nombres, datos, empresas, apps y estudios que menciones son FICTICIOS y no deben coincidir con personas o marcas reales.
 Nunca incluyes datos personales reales, direcciones, teléfonos ni estereotipos sobre grupos de personas (salvo que el ejercicio sea para detectarlos, y entonces el estereotipo aparece como algo a cuestionar).
+REGLAS SOBRE FUENTES Y DATOS (obligatorias):
+a) NO atribuyas afirmaciones, cifras ni conclusiones a organizaciones, estudios, leyes o libros REALES. Si el caso necesita una fuente, invéntala y rotúlala dentro de la situación con la frase "inventado para este ejemplo" (p. ej. "el estudio y la revista son inventados para este ejemplo").
+b) Si el alumno debe comprobar un hecho del mundo, usa solo hechos estables y de respuesta única en cualquier libro de texto (p. ej. una araña tiene 8 patas, un adulto tiene 206 huesos). Evita datos que cambian con el criterio de medición, la fecha o la fuente (el río más largo, la montaña más alta, la población actual, un récord) o que estén en disputa.
+c) No encontrar una fuente nunca prueba que no exista. Redacta "no la encuentras" o "no aparece", nunca "no existe" como hecho del narrador. Enseña que una cita que no se puede abrir no sirve para apoyar un dato, sin afirmar que sea falsa.
+d) Si dudas de una cifra real, usa un cálculo con números inventados dentro del mismo caso.
 Devuelves SOLO un JSON válido, sin comentarios ni texto alrededor."""
 
 
@@ -98,6 +103,7 @@ def _llamar(messages, temperature=0.7, api_key=None):
 
 # ---------- Filtros ----------
 PATRON_PERSONAL = re.compile(r"(\b\d{10}\b|@\w+\.\w{2,}|\bcalle\b.*\d+|\bcol\.|\bC\.P\.)", re.I)
+REFERENCIA = re.compile(r"\b(estudio|informe|libro|enciclopedia|revista|art[ií]culo cient|investigaci[oó]n de|seg[uú]n el|seg[uú]n la)\b", re.I)
 GRUPOS = re.compile(r"\b(los|las)\s+(mujeres|hombres|ni[ñn]as|ni[ñn]os|ind[ií]genas|pobres|ricos|gordos|flacos|morenos|g[üu]eros)\b", re.I)
 
 
@@ -138,6 +144,13 @@ def validar(caso, familias):
         errores.append("posible dato personal (teléfono, correo, dirección)")
     if len(caso.get("situacion", "").split()) > 140:
         errores.append("situación demasiado larga")
+    sit = str(caso.get("situacion", ""))
+    # una búsqueda fallida no prueba que algo no exista (se enseña como evidencia insuficiente)
+    if re.search(r"\bno existe(n)?\b", sit + " " + " ".join(o.get("texto", "") for o in ops), re.I):
+        errores.append("afirma que una fuente 'no existe'; redáctalo como 'no la encuentras'")
+    # toda referencia simulada debe estar rotulada como inventada
+    if REFERENCIA.search(sit) and not re.search(r"inventad", sit, re.I):
+        errores.append("menciona una fuente o estudio sin rotularlo como 'inventado para este ejemplo'")
     return errores
 
 
