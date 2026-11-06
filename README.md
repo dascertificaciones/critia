@@ -4,11 +4,11 @@
 
 Critia es un prototipo educativo para estudiantes de **11 a 17 años**, presentado en **Hack4Edu 2026, Reto 04: «Un tutor que no te da la respuesta»**. El alumno decide, declara su confianza, recibe pistas y revisa su respuesta. El docente observa qué ayuda necesitó y lee sus reflexiones.
 
-[Abrir la demo](https://hackaton.proyecto.digital/) · [Guía para docentes](https://hackaton.proyecto.digital/guia.html) · [Ver el video de presentación](presentacion_V0.01.mp4) · [Instalar en local](#instalar-en-local)
+[Abrir la demo](https://hackaton.proyecto.digital/) · [Guía para docentes](https://hackaton.proyecto.digital/guia.html) · [Ver el video de presentación](https://filedn.com/lzob2HCMOzYmKrnRoiB89Q8/WhatsApp%20Video%202026-11-05%20at%207.40.58%20PM.mp4) · [Instalar en local](#instalar-en-local)
 
 ![Universo de Critia: territorios por misión y equipos en un mapa de ciencias](docs/capturas/universo.png)
 
-*Universo del prototipo: cada mapa representa una materia o tema. Captura extraída del video incluido; los datos son de demostración.*
+*Universo del prototipo: cada mapa representa una materia o tema. Captura extraída del video de presentación; los datos son de demostración.*
 
 ## Ver una demostración
 
@@ -22,7 +22,7 @@ La demo en línea puede actualizarse independientemente de esta copia del códig
 
 ### Ver el recorrido en video
 
-El archivo [presentacion_V0.01.mp4](presentacion_V0.01.mp4) muestra la preparación docente, un caso del ciclo del agua, las pistas, el mapa por equipos y el seguimiento. Dura aproximadamente tres minutos. Si el visor del repositorio no lo reproduce, descarga el archivo y ábrelo en tu reproductor.
+El [video de presentación](https://filedn.com/lzob2HCMOzYmKrnRoiB89Q8/WhatsApp%20Video%202026-11-05%20at%207.40.58%20PM.mp4) muestra la preparación docente, un caso del ciclo del agua, las pistas, el mapa por equipos y el seguimiento. Dura aproximadamente tres minutos. Se aloja fuera del repositorio; si no se reproduce en el navegador, descárgalo y ábrelo en tu reproductor.
 
 ## Cómo funciona
 
@@ -48,7 +48,7 @@ El banco base de esta copia contiene **30 casos: 27 de opción múltiple y tres 
 
 *Datos de demostración. Los porcentajes de esta captura ilustran el panel; no son resultados de un piloto educativo.*
 
-Las tres capturas se extrajeron de [la presentación incluida](presentacion_V0.01.mp4). Su resolución y encuadre corresponden al video fuente.
+Las tres capturas se extrajeron de [el video de presentación](https://filedn.com/lzob2HCMOzYmKrnRoiB89Q8/WhatsApp%20Video%202026-11-05%20at%207.40.58%20PM.mp4). Su resolución y encuadre corresponden al video fuente.
 
 ## Cómo está construido
 
