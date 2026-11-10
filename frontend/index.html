@@ -94,7 +94,7 @@
     </div>
     <div class="mapas-sel" id="mapas-sel"></div>
     <div class="estado-equipo" id="estado-equipo" aria-live="polite"></div>
-    <svg class="territorios" id="territorios" viewBox="0 0 360 470" role="group" aria-label="Mapa de territorios. Toca un territorio para ver sus casos."></svg>
+    <div class="mapa-marco"><svg class="territorios" id="territorios" viewBox="30 50 850 1140" role="group" aria-label="Mapa de territorios. Toca un territorio para ver sus casos."></svg></div>
     <ul class="leyenda" id="leyenda"></ul>
   </main>
   <div class="pie-juego">
@@ -114,6 +114,7 @@
 
 <script src="assets/js/iconos.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/mapa.js"></script>
 <script>
 (async function () {
   document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
@@ -156,10 +157,6 @@
   // ---- Mapa de territorios ----
   const $ = id => document.getElementById(id);
   const NS = 'http://www.w3.org/2000/svg';
-  const HEX_R = 58;
-  // Centros de los ocho territorios (panal de 3-2-3) y de la isla del detective
-  const CENTROS = { 1: [66, 66], 2: [180, 66], 3: [294, 66], 4: [123, 165], 5: [237, 165], 6: [66, 264], 7: [180, 264], 8: [294, 264], isla: [180, 400] };
-  const hexPts = (cx, cy, r) => Array.from({ length: 6 }, (_, k) => { const a = Math.PI / 180 * (60 * k - 90); return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`; }).join(' ');
   const svgEl = (tag, attrs, html) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (html) e.innerHTML = html; return e; };
   $('hoja-cerrar').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   $('salir').onclick = () => { if (confirm('¿Salir de tu sesión? Tu avance queda guardado.')) { Sesion.borrar(); location.href = 'index.html'; } };
@@ -221,10 +218,10 @@
     const ahora = {}; const ganados = [], perdidos = [];
 
     const svg = $('territorios'); svg.innerHTML = '';
-    svg.appendChild(svgEl('path', { class: 'ruta-isla', d: 'M180 322 C 150 345, 210 360, 180 372' }));
+    svg.appendChild(svgEl('image', { href: 'assets/img/mapa_territorios.jpg', x: 0, y: 0, width: MAPA.ancho, height: MAPA.alto, preserveAspectRatio: 'none' }));
     const NOMBRE_EQ = e => e.charAt(0).toUpperCase() + e.slice(1);
     paradas.forEach((p, i) => {
-      const n = p.m.n, [cx, cy] = CENTROS[n], t = terr(n);
+      const n = p.m.n, geo = MAPA.territorios[n], [cx, cy] = geo.c, t = terr(n);
       const dueno = t && t.dueno, disputa = t && t.disputa;
       ahora[n] = dueno || '';
       const cambio = antes && (antes[n] || '') !== (dueno || '');
@@ -234,27 +231,30 @@
         role: 'button', tabindex: '0', style: `--i:${i}`,
         'aria-label': `Territorio ${n}, ${p.m.nombre}. ${dueno ? 'Lo controla el equipo ' + dueno : disputa ? 'En disputa' : 'Sin dueño'}. ${p.vacia ? 'Sin casos todavía' : `Llevas ${p.hechos} de ${p.lista.length} casos`}.` });
       const pips = p.vacia ? '' : p.lista.length <= 5
-        ? p.lista.map((c, k) => `<circle class="pip${prog.casos[c.id] ? ' on' : ''}" cx="${cx - (p.lista.length - 1) * 7 + k * 14}" cy="${cy + 26}" r="4.5"/>`).join('')
-        : `<text class="pip-txt" x="${cx}" y="${cy + 31}">${p.hechos}/${p.lista.length}</text>`;
-      g.innerHTML = `<polygon class="hex" points="${hexPts(cx, cy, HEX_R)}"/>
-        <text class="num" x="${cx}" y="${cy + 6}">${n}</text>${pips}
-        ${dueno ? `<image class="bandera" href="${ESCUDO(dueno)}" x="${cx + 18}" y="${cy - 50}" width="30" height="30"/>` : ''}
-        ${disputa ? `<text class="disp" x="${cx}" y="${cy - 26}">en disputa</text>` : ''}
-        ${p.vacia ? `<text class="disp" x="${cx}" y="${cy + 30}">pronto</text>` : ''}`;
+        ? p.lista.map((c, k) => `<circle class="pip${prog.casos[c.id] ? ' on' : ''}" cx="${cx - (p.lista.length - 1) * 13 + k * 26}" cy="${cy + 58}" r="9"/>`).join('')
+        : `<text class="pip-txt" x="${cx}" y="${cy + 66}">${p.hechos}/${p.lista.length}</text>`;
+      g.innerHTML = `<path class="hex" d="${geo.d}"/>
+        <circle class="ficha" cx="${cx}" cy="${cy}" r="38"/>
+        <text class="num" x="${cx}" y="${cy + 16}">${n}</text>${pips}
+        ${dueno ? `<image class="bandera" href="${ESCUDO(dueno)}" x="${cx + 18}" y="${cy - 74}" width="58" height="58"/>` : ''}
+        ${disputa ? `<text class="disp" x="${cx}" y="${cy - 50}">en disputa</text>` : ''}
+        ${p.vacia ? `<text class="disp" x="${cx}" y="${cy + 68}">pronto</text>` : ''}`;
       const abrir = () => abrirHoja(p, t, g);
       g.onclick = abrir; g.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } };
       svg.appendChild(g);
     });
     // Isla del detective
     if (det) {
-      const [cx, cy] = CENTROS.isla, abierto = prog.detective_desbloqueado, hecho = prog.casos[det.id];
+      const [cx, cy] = MAPA.isla.c, abierto = prog.detective_desbloqueado, hecho = prog.casos[det.id];
       const duenoIsla = terrMapa && terrMapa.isla && terrMapa.isla.dueno;
+      const fx = cx - 150;   // la ficha va a la izquierda de la isla, sobre el mar, para no tapar el faro
       const g = svgEl('g', { class: 'terr isla' + (duenoIsla ? ' eq-' + duenoIsla : '') + (abierto ? (hecho ? ' completa' : ' actual') : ' cerrada'), role: 'button', tabindex: '0', style: '--i:8',
         'aria-label': `Isla del detective. ${abierto ? 'Abierta' : `Cerrada: se abre con ${prog.racha_para_detective} casos seguidos bien revisados`}.` });
-      g.innerHTML = `<polygon class="hex" points="${hexPts(cx, cy, 50)}"/>
-        <g class="ico-isla" transform="translate(${cx - 15} ${cy - 22})"><svg width="30" height="30" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">${(abierto ? ICONO.lupa : ICONO.candado).replace(/<\/?svg[^>]*>/g, '')}</svg></g>
-        <text class="disp" x="${cx}" y="${cy + 26}">${abierto ? 'detective' : `racha ${Math.min(prog.mejor_racha, prog.racha_para_detective)}/${prog.racha_para_detective}`}</text>
-        ${duenoIsla ? `<image class="bandera" href="${ESCUDO(duenoIsla)}" x="${cx + 14}" y="${cy - 46}" width="28" height="28"/>` : ''}`;
+      g.innerHTML = `<path class="hex" d="${MAPA.isla.d}"/>
+        <circle class="ficha" cx="${fx}" cy="${cy}" r="36"/>
+        <g class="ico-isla" transform="translate(${fx - 22} ${cy - 22})"><svg width="44" height="44" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">${(abierto ? ICONO.lupa : ICONO.candado).replace(/<\/?svg[^>]*>/g, '')}</svg></g>
+        <text class="disp" x="${fx}" y="${cy + 66}">${abierto ? 'detective' : `racha ${Math.min(prog.mejor_racha, prog.racha_para_detective)}/${prog.racha_para_detective}`}</text>
+        ${duenoIsla ? `<image class="bandera" href="${ESCUDO(duenoIsla)}" x="${fx + 14}" y="${cy - 72}" width="52" height="52"/>` : ''}`;
       const abrir = () => abrirIsla(det, abierto, hecho, prog, g);
       g.onclick = abrir; g.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } };
       svg.appendChild(g);
