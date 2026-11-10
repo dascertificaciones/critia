@@ -332,3 +332,23 @@ body:not(.juego) .punteria { display: none; }
 .armadura.compacta .guerrero { width: 74px; grid-row: span 2; }
 .armadura.compacta .arm-palabra { margin: 0; font-size: 15px; }
 .armadura.compacta .arm-niveles button { min-height: 52px; } .armadura.compacta .arm-niveles small { display: none; }
+
+/* ---------- La armadura puesta a prueba ---------- */
+.guerrero { position: relative; }
+.arm-resultado { --c: #3A4670; display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; width: 100%; text-align: left; margin-bottom: 16px; padding: 10px 14px 10px 6px; border-radius: 16px; background: #1E2742; border: 2px solid var(--c); animation: entra-abajo .35s ease both; }
+.arm-resultado .guerrero { width: 96px; margin: 0; }
+.arm-resultado b { display: block; font-family: var(--serif); font-size: 20px; line-height: 1.15; color: var(--c); }
+.arm-resultado span { display: block; font-size: 15px; margin-top: 4px; color: var(--tinta); }
+.arm-resultado.resiste { --c: var(--ambar); box-shadow: 0 0 22px rgba(255,182,39,.35); }
+.arm-resultado.resiste .guerrero { animation: resiste 1.1s ease .2s both; }
+.arm-resultado.abollada { --c: var(--sello); }
+.arm-resultado.abollada .guerrero { filter: saturate(.55) brightness(.82); animation: golpe .5s ease .2s both; }
+.arm-resultado.abollada .guerrero::after { content: ""; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 242 430' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M150 150l-22 26 16 12-26 30 18 10-20 30' stroke='%23120A0A' stroke-width='7'/%3E%3Cpath d='M128 176l-20 6M118 228l22 4M134 188l14-4' stroke='%23120A0A' stroke-width='4'/%3E%3Cpath d='M152 152l-22 26 16 12-26 30 18 10-20 30' stroke='%23FFE9C9' stroke-opacity='.75' stroke-width='2'/%3E%3C/svg%3E") center / contain no-repeat; animation: grieta .3s ease .45s both; }
+.arm-resultado.protegido { --c: var(--azul); }
+.arm-resultado.protegido .guerrero { animation: protege 1s ease .2s both; }
+.arm-resultado.ligera { --c: var(--hierba); }
+@keyframes resiste { 0%, 100% { filter: none; transform: none; } 35% { filter: drop-shadow(0 0 16px var(--ambar)) brightness(1.25); transform: scale(1.06); } }
+@keyframes golpe { 0%, 100% { transform: none; } 20% { transform: translateX(-7px) rotate(-3deg); } 45% { transform: translateX(6px) rotate(2deg); } 70% { transform: translateX(-3px); } }
+@keyframes grieta { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes protege { 0%, 100% { filter: none; } 40% { filter: drop-shadow(0 0 14px var(--azul)); } }
+body.juego-pag .punteria.revision { border-color: var(--azul); margin-top: 10px; } .punteria.revision .icono { color: var(--azul); } .punteria.revision .reto-barra i { background: var(--azul); }

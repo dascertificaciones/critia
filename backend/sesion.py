@@ -33,6 +33,7 @@ def _estado(caso, it):
         "clave_ini": it.get("clave_ini"), "conf_ini": it.get("conf_ini"), "just_ini": it.get("just_ini"),
         "clave_med": it.get("clave_med"), "conf_med": it.get("conf_med"),
         "pistas_usadas": pistas, "pista_pedida": bool(it.get("pista_pedida")),
+        "reviso_antes": bool(it.get("reviso_antes")), "armadura": it.get("armadura"),
         "pista": _pista(caso, pistas) if (pistas and con_pistas) else None,
         "texto_accion": motor.TEXTO_ACCION.get(it.get("accion_ini")) if it.get("accion_ini") else None,
         "texto_motivo": motor.TEXTO_MOTIVO.get(it.get("motivo_ini")) if it.get("motivo_ini") else None,
@@ -63,9 +64,14 @@ def pedir_pista(intento_id):
         raise ValueError("Este caso no tiene pistas")
     nivel = min(2, (it.get("pistas_usadas") or 0) + 1)
     historial.guardar_pista(intento_id, nivel, pedida=True)
-    return {"accion": "pista_pedida", "motivo": "pista_a_peticion", "texto_accion": motor.TEXTO_ACCION["pista_pedida"],
-            "texto_motivo": motor.TEXTO_MOTIVO["pista_a_peticion"], "pista": _pista(caso, nivel), "nivel": nivel,
-            "quedan": 2 - nivel}
+    # La primera es «revisar primero»: una pregunta para comprobar la respuesta de la IA. No cuenta como ayuda.
+    gratis = nivel == 1
+    if gratis:
+        historial.marcar_reviso(intento_id)
+    accion, motivo = ("revision_previa", "revision_a_peticion") if gratis else ("pista_pedida", "pista_a_peticion")
+    return {"accion": accion, "motivo": motivo, "texto_accion": motor.TEXTO_ACCION[accion],
+            "texto_motivo": motor.TEXTO_MOTIVO[motivo], "pista": _pista(caso, nivel), "nivel": nivel,
+            "quedan": 2 - nivel, "gratis": gratis}
 
 
 def responder(intento_id, clave, confianza, justificacion=""):
@@ -93,6 +99,9 @@ def responder(intento_id, clave, confianza, justificacion=""):
     hechos = motor.armar_hechos(caso, "inicial", inicial, historial_errores=historial.errores_previos(it["seudonimo"]), fallo_mision_previa=fmp)
     r = motor.consultar(hechos)
     historial.guardar_inicial(intento_id, clave.upper(), conf, justificacion, eval_, tipo, r["accion"], r["motivo"])
+    # La armadura (seguridad inicial) se pone a prueba con esta primera respuesta
+    r["armadura"] = historial.resultado_armadura(eval_, conf)
+    historial.guardar_armadura(intento_id, r["armadura"])
     r["pista"] = None; r["nivel"] = 0; r["quedan"] = 0
     if eval_ != "correcta":
         ya = it.get("pistas_usadas") or 0
@@ -143,6 +152,9 @@ def revisar(intento_id, clave, confianza):
     final = {"clave": clave, "confianza": conf, "evaluacion": eval_, "tipo_error": tipo}
     hechos = motor.armar_hechos(caso, "final", inicial, final, ayuda_previa=True)
     r = motor.consultar(hechos)
+    # Revisar antes de decidir y acertar también es revisar
+    if it.get("reviso_antes") and it["eval_ini"] == "correcta" and "revisar" not in r["sentidos"]:
+        r["sentidos"] = sorted(r["sentidos"] + ["revisar"])
     historial.guardar_final(intento_id, clave.upper(), conf, eval_, tipo, r["accion"], r["motivo"], r["sentidos"], r["diagnosticos"])
     r["explicacion"] = caso["explicacion"]
     r["reflexion"] = caso["reflexion"]
@@ -153,7 +165,13 @@ def revisar(intento_id, clave, confianza):
     r["repeticion"] = bool(it2.get("repeticion"))
     acerto_ini, seguro_ini = it["eval_ini"] == "correcta", (it["conf_ini"] or 0) >= historial.SEGURO_DESDE
     r["punteria_caso"] = {"confianza": it["conf_ini"], "acerto": acerto_ini, "coincide": acerto_ini == seguro_ini}
-    r["puntos_equipo"] = 0 if r["repeticion"] else historial.puntos_territorio(r["sentidos"], eval_, r["pistas_usadas"])
+    r["reviso_antes"] = bool(it2.get("reviso_antes"))
+    r["armadura"] = it2.get("armadura")
+    r["punto_armadura"] = it2.get("punto_armadura") or 0
+    r["efecto_racha"] = historial.efecto_racha(r["sentidos"], it["eval_ini"], r["armadura"])
+    ayudas = r["pistas_usadas"] - (1 if r["reviso_antes"] else 0)
+    r["sin_ayuda"] = eval_ == "correcta" and ayudas <= 0
+    r["puntos_equipo"] = 0 if r["repeticion"] else historial.puntos_territorio(r["sentidos"], eval_, ayudas, r["punto_armadura"])
     r["continua"] = False
     r["hechos"] = hechos
     return r

@@ -60,12 +60,15 @@ Esta versión cambia la experiencia del alumno y del docente. Las capturas de la
 - **Mapa ilustrado de territorios.** Un continente con ocho territorios y la isla del detective. Cada territorio se tiñe con el color del equipo que lo controla y muestra el avance del alumno. Al tocarlo se abren sus casos y los puntos de cada equipo.
 - **Barra de navegación** con tres secciones: Mapa, Equipo e Insignias. El Universo usa el mismo mapa para todas las materias del grupo.
 - **Misión de hoy.** Tres casos por día, con avance visible y un resumen al cumplirla. No bloquea seguir jugando.
-- **Puntos con una sola regla** en el mapa, el caso y la página Equipo: un punto por cada habilidad ganada (justificar, revisar, calibrar) y uno más por resolver sin pistas. Antes de jugar, el caso explica cómo se suman; corregir después de una pista también cuenta.
+- **Puntos con una sola regla** en el mapa, el caso y la página Equipo: un punto por cada habilidad ganada (justificar, revisar, calibrar), uno por resolver sin ayuda y uno si la armadura resistió. Antes de jugar, el caso explica cómo se suman; corregir después de una pista también cuenta.
 - **Ruta recomendada** en el mapa, en el orden de las misiones. Es una sugerencia, no un bloqueo.
 - **Retomar un caso.** Si el alumno recarga la página a medio caso, vuelve al paso donde se quedó.
 - **Historia corta.** El alumno es un explorador que revisa lo que responde una IA antes de que su equipo lo use. Cada territorio tiene un lugar y dos líneas de historia, que se muestran la primera vez que entra.
 - **Reto de equipo semanal.** Casos bien revisados entre todos, de lunes a domingo. La meta es de tres casos por jugador, con un mínimo de seis. Es un logro compartido: no da puntos.
 - **Seguridad como armadura.** El alumno declara su seguridad en cuatro niveles: 25, 50, 75 y 100. Un guerrero lleva más armadura con cada nivel, de ninguna a completa; al cambiar de nivel hace un movimiento corto de tres poses (guardia, saludo y listo). Hay que elegir un nivel antes de decidir.
+- **La armadura se pone a prueba.** La seguridad inicial tiene consecuencias. Si el alumno acierta con armadura alta (75 o 100), la armadura resiste y suma un punto. Si falla con ella, se abolla y su racha vuelve a cero. Si falla con armadura baja, su duda lo protege y conserva la racha. Nunca se restan puntos al equipo.
+- **Revisar primero.** Antes de decidir, el alumno puede pedir una pregunta para comprobar lo que dijo la IA. No cuenta como ayuda ni quita puntos; acertar después de revisar da la habilidad «Revisar». La segunda pista, que señala el fallo, sí cuenta como ayuda.
+- **Calibrar ya no premia el exceso de seguridad.** Quien falla con seguridad alta no gana «Calibrar» en ese caso, aunque corrija.
 - **Medidor de puntería.** Al cerrar un caso se indica si la seguridad declarada coincidió con la primera respuesta; la página Insignias muestra el acumulado. Cuentan como «seguro» los niveles 75 y 100.
 - **Tema oscuro de juego** en las pantallas del alumno. La portada, la guía y el panel docente conservan el tema claro.
 
@@ -73,9 +76,14 @@ Esta versión cambia la experiencia del alumno y del docente. Las capturas de la
 
 - **Inicio con un solo campo:** el tema de la clase. Un asistente de tres pasos crea la actividad, prepara un caso por territorio, los muestra uno por uno para aprobar, editar o descartar, y termina con el código del grupo y las instrucciones para los alumnos.
 - **Cuatro secciones** en lugar de nueve pestañas: Inicio, Por revisar, Seguimiento y Ajustes.
+- **Dos indicadores del objetivo del juego** en Seguimiento: en qué porcentaje de los casos los alumnos revisaron antes de decidir, y qué porcentaje de las veces que dijeron estar seguros fallaron. La lista de alumnos muestra ambos datos por alumno.
 - La generación por tema envía cada caso a su territorio. Antes, un postulado compartido por dos misiones mandaba el caso siempre a la primera.
 
 **Cómo se comprobó.** Los recorridos del alumno y del docente se probaron en un navegador automatizado, en tamaño de celular y de escritorio, con datos de prueba. El asistente de generación se probó con respuestas simuladas del modelo: **falta probarlo con una clave real del proveedor**. El repositorio sigue sin pruebas automáticas.
+
+### Lo propio de Critia: revisar antes de confiar
+
+El problema que Critia quiere atender es que quien usa una IA suele no revisar lo que recibe. Por eso las reglas del juego premian revisar y declarar una seguridad acorde con la evidencia, no solo acertar. Esta mecánica (la armadura a prueba, «Revisar primero» sin costo y los dos indicadores para el docente) es desarrollo de Critia y no formaba parte del diseño de Sexto Sentido. Los valores de la regla son una primera propuesta: **no se han probado con estudiantes** y deben ajustarse con un piloto. Un riesgo conocido es que un alumno elija siempre armadura baja para proteger su racha; por eso acertar con armadura baja no da el punto extra.
 
 ## Siguiente versión
 
@@ -83,7 +91,7 @@ Trabajo planeado, todavía sin construir:
 
 1. **Nuevos tipos de caso,** además de la opción múltiple: señalar la frase dudosa de la respuesta de la IA u ordenar qué revisar primero.
 2. **Dificultad por caso,** para que la ruta recomendada vaya de fácil a difícil y no solo en el orden de las misiones.
-3. **Pendientes antes de un piloto:** reforzar la identidad del alumno al volver a entrar; validar los casos editados antes de guardarlos; incluir el bono de racha en la página Equipo; permitir que el docente cambie la meta diaria; equilibrar las claves de los ocho casos del ciclo del agua (todas están en C); sustituir las capturas de este README; revisar accesibilidad con lector de pantalla.
+3. **Pendientes antes de un piloto:** reforzar la identidad del alumno al volver a entrar; validar los casos editados antes de guardarlos; ajustar con datos reales las reglas de la armadura; actualizar la guía docente con las reglas nuevas; incluir el bono de racha en la página Equipo; permitir que el docente cambie la meta diaria; equilibrar las claves de los ocho casos del ciclo del agua (todas están en C); sustituir las capturas de este README; revisar accesibilidad con lector de pantalla.
 
 ## Cómo está construido
 
@@ -204,7 +212,7 @@ docker-compose.yml    Ejecución con volumen persistente
 respaldo.sh           Respaldo de SQLite y casos en el VPS
 ```
 
-Las reglas de juego están en `backend/historial.py`: `META_DIARIA = 3` (casos de la misión de hoy), `RETO_POR_JUGADOR = 3` y `RETO_MINIMO = 6` (reto semanal de equipo), `SEGURO_DESDE = 60` (umbral de la puntería), `RACHA_PARA_DETECTIVE = 3`, `CASOS_PARA_INSIGNIA = 2` y la función `puntos_territorio`, que define los puntos de cada caso. Una insignia se sugiere con dos casos distintos del mismo postulado resueltos sin pista en el mismo mapa; el docente decide si la otorga. La cobertura disponible depende del nivel y de los casos asignados.
+Las reglas de juego están en `backend/historial.py`: `META_DIARIA = 3` (casos de la misión de hoy), `RETO_POR_JUGADOR = 3` y `RETO_MINIMO = 6` (reto semanal de equipo), `SEGURO_DESDE = 60` (desde qué seguridad la armadura cuenta como alta), `RACHA_PARA_DETECTIVE = 3`, `CASOS_PARA_INSIGNIA = 2` y las funciones `puntos_territorio`, `resultado_armadura` y `efecto_racha`, que definen los puntos, el resultado de la armadura y su efecto en la racha. La regla de «Calibrar» está en `backend/asp/diagnostico.dlv`. Una insignia se sugiere con dos casos distintos del mismo postulado resueltos sin pista en el mismo mapa; el docente decide si la otorga. La cobertura disponible depende del nivel y de los casos asignados.
 
 ## Alcance y estado del prototipo
 

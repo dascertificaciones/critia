@@ -71,6 +71,11 @@
         <div class="reto-barra"><i style="width:${Math.round(100 * pu.coinciden / pu.total)}%"></i></div>
         <div class="peq suave">Casos en los que tu seguridad coincidió con tu primera respuesta. ${pu.seguro_y_mal > pu.duda_y_bien ? `En ${pu.seguro_y_mal} estabas seguro y fallaste: baja tu seguridad cuando no tengas evidencia.` : pu.duda_y_bien > pu.seguro_y_mal ? `En ${pu.duda_y_bien} dudaste y tenías razón: confía más cuando tengas evidencia.` : 'Sigue ajustando tu seguridad a la evidencia.'}</div></div>`;
 
+  const rv = prog.revision || { casos: 0 };
+  if (rv.casos) document.getElementById('punteria').insertAdjacentHTML('afterend', `<div class="punteria revision"><span class="icono">${ICONO.lupa}</span><div style="flex:1"><b>Revisaste antes de decidir en ${rv.reviso_antes} de ${rv.casos} casos</b>
+      <div class="reto-barra"><i style="width:${Math.round(100 * rv.reviso_antes / rv.casos)}%"></i></div>
+      <div class="peq suave">Tu armadura resistió ${rv.resistio} ${rv.resistio === 1 ? 'vez' : 'veces'} y se abolló ${rv.abolladas}. «Revisar primero» no quita puntos.</div></div></div>`);
+
   document.getElementById('vitrina').innerHTML = lista.map(i => {
     const puntos = Array.from({ length: i.meta }, (_, k) => `<span class="${k < i.avance ? 'on' : ''}"></span>`).join('');
     return `

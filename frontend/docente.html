@@ -421,6 +421,12 @@
           <div class="kpi"><b>${t.errores_ini || 0}</b><span>errores iniciales</span></div>
           <div class="kpi"><b>${tasa}%</b><span>de errores corregidos tras la pista</span></div>
         </div>
+        <h2 style="font-size:16px">¿Revisan antes de confiar?</h2>
+        <p class="suave peq">Los dos indicadores del objetivo del juego. Cuentan los casos jugados con la armadura (seguridad en cuatro niveles).</p>
+        <div class="kpis" style="grid-template-columns:repeat(2,1fr);max-width:560px">
+          <div class="kpi"><b>${t.con_armadura ? Math.round(100 * (t.revisaron || 0) / t.con_armadura) : 0}%</b><span>de los casos: el alumno usó «Revisar primero» antes de decidir (${t.revisaron || 0} de ${t.con_armadura || 0})</span></div>
+          <div class="kpi"><b>${t.armadura_alta ? Math.round(100 * (t.abolladas || 0) / t.armadura_alta) : 0}%</b><span>de las veces que dijeron estar seguros (75 o 100), fallaron (${t.abolladas || 0} de ${t.armadura_alta || 0})</span></div>
+        </div>
         <h2 style="font-size:16px">Entrenar → insignia → tarea real</h2>
         <p class="suave peq">Por mapa: cuántos alumnos entrenaron en Critia, cuántos ganaron al menos una insignia y cuántos aplicaron la habilidad en la investigación real (lo marcas tú en Alumnos → Tarea real).</p>
         ${tr.length ? `<table><thead><tr><th>Mapa</th><th>Grupo</th><th>Entrenaron</th><th>Con insignia</th><th>Aplicaron en la tarea</th><th>Tareas revisadas</th></tr></thead><tbody>
@@ -524,8 +530,8 @@
       const lista = await api('/docente/alumnos', 'GET', null, H());
       const mapasDe = cod => ((YO.grupos.find(g => g.codigo === cod) || {}).mapas || []);
       $('contenido').innerHTML = `<h2>Alumnos</h2><p class="suave peq">Solo seudónimos. Haz clic en el seudónimo para ver su historial. En <b>Tarea real</b> marca, por mapa, si el alumno aplicó la habilidad en la investigación que entregó (su nota de uso de IA, sus fuentes): así se registra la transferencia fuera de Critia.</p>
-        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Puntos</th><th>Insignias</th><th>Tarea real</th></tr></thead><tbody>
-        ${lista.map(a => `<tr><td style="cursor:pointer" data-s="${esc(a.seudonimo)}"><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td>${escudoHtml(a.equipo)} ${a.equipo}</td><td>${a.casos}</td><td>${a.puntos ?? a.sentidos}</td><td>${a.insignias}</td>
+        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Puntos</th><th>Revisó antes</th><th>Seguro y falló</th><th>Insignias</th><th>Tarea real</th></tr></thead><tbody>
+        ${lista.map(a => `<tr><td style="cursor:pointer" data-s="${esc(a.seudonimo)}"><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td>${escudoHtml(a.equipo)} ${a.equipo}</td><td>${a.casos}</td><td>${a.puntos ?? a.sentidos}</td><td>${a.reviso_antes ?? 0}</td><td>${a.abolladas ?? 0}</td><td>${a.insignias}</td>
           <td class="peq">${mapasDe(a.grupo).map(m => `<label style="display:flex;gap:6px;align-items:center;font-weight:400;margin:0 0 4px"><input type="checkbox" class="tr-chk" data-s="${esc(a.seudonimo)}" data-m="${m.id}" ${(a.transferencia || {})[m.id]?.aplico ? 'checked' : ''}> ${esc(m.nombre)}</label>`).join('') || '<span class="suave">sin mapas</span>'}</td></tr>`).join('')}
         </tbody></table><div id="hist"></div>` : '<div class="vacio">Nadie se ha registrado todavía.</div>'}`;
       [...$('contenido').querySelectorAll('.tr-chk')].forEach(c => c.onchange = async () => {
@@ -540,7 +546,7 @@
             <td><span class="tag ${i.eval_ini === 'correcta' ? 'ok' : 'mal'}">${esc(i.clave_ini)} · ${i.conf_ini}</span>${i.just_ini ? `<br><span class="peq suave">"${esc(i.just_ini)}"</span>` : ''}</td>
             <td class="peq suave">${esc(i.accion_ini)}</td>
             <td><span class="tag ${i.eval_fin === 'correcta' ? 'ok' : 'mal'}">${esc(i.clave_fin)} · ${i.conf_fin}</span></td>
-            <td>${({ solo: '<span class="tag ok">solo</span>', con_pregunta: '<span class="tag ok">con una pregunta</span>', con_senalamiento: '<span class="tag aviso">con señalamiento</span>', no_resolvio: '<span class="tag mal">no lo resolvió</span>', abierta: '<span class="tag">abierta</span>' })[i.resolucion] || ''}${i.pista_pedida ? '<br><span class="peq suave">pidió pista</span>' : ''}${i.repeticion ? '<br><span class="peq suave">repetición</span>' : ''}</td>
+            <td>${({ solo: '<span class="tag ok">solo</span>', reviso: '<span class="tag ok">revisó y acertó</span>', con_pregunta: '<span class="tag ok">con una pregunta</span>', con_senalamiento: '<span class="tag aviso">con señalamiento</span>', no_resolvio: '<span class="tag mal">no lo resolvió</span>', abierta: '<span class="tag">abierta</span>' })[i.resolucion] || ''}${i.pista_pedida ? '<br><span class="peq suave">pidió pista</span>' : ''}${i.repeticion ? '<br><span class="peq suave">repetición</span>' : ''}</td>
             <td>${i.sentidos.length}/3</td>
             <td class="peq">${esc(i.reflexion || '')}${i.reporta_duda ? ' <span class="tag aviso">dudó del caso</span>' : ''}</td></tr>`).join('') || '<tr><td colspan="6" class="vacio">Sin casos cerrados</td></tr>'}
           </tbody></table>`;

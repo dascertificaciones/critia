@@ -31,9 +31,10 @@
           <summary>Cómo sumas puntos para tu equipo</summary>
           <ul>
             <li><b>Justificar:</b> explicas por qué elegiste tu respuesta.</li>
-            <li><b>Revisar:</b> si te equivocas y corriges después de la pista, también sumas.</li>
-            <li><b>Calibrar:</b> ajustas tu seguridad hacia lo correcto.</li>
-            <li><b>Sin pistas:</b> resolver sin ayuda da un punto más.</li>
+            <li><b>Revisar:</b> usas «Revisar primero» y aciertas, o corriges después de una pista.</li>
+            <li><b>Calibrar:</b> tu seguridad sigue a la evidencia.</li>
+            <li><b>Sin ayuda:</b> resolver sin pistas da un punto más. «Revisar primero» no es ayuda.</li>
+            <li><b>Armadura:</b> si aciertas con armadura 75 o 100, un punto más. Si fallas con ella, tu racha vuelve a cero. Si dudas y fallas, tu duda te protege.</li>
           </ul>
         </details>
       </div>
@@ -51,7 +52,7 @@
         <div class="opciones" id="opciones" style="margin-top:14px"></div>
         <textarea id="abierta" class="oculto" placeholder="Escribe aquí tu respuesta..." style="margin-top:14px;min-height:160px"></textarea>
         <div class="pista-carta oculto" id="pp-caja" aria-live="polite"><span class="rotulo" id="pp-rotulo"></span><span id="pp-pista"></span></div>
-        <button class="pista-btn" id="pedir-pista"><span id="pp-icono"></span><span><span id="pp-texto">Necesito una pista</span><small id="pp-nota">Resolver sin pistas da un punto más a tu equipo</small></span></button>
+        <button class="pista-btn" id="pedir-pista"><span id="pp-icono"></span><span><span id="pp-texto">Revisar primero</span><small id="pp-nota">No quita puntos. Te da una pregunta para comprobar lo que dijo la IA.</small></span></button>
         <button class="btn btn-enlace enlace-duda" id="duda">Creo que este caso está mal planteado</button>
       </div>
       <div class="acciones-fijas">
@@ -66,7 +67,7 @@
         <span class="paso-nombre">Tu seguridad</span>
         <h2>¿Qué tan seguro estás?</h2>
         <div class="tu-respuesta" id="tu-respuesta"></div>
-        <p class="ayuda">Elige tu armadura. Más seguridad es más armadura: lleva la completa solo si tienes evidencia.</p>
+        <p class="ayuda">Elige tu armadura. Si aciertas con armadura alta (75 o 100), ganas un punto más. Si fallas con ella, se abolla y tu racha vuelve a cero. Si dudas y fallas, tu duda te protege.</p>
         <div class="armadura" id="arm1">
           <div class="guerrero" role="img" aria-label="Guerrero sin armadura elegida"></div>
           <div class="arm-palabra" aria-live="polite">Elige un nivel</div>
@@ -93,6 +94,10 @@
     <!-- Tutor -->
     <section class="pantalla oculto" id="s-tutor">
       <div class="pantalla-cuerpo tutor-escena">
+        <div class="arm-resultado oculto" id="arm-res" aria-live="polite">
+          <div class="guerrero" id="arm-res-g" role="img" aria-label=""></div>
+          <div><b id="arm-res-t"></b><span id="arm-res-d"></span></div>
+        </div>
         <div class="tutor-ojo" id="tutor-ojo"></div>
         <div class="globo" id="tutor-dice" aria-live="polite"></div>
         <div class="pista-carta oculto" id="tutor-pista-caja"><span class="rotulo" id="tutor-rotulo"></span><span id="tutor-pista"></span></div>
@@ -287,12 +292,12 @@
   const ROTULO = n => n === 2 ? 'Pista fuerte' : 'Pista suave';
   function pintarPistaPrevia(nivel, texto, quedan) {
     $('pp-caja').classList.remove('oculto');
-    $('pp-rotulo').textContent = ROTULO(nivel); $('pp-pista').textContent = texto;
+    $('pp-rotulo').textContent = nivel === 1 ? 'Pregunta para revisar' : 'Pista'; $('pp-pista').textContent = texto;
     if (!quedan) { $('pedir-pista').disabled = true; $('pp-texto').textContent = 'Ya no hay más pistas'; $('pp-nota').textContent = ''; }
-    else { $('pp-texto').textContent = 'Necesito otra pista'; $('pp-nota').textContent = 'La siguiente es más directa'; }
+    else { $('pp-texto').textContent = 'Necesito una pista'; $('pp-nota').textContent = 'Esta sí cuenta como ayuda: señala dónde está el fallo.'; }
   }
   $('pedir-pista').onclick = async () => {
-    try { const r = await api(`/intento/${intento}/pista`, 'POST'); pintarPistaPrevia(r.nivel, r.pista, r.quedan); }
+    try { const r = await api(`/intento/${intento}/pista`, 'POST'); pintarPistaPrevia(r.nivel, r.pista, r.quedan); if (r.gratis) toast('Revisar primero no quita puntos.'); }
     catch (e) { toast(e.message); }
   };
   let dudaReportada = false;
@@ -337,7 +342,22 @@
   $('enviar').disabled = true;   // hay que elegir un nivel antes de decidir
 
   // ---- Tutor y revisión ----
+  // Resultado de la armadura: la seguridad inicial puesta a prueba con la primera respuesta
+  const ARM_RES = {
+    resiste: ['Tu armadura resistió', 'Estabas seguro y acertaste: un punto más para tu equipo.'],
+    abollada: ['Tu armadura se abolló', 'Estabas más seguro de lo que la evidencia permitía. Tu racha vuelve a cero.'],
+    protegido: ['Tu duda te protegió', 'Fallaste, pero no te confiaste: conservas tu racha.'],
+    ligera: ['Acertaste con poca armadura', 'Tenías razón. Cuando tengas evidencia, puedes confiar más.'],
+  };
+  function pintarArmadura(tipo, conf) {
+    const caja = $('arm-res');
+    if (!tipo || !ARM_RES[tipo]) { caja.classList.add('oculto'); return; }
+    caja.className = 'arm-resultado ' + tipo;
+    const g = $('arm-res-g'); g.dataset.n = aNivel(conf) / 25; g.setAttribute('aria-label', ARM_RES[tipo][0]);
+    $('arm-res-t').textContent = ARM_RES[tipo][0]; $('arm-res-d').textContent = ARM_RES[tipo][1];
+  }
   function mostrarTutor(dice, motivo, pista, nivel, ultima) {
+    if (ultima) $('arm-res').classList.add('oculto');
     $('tutor-dice').textContent = dice || '';
     $('tutor-motivo').textContent = motivo || '';
     $('tutor-pista-caja').classList.toggle('oculto', !pista);
@@ -366,6 +386,7 @@
       const r = await api(`/intento/${intento}/responder`, 'POST', { clave: abierta ? '-' : clave, confianza: conf, justificacion: just });
       if (abierta) { await cerrarAbierta(conf, just); return; }
       prepararRevision(clave, conf);
+      pintarArmadura(r.armadura, conf);
       mostrarTutor(r.texto_accion, r.texto_motivo, r.pista, r.nivel, false);
     } catch (e) { toast(e.message); $('enviar').disabled = false; }
   };
@@ -400,7 +421,7 @@
   async function mostrarCierre(r2, esAbierta) {
     cerrado = true;
     const RES = {
-      solo: ['Resuelto sin pistas', true], con_pregunta: ['Resuelto con una pregunta de ayuda', true],
+      solo: ['Resuelto sin pistas', true], reviso: ['Revisaste y acertaste', true], con_pregunta: ['Resuelto con una pregunta de ayuda', true],
       con_senalamiento: ['Resuelto con ayuda del tutor', true], no_resolvio: ['Esta vez no salió', false],
       abierta: ['Respuesta enviada', true],
     };
@@ -435,7 +456,11 @@
       $('habilidad').innerHTML = `<span class="icono">${ICONO.lupa || ''}</span><div><b>Habilidad que practicaste:</b> ${esc(r2.habilidad.nombre)} <span class="suave">· ${esc(r2.habilidad.autor)}</span>${hDef.definicion ? `<div class="peq suave">${esc(hDef.definicion)}</div>` : ''}</div>`;
     }
     const pc = r2.punteria_caso;
-    if (pc && !esAbierta && pc.confianza !== null) {
+    if (r2.armadura && ARM_RES[r2.armadura] && !esAbierta) {
+      const bien = r2.armadura === 'resiste' || r2.armadura === 'protegido';
+      $('punteria-caso').className = 'punteria-caso' + (bien ? ' coincide' : '');
+      $('punteria-caso').innerHTML = `<span class="icono">${ICONO.calibrar}</span><span><b>${ARM_RES[r2.armadura][0]}.</b> Marcaste ${pc ? pc.confianza : ''} de seguridad y tu primera respuesta fue ${pc && pc.acerto ? 'correcta' : 'incorrecta'}.${r2.punto_armadura ? ' Sumó un punto.' : ''}${r2.reviso_antes ? ' Revisaste antes de decidir.' : ''}</span>`;
+    } else if (pc && !esAbierta && pc.confianza !== null) {
       $('punteria-caso').className = 'punteria-caso' + (pc.coincide ? ' coincide' : '');
       $('punteria-caso').innerHTML = `<span class="icono">${ICONO.calibrar}</span><span><b>Puntería:</b> marcaste ${pc.confianza} de seguridad y tu primera respuesta fue ${pc.acerto ? 'correcta' : 'incorrecta'}. ${pc.coincide ? 'Tu seguridad coincidió con el resultado.' : pc.acerto ? 'Podías confiar más: tenías razón.' : 'Estabas más seguro de lo que la evidencia permitía.'}</span>`;
     }
@@ -446,9 +471,9 @@
     // Racha actualizada (dato del servidor, ya con este caso)
     try {
       const p = await api(urlProgreso), meta3 = p.racha_para_detective;
-      if (!r2.repeticion && p.racha > 0) {
+      if (!r2.repeticion && (p.racha > 0 || r2.efecto_racha < 0)) {
         const puntos = Array.from({ length: meta3 }, (_, i) => `<i class="${i < p.racha ? 'on' : ''}"></i>`).join('');
-        $('racha-linea').innerHTML = `<span class="racha-puntos">${puntos}</span><span>Racha: <b>${p.racha}</b> ${p.racha === 1 ? 'caso bien revisado' : 'casos seguidos bien revisados'}${p.racha >= meta3 ? '. Tu racha ya suma puntos extra a tu equipo.' : ''}</span>`;
+        $('racha-linea').innerHTML = `<span class="racha-puntos">${puntos}</span><span>Racha: <b>${p.racha}</b> ${p.racha === 1 ? 'caso bien revisado' : 'casos seguidos bien revisados'}${r2.efecto_racha < 0 ? ' Volvió a cero.' : r2.efecto_racha === 0 ? ' Se conserva.' : ''}${p.racha >= meta3 ? '. Tu racha ya suma puntos extra a tu equipo.' : ''}</span>`;
       }
       if (!r2.repeticion) {
         const n = Math.min(p.casos_hoy.length, p.meta_diaria), lista = p.casos_hoy.length >= p.meta_diaria;
@@ -473,6 +498,7 @@
     const ultima = !!estado.clave_med;
     prepararRevision(estado.clave_med || estado.clave_ini, estado.conf_med ?? estado.conf_ini ?? 50);
     const dice = ultima ? 'Todavía no. Te señalo dónde mirar; la decisión sigue siendo tuya.' : estado.texto_accion;
+    pintarArmadura(estado.armadura, estado.conf_ini);
     mostrarTutor(dice || 'Retomas el caso donde lo dejaste.', estado.texto_motivo, estado.pista, estado.pistas_usadas, ultima);
     toast('Retomas el caso donde lo dejaste.');
   } else {
