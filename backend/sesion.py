@@ -20,7 +20,23 @@ def abrir(seudonimo, caso_id, mapa_id=None):
     abierto = historial.intento_abierto(seudonimo, caso_id, mapa_id)
     intento_id = abierto["id"] if abierto else historial.abrir_intento(seudonimo, caso_id, caso.get("familia_error"), mapa_id)
     return {"intento_id": intento_id, "caso": motor.caso_para_alumno(caso),
-            "retomado": bool(abierto and abierto.get("clave_ini"))}
+            "retomado": bool(abierto and abierto.get("clave_ini")),
+            "estado": _estado(caso, abierto) if abierto else None}
+
+
+def _estado(caso, it):
+    """Lo que el alumno ya hizo en un intento sin cerrar, para retomarlo donde se quedó.
+    Solo incluye sus propias decisiones y las pistas que ya recibió."""
+    pistas = it.get("pistas_usadas") or 0
+    con_pistas = caso["formato"] != "reflexion_abierta"
+    return {
+        "clave_ini": it.get("clave_ini"), "conf_ini": it.get("conf_ini"), "just_ini": it.get("just_ini"),
+        "clave_med": it.get("clave_med"), "conf_med": it.get("conf_med"),
+        "pistas_usadas": pistas, "pista_pedida": bool(it.get("pista_pedida")),
+        "pista": _pista(caso, pistas) if (pistas and con_pistas) else None,
+        "texto_accion": motor.TEXTO_ACCION.get(it.get("accion_ini")) if it.get("accion_ini") else None,
+        "texto_motivo": motor.TEXTO_MOTIVO.get(it.get("motivo_ini")) if it.get("motivo_ini") else None,
+    }
 
 
 def _pista(caso, nivel):
@@ -117,7 +133,9 @@ def revisar(intento_id, clave, confianza):
                 "texto_accion": "Gracias. Tu respuesta la leerá tu maestro o maestra.",
                 "texto_motivo": "Caso de reflexión abierta.", "explicacion": caso["explicacion"],
                 "sentidos": ["justificar"], "reflexion": None, "diagnosticos": [],
-                "habilidad": motor.habilidad_de(caso)}
+                "habilidad": motor.habilidad_de(caso), "resolucion": "abierta",
+                "repeticion": bool(it.get("repeticion")),
+                "puntos_equipo": 0 if it.get("repeticion") else historial.puntos_territorio(["justificar"], "abierta", 0)}
 
     eval_, tipo = motor.evaluar_opcion(caso, clave.upper())
     inicial = {"clave": it["clave_ini"], "confianza": it["conf_ini"], "justificacion": it["just_ini"],
@@ -132,6 +150,8 @@ def revisar(intento_id, clave, confianza):
     it2 = historial.obtener_intento(intento_id)
     r["pistas_usadas"] = it2.get("pistas_usadas") or 0
     r["resolucion"] = historial.resolucion(it2)
+    r["repeticion"] = bool(it2.get("repeticion"))
+    r["puntos_equipo"] = 0 if r["repeticion"] else historial.puntos_territorio(r["sentidos"], eval_, r["pistas_usadas"])
     r["continua"] = False
     r["hechos"] = hechos
     return r

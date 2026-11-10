@@ -2,257 +2,116 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1528">
 <title>Critia · Universo</title>
 <link rel="stylesheet" href="assets/css/estilo.css">
-<style>
-  .contenedor { max-width: 1180px; }
-  .totales { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin: 16px 0 6px; }
-  .tot { border: var(--trazo) solid var(--tinta); border-radius: var(--r); background: #fff; padding: 12px 14px; display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; position: relative; }
-  .tot.rojo { --c: var(--rojo); } .tot.azul { --c: var(--azul); } .tot.verde { --c: var(--verde); } .tot.violeta { --c: var(--violeta); }
-  .tot.lider { background: var(--ambar-claro); }
-  .tot .escudo { width: 64px; height: 64px; }
-  .tot .nom { font-family: var(--serif); font-weight: 700; font-size: 18px; text-transform: capitalize; color: var(--c); }
-  .tot .cifras { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--tinta-suave); margin-top: 2px; }
-  .tot .cifras b { display: block; font-family: var(--serif); font-size: 22px; color: var(--tinta); line-height: 1.1; }
-  .tot .corona { position: absolute; top: 8px; right: 10px; width: 22px; height: 22px; color: var(--sello); }
-  .continente-caja { position: relative; margin-top: 18px; border: var(--trazo) solid var(--tinta); border-radius: var(--r); overflow: hidden; background: #C9A96E; }
-  .continente-caja canvas { width: 100%; height: auto; display: block; cursor: crosshair; }
-  .tooltip { display: none; position: absolute; background: var(--tinta); color: var(--papel); font-size: 13px; padding: 6px 10px; border-radius: 6px; pointer-events: none; white-space: nowrap; z-index: 3; }
-  .resumen-regiones { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 14px; }
-  .region { margin-top: 26px; border: var(--trazo) solid var(--tinta); border-radius: var(--r); background: var(--papel-2, #EAE2D0); padding: 16px 18px 18px; position: relative; }
-  .region-cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .region-cab h2 { margin: 0; font-size: 24px; }
-  .region-cab .prof { color: var(--tinta-suave); font-size: 14px; }
-  .dueno { display: flex; align-items: center; gap: 8px; font-family: var(--serif); font-weight: 700; padding: 6px 12px; border: 1.5px solid var(--tinta); border-radius: 999px; background: #fff; }
-  .dueno .escudo { width: 30px; height: 30px; }
-  .dueno.neutral { border-style: dashed; color: var(--tinta-suave); font-weight: 400; font-family: var(--sans); }
-  .territorios { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 14px; }
-  .terr { position: relative; text-align: center; }
-  .terr svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 2px 0 rgba(31,42,68,.25)); }
-  .terr .cinta { display: inline-block; margin-top: -6px; background: #fff; border: 1.5px solid var(--tinta); border-radius: 4px; padding: 3px 10px; font-size: 12px; font-family: var(--serif); font-weight: 700; max-width: 95%; }
-  .terr .cinta small { display: block; font-family: var(--sans); font-weight: 400; color: var(--tinta-suave); }
-  .terr .escudo-terr { position: absolute; left: 50%; top: 28%; transform: translate(-50%, -50%); width: 44px; height: 44px; }
-  .terr .pts { position: absolute; left: 0; right: 0; top: 56%; font-family: var(--serif); font-weight: 900; font-size: 20px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
-  .terr.neutral .pts { color: var(--tinta-suave); text-shadow: none; font-weight: 400; font-size: 13px; font-family: var(--sans); }
-  .terr .detalle { display: none; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); background: var(--tinta); color: var(--papel); font-size: 12px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; z-index: 2; }
-  .terr:hover .detalle { display: block; }
-  .insig-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; color: var(--tinta-suave); }
-  .insig-row span { display: inline-flex; align-items: center; gap: 5px; }
-  .insig-row .escudo { width: 20px; height: 20px; }
-  .leyenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--tinta-suave); margin-top: 10px; }
-  .leyenda i { display: inline-block; width: 14px; height: 14px; border: 1.5px solid var(--tinta); border-radius: 4px; vertical-align: -2px; margin-right: 4px; }
-  @media (max-width: 900px) { .territorios { grid-template-columns: repeat(2, 1fr); } }
-
-</style>
+<link rel="stylesheet" href="assets/css/juego.css">
 </head>
-<body>
-<div class="contenedor">
-  <header class="cabecera">
-    <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Critia</a>
-    <div class="jugador"><a class="btn btn-secundario" href="index.html">Volver al mapa</a></div>
-  </header>
-
-  <h1 id="titulo">El universo</h1>
-  <p class="suave" style="margin:0;max-width:70ch" id="sub">Cada materia es una región con ocho territorios, uno por misión. Un territorio es del equipo que más habilidades ha ganado ahí; la materia es del equipo con más insignias. Cada insignia iza una bandera en un castillo. Una racha personal de 3 o más aporta puntos extra al territorio donde ese alumno está jugando. La isla del detective se gana resolviendo en equipo el caso del detective. Todo se puede perder: nada está asegurado.</p>
-  <div class="leyenda"><span><i style="background:#fff;border-style:dashed"></i>Neutral</span><span><i style="background:repeating-linear-gradient(45deg,#fff 0 3px,#999 3px 5px)"></i>En disputa (empate)</span><span><i style="background:var(--azul)"></i>Conquistado</span></div>
-
-  <div class="totales" id="totales"></div>
-  <div class="continente-caja">
-    <canvas id="continente"></canvas>
-    <div class="tooltip" id="tip"></div>
+<body class="juego juego-pag universo">
+<div class="contenedor app ancha">
+  <div class="uni-cab">
+    <div>
+      <span class="paso-nombre">Universo</span>
+      <h1 id="titulo">El universo</h1>
+    </div>
+    <a class="btn btn-secundario" href="index.html" id="volver">Volver al mapa</a>
   </div>
-  <div id="regiones"></div>
-  <div class="pie" style="margin-top:16px;color:var(--tinta-suave);font-size:13px" id="hora"></div>
-  <footer class="pie-site">
-    <img class="pie-udemex" src="assets/img/udemex.png" alt="Universidad Digital del Estado de México">
-    <img class="pie-banner" src="assets/img/hack4edu.jpg" alt="#Hack4Edu · Soluciones para desafíos educativos reales – 2026">
-  </footer>
+  <details class="uni-reglas">
+    <summary>¿Cómo se gana un territorio?</summary>
+    <ul>
+      <li>Cada materia es un mapa con ocho territorios, uno por misión.</li>
+      <li>Un territorio es del equipo que más puntos ha ganado ahí. Si hay empate, queda en disputa.</li>
+      <li>Una racha personal de <b id="r-racha">3</b> casos o más suma <b id="r-bono">2</b> puntos extra al territorio donde ese alumno juega.</li>
+      <li>La materia completa es del equipo con más insignias en ese mapa.</li>
+      <li>La isla del detective es del equipo con más reflexiones del caso del detective aprobadas por el docente.</li>
+    </ul>
+  </details>
+
+  <div class="uni-totales" id="totales"></div>
+  <div class="uni-mapas" id="mapas"></div>
+  <p class="ayuda" id="hora" style="margin:14px 0 18px"></p>
 </div>
 
 <script src="assets/js/iconos.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/mapa.js"></script>
 <script>
-document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
-const grupo = new URLSearchParams(location.search).get('grupo') || (Sesion.leer() || {}).grupo || '';
-const COLOR = { rojo: '#C8402F', azul: '#2F5FA8', verde: '#4F7A4A', violeta: '#6B2D9E' };
-// Ocho siluetas distintas de territorio (viewBox 160x110), dibujadas a mano
-const FORMAS = [
-  'M22 40 C30 18 62 12 84 20 C104 10 134 18 140 40 C150 58 136 74 128 86 C112 104 80 100 60 96 C36 92 18 78 20 60 Z',
-  'M18 52 C14 30 40 14 66 18 C86 8 118 12 134 30 C150 46 142 70 130 84 C112 100 88 94 70 100 C44 106 22 86 18 52 Z',
-  'M26 34 C44 14 76 18 92 14 C116 10 140 28 138 50 C136 70 148 84 128 96 C104 106 78 92 58 98 C34 104 16 80 20 60 C22 48 18 42 26 34 Z',
-  'M20 44 C28 20 56 22 78 16 C100 10 128 20 136 40 C146 62 130 76 134 90 C122 104 92 96 72 102 C48 106 24 90 24 70 C24 58 14 54 20 44 Z',
-  'M16 58 C18 32 46 16 72 20 C92 8 120 14 136 28 C148 42 140 60 142 76 C136 96 106 102 84 98 C60 104 30 100 22 82 C16 72 14 66 16 58 Z',
-  'M28 30 C50 16 72 24 96 16 C120 8 142 24 140 46 C138 64 150 78 134 92 C116 104 90 94 66 100 C44 104 22 92 20 72 C18 56 14 44 28 30 Z',
-  'M22 46 C18 24 48 10 70 18 C90 12 112 10 128 24 C146 38 144 60 136 78 C130 98 102 104 80 98 C58 104 30 96 24 76 C20 64 26 56 22 46 Z',
-  'M24 38 C38 20 66 20 86 14 C110 8 136 22 138 44 C140 64 150 82 130 94 C108 104 84 96 62 100 C40 102 18 88 20 66 C22 52 16 46 24 38 Z',
-];
-function territorioSvg(i, dueno, disputa) {
-  const fill = dueno ? COLOR[dueno] : (disputa ? 'url(#rayas)' : '#FFFDF7');
-  const dash = dueno ? '' : (disputa ? '' : 'stroke-dasharray="7 5"');
-  return `<svg viewBox="0 0 160 110" aria-hidden="true">
-    <defs><pattern id="rayas" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#fff"/><rect width="3" height="8" fill="#9a9385"/></pattern></defs>
-    <path d="${FORMAS[i % FORMAS.length]}" fill="${fill}" stroke="#1F2A44" stroke-width="3" stroke-linejoin="round" ${dash}/>
-    ${dueno ? `<path d="${FORMAS[i % FORMAS.length]}" fill="none" stroke="#fff" stroke-width="1.2" opacity=".5" transform="translate(0,-2)"/>` : ''}
-  </svg>`;
-}
-const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+const alumno = Sesion.leer();
+const grupo = new URLSearchParams(location.search).get('grupo') || (alumno || {}).grupo || '';
+const cap = e => e.charAt(0).toUpperCase() + e.slice(1);
+const $ = id => document.getElementById(id);
+// Con sesión de alumno: barra de navegación del juego. Sin sesión (proyección en el salón): pantalla limpia.
+if (alumno) { modoJuego('equipo'); $('volver').classList.add('oculto'); }
+else $('volver').href = 'docente.html', $('volver').textContent = 'Panel docente';
 
-// ---------- Continente ilustrado: una región por materia, 8 provincias por región ----------
-// Capas: mar (pergamino + rosa de los vientos) y tierra (continente con fondo transparente).
-// La silueta del continente sale del canal alfa de la ilustración; las regiones se calculan encima.
-const IMG = {}; Object.keys(COLOR).forEach(e => { const i = new Image(); i.src = ESCUDO(e); IMG[e] = i; });
-const CAPA = { mar: new Image(), tierra: new Image() }; CAPA.mar.src = 'assets/img/universo_mar.jpg'; CAPA.tierra.src = 'assets/img/universo_tierra.png';
-const capasListas = () => CAPA.mar.complete && CAPA.mar.naturalWidth && CAPA.tierra.complete && CAPA.tierra.naturalWidth;
-function rng(seed) { let t = seed >>> 0; return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296; }; }
-const TINTE = { rojo: [200, 64, 47], azul: [47, 95, 168], verde: [79, 122, 74], violeta: [107, 45, 158] };
-// Castillos dibujados en la ilustración (coordenadas sobre 1600x1024): ahí se izan las banderas de las insignias
-const CASTILLOS = [[576, 389], [884, 207], [779, 473], [1010, 445], [394, 683], [737, 766], [1010, 669]];
-// Lugares del mar donde caben las islas del detective (una por materia), sobre 1600x1024
-const ISLAS = [[150, 880], [160, 170], [1440, 130], [1470, 470], [330, 960], [1100, 60]];
-function bandera(ctx, x, y, color, n, esc) {
-  ctx.save(); ctx.lineWidth = 2 * esc; ctx.strokeStyle = '#2a1d10'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - 30 * esc); ctx.stroke();
-  ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x, y - 30 * esc); ctx.lineTo(x + 22 * esc, y - 24 * esc); ctx.lineTo(x, y - 17 * esc); ctx.closePath(); ctx.fill(); ctx.stroke();
-  if (n) { ctx.fillStyle = '#fff'; ctx.font = `700 ${9 * esc}px "Atkinson Hyperlegible", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(n, x + 8 * esc, y - 23.5 * esc); }
-  ctx.restore();
-}
-function isla(ctx, x, y, esc, dueno, disputa, nombre) {
-  // islita del detective en el mar, junto a la región
-  ctx.save(); ctx.translate(x, y);
-  const forma = () => { ctx.beginPath(); ctx.moveTo(-46 * esc, 6 * esc); ctx.bezierCurveTo(-50 * esc, -22 * esc, -14 * esc, -34 * esc, 10 * esc, -26 * esc); ctx.bezierCurveTo(40 * esc, -30 * esc, 56 * esc, -4 * esc, 40 * esc, 16 * esc); ctx.bezierCurveTo(24 * esc, 32 * esc, -24 * esc, 32 * esc, -46 * esc, 6 * esc); ctx.closePath(); };
-  forma(); ctx.fillStyle = '#D9C48F'; ctx.fill(); ctx.lineWidth = 3 * esc; ctx.strokeStyle = '#3b2a18'; ctx.stroke();
-  if (dueno) { const c = TINTE[dueno]; forma(); ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},.5)`; ctx.fill(); }
-  else if (disputa) { forma(); ctx.fillStyle = 'rgba(90,80,70,.35)'; ctx.fill(); }
-  // palmera/árbol sencillo
-  ctx.strokeStyle = '#3b2a18'; ctx.lineWidth = 2 * esc; ctx.beginPath(); ctx.moveTo(-18 * esc, 8 * esc); ctx.lineTo(-14 * esc, -12 * esc); ctx.stroke();
-  ctx.fillStyle = '#4F7A4A'; ctx.beginPath(); ctx.arc(-13 * esc, -15 * esc, 7 * esc, 0, 7); ctx.fill();
-  ctx.fillStyle = '#1F2A44'; ctx.font = `700 ${11 * esc}px "Atkinson Hyperlegible", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.lineWidth = 3 * esc; ctx.strokeStyle = 'rgba(255,250,235,.9)'; ctx.strokeText('Isla del detective', 0, 44 * esc); ctx.fillText('Isla del detective', 0, 44 * esc);
-  ctx.font = `400 ${10 * esc}px "Atkinson Hyperlegible", sans-serif`; ctx.strokeText(nombre, 0, 57 * esc); ctx.fillText(nombre, 0, 57 * esc);
-  ctx.restore();
-}
-let ULTIMO = null, CACHE = null;
-function particion(u, W, H) {
-  // máscara de tierra desde el alfa de la ilustración
-  const off = document.createElement('canvas'); off.width = W; off.height = H; const oc = off.getContext('2d');
-  oc.drawImage(CAPA.tierra, 0, 0, W, H); const al = oc.getImageData(0, 0, W, H).data;
-  const land = new Uint8Array(W * H); let sx = 0, sy = 0, n = 0, minx = W, maxx = 0, miny = H, maxy = 0;
-  for (let i = 0; i < W * H; i++) if (al[i * 4 + 3] > 110) { land[i] = 1; const x = i % W, y = (i / W) | 0; sx += x; sy += y; n++; if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
-  const cx = sx / n, cy = sy / n, R = Math.min(maxx - minx, maxy - miny) / 2;
-  const N = u.mapas.length;
-  const r0 = rng(u.grupo.codigo.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7)); const fr = r0() * 6.3, fb = 2.9, fc = 4.1, fa = 1.3;
-  const regiones = u.mapas.map((m, i) => { const rr = rng(m.id * 7919 + 13); const ang = (i / N) * Math.PI * 2 + fr; const d = N === 1 ? 0 : R * (0.5 + 0.1 * rr());
-    const rx = cx + Math.cos(ang) * d * 1.15, ry = cy + Math.sin(ang) * d * 0.85; const prov = []; const esc = N === 1 ? R : R * 0.55;
-    for (let k = 0; k < 3; k++) { const a2 = (k / 3) * Math.PI * 2 + rr() * 0.8; const dd = esc * (0.18 + 0.14 * rr()); prov.push([rx + Math.cos(a2) * dd, ry + Math.sin(a2) * dd * 0.9]); }
-    for (let k = 0; k < 5; k++) { const a2 = (k / 5) * Math.PI * 2 + 0.6 + rr() * 0.5; const dd = esc * (0.62 + 0.3 * rr()); prov.push([rx + Math.cos(a2) * dd, ry + Math.sin(a2) * dd * 0.9]); }
-    return { sx: rx, sy: ry, prov, id: m.id }; });
-  const reg = new Int16Array(W * H).fill(-1), ter = new Int8Array(W * H).fill(-1);
-  const k1 = 0.021 * 1100 / W, k2 = 0.071 * 1100 / W, k3 = 0.019 * 1100 / W, k4 = 0.063 * 1100 / W, amp = W / 1100;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const i = y * W + x; if (!land[i]) continue;
-    const wx = x + amp * (16 * Math.sin(y * k1 + fb) + 7 * Math.sin(y * k2 + fc)), wy = y + amp * (16 * Math.sin(x * k3 + fc) + 7 * Math.cos(x * k4 + fa));
-    let bi = 0, bd = 1e12; for (let k = 0; k < N; k++) { const r = regiones[k]; const d = (wx - r.sx) ** 2 + (wy - r.sy) ** 2; if (d < bd) { bd = d; bi = k; } }
-    let bt = 0, btd = 1e12; const pv = regiones[bi].prov; for (let k = 0; k < 8; k++) { const d = (wx - pv[k][0]) ** 2 + (wy - pv[k][1]) ** 2; if (d < btd) { btd = d; bt = k; } }
-    reg[i] = bi; ter[i] = bt;
+const abiertos = {};   // territorio elegido en cada mapa (se conserva entre actualizaciones)
+function infoTerritorio(m, n, misNombre) {
+  if (n === 'isla') {
+    const i = m.isla || { puntos: {} };
+    return `<b>Isla del detective</b> · ${i.dueno ? 'equipo ' + cap(i.dueno) : i.disputa ? 'en disputa' : 'sin dueño'}<span>${Object.entries(i.puntos).map(([e, v]) => `${cap(e)} ${v}`).join(' · ')}</span>`;
   }
-  // centroides y bordes superiores
-  const cen = regiones.map(() => Array.from({ length: 8 }, () => [0, 0, 0])); const rc = regiones.map(() => [0, 0, 0, H]);
-  for (let i = 0; i < W * H; i++) { const r = reg[i]; if (r < 0) continue; const x = i % W, y = (i / W) | 0; const c = cen[r][ter[i]]; c[0] += x; c[1] += y; c[2]++; rc[r][0] += x; rc[r][1] += y; rc[r][2]++; if (y < rc[r][3]) rc[r][3] = y; }
-  // bordes (una sola vez): 1 = frontera de región, 2 = frontera de provincia
-  const borde = new Uint8Array(W * H);
-  for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) {
-    const i = y * W + x; const r = reg[i]; if (r < 0) continue;
-    if ([reg[i - 1], reg[i + 1], reg[i - W], reg[i + W], reg[i - 2], reg[i + 2], reg[i - 2 * W], reg[i + 2 * W], reg[i - 3], reg[i + 3]].some(v => v !== r && v >= 0)) borde[i] = 1;
-    else { const t = ter[i]; if ([ter[i - 1], ter[i + 1], ter[i - W], ter[i + W], ter[i - 2], ter[i + 2]].some(v => v !== t)) borde[i] = 2; }
-  }
-  return { key: u.mapas.map(m => m.id).join(','), land, reg, ter, borde, regiones, cen, rc, W, H };
+  const t = m.territorios.find(x => x.mision === +n);
+  return `<b>${n} · ${esc(misNombre[n] || '')}</b> · ${t.dueno ? 'equipo ' + cap(t.dueno) : t.disputa ? 'en disputa' : 'sin dueño'}<span>${Object.entries(t.puntos).map(([e, v]) => `${cap(e)} ${v}`).join(' · ')}</span>`;
 }
-function dibujarContinente(u, misNombre) {
-  const cv = document.getElementById('continente'); if (!u.mapas.length) { cv.style.display = 'none'; return; }
-  cv.style.display = 'block'; if (!capasListas()) return;
-  const W = CAPA.tierra.naturalWidth, H = CAPA.tierra.naturalHeight; cv.width = W; cv.height = H;
-  const key = u.mapas.map(m => m.id).join(',');
-  if (!CACHE || CACHE.key !== key || CACHE.W !== W) CACHE = particion(u, W, H);
-  const { land, reg, ter, borde, regiones, cen, rc } = CACHE;
-  const ctx = cv.getContext('2d');
-  ctx.drawImage(CAPA.mar, 0, 0, W, H); ctx.drawImage(CAPA.tierra, 0, 0, W, H);
-  // capa de color por equipo (multiplicada sobre la ilustración)
-  const img = ctx.createImageData(W, H), px = img.data;
-  for (let i = 0; i < W * H; i++) {
-    const r = reg[i]; if (r < 0) continue; const o = i * 4; const T = u.mapas[r].territorios[ter[i]]; const x = i % W, y = (i / W) | 0;
-    if (borde[i] === 1) { px[o] = 38; px[o + 1] = 26; px[o + 2] = 16; px[o + 3] = 240; continue; }
-    if (borde[i] === 2) { px[o] = 60; px[o + 1] = 40; px[o + 2] = 22; px[o + 3] = (((x + y) % 10) < 7) ? 210 : 90; continue; }
-    if (T.dueno) { const c = TINTE[T.dueno]; px[o] = c[0]; px[o + 1] = c[1]; px[o + 2] = c[2]; px[o + 3] = 128; }
-    else if (T.disputa && (((x + y) >> 3) % 2 === 0)) { px[o] = 90; px[o + 1] = 80; px[o + 2] = 70; px[o + 3] = 70; }
-  }
-  const tmp = document.createElement('canvas'); tmp.width = W; tmp.height = H; tmp.getContext('2d').putImageData(img, 0, 0);
-  ctx.drawImage(tmp, 0, 0);
-  // etiquetas
-  const esc = W / 1100; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
-  const halo = (txt, x, y) => { ctx.lineWidth = 4 * esc; ctx.strokeStyle = 'rgba(255,250,235,.85)'; ctx.strokeText(txt, x, y); ctx.fillText(txt, x, y); };
-  regiones.forEach((r, k) => {
-    const m = u.mapas[k];
-    cen[k].forEach((c, t) => { if (!c[2]) return; const x = c[0] / c[2], y = c[1] / c[2]; const T = m.territorios[t];
-      ctx.fillStyle = '#1F2A44'; ctx.font = `700 ${15 * esc}px "Atkinson Hyperlegible", sans-serif`; halo(`Misión ${T.mision}`, x, y - 9 * esc);
-      ctx.font = `400 ${12 * esc}px "Atkinson Hyperlegible", sans-serif`; halo(T.dueno ? `${cap(T.dueno)} · ${T.puntos[T.dueno]}` : (T.disputa ? 'en disputa' : (misNombre[T.mision] || '')), x, y + 8 * esc);
-      if (T.dueno && IMG[T.dueno].complete) ctx.drawImage(IMG[T.dueno], x - 13 * esc, y - 42 * esc, 26 * esc, 28 * esc); });
-    if (!rc[k][2]) return; const x = Math.min(W - 180 * esc, Math.max(180 * esc, rc[k][0] / rc[k][2])), y = Math.max(40 * esc, rc[k][3] - 6 * esc);
-    ctx.font = `700 ${24 * esc}px Fraunces, Georgia, serif`; const tw = ctx.measureText(m.nombre).width + 34 * esc;
-    ctx.fillStyle = 'rgba(252,246,228,.95)'; ctx.strokeStyle = '#3b2a18'; ctx.lineWidth = 2 * esc;
-    ctx.beginPath(); ctx.roundRect(x - tw / 2, y - 19 * esc, tw, 38 * esc, 6 * esc); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#2a1d10'; ctx.fillText(m.nombre, x, y + 1);
-    ctx.font = `400 ${12 * esc}px "Atkinson Hyperlegible", sans-serif`; ctx.fillStyle = '#5a4630'; halo(`mapa de ${m.docente}`, x, y + 31 * esc);
-    if (m.dueno && IMG[m.dueno].complete) ctx.drawImage(IMG[m.dueno], x - tw / 2 - 52 * esc, y - 26 * esc, 48 * esc, 52 * esc);
-  });
-  // banderas de insignias en los castillos de cada región (una bandera por insignia, con el número del postulado)
-  const porRegion = regiones.map(() => []);
-  CASTILLOS.forEach(([cxp, cyp]) => { const x = Math.round(cxp * W / 1600), y = Math.round(cyp * H / 1024); const r = reg[y * W + x]; if (r >= 0) porRegion[r].push([x, y]); });
-  u.mapas.forEach((m, k) => {
-    const cast = porRegion[k].length ? porRegion[k] : null; if (!cast) return;
-    const usados = cast.map(() => 0);
-    (m.banderas || []).forEach(([eq, post], j) => { const ci = j % cast.length; const [x, y] = cast[ci]; const c = TINTE[eq];
-      bandera(ctx, x + 26 * esc + usados[ci] * 12 * esc, y - 10 * esc, `rgb(${c[0]},${c[1]},${c[2]})`, post, esc); usados[ci]++; });
-  });
-  // islas del detective: una por materia, en lugares fijos del mar
-  u.mapas.forEach((m, k) => { const [ix, iy] = ISLAS[k % ISLAS.length]; const x = ix * W / 1600, y = iy * H / 1024;
-    isla(ctx, x, y, esc, m.isla?.dueno, m.isla?.disputa, m.nombre);
-    if (m.isla?.dueno && IMG[m.isla.dueno].complete) ctx.drawImage(IMG[m.isla.dueno], x + 6 * esc, y - 24 * esc, 24 * esc, 26 * esc); });
-  ULTIMO = { reg, ter, regiones, W, H, mapas: u.mapas };
+
+function mapaSvg(m) {
+  const terr = m.territorios.map((t, i) => {
+    const g = MAPA.territorios[t.mision], [cx, cy] = g.c;
+    return `<g class="terr${t.dueno ? ' eq-' + t.dueno : ''}${t.disputa ? ' disputa' : ''}" data-n="${t.mision}" role="button" tabindex="0" style="--i:${i}" aria-label="Territorio ${t.mision}. ${t.dueno ? 'Equipo ' + t.dueno : t.disputa ? 'En disputa' : 'Sin dueño'}.">
+      <path class="hex" d="${g.d}"/><circle class="ficha" cx="${cx}" cy="${cy}" r="38"/><text class="num" x="${cx}" y="${cy + 16}">${t.mision}</text>
+      ${t.dueno ? `<image class="bandera" href="${ESCUDO(t.dueno)}" x="${cx + 18}" y="${cy - 74}" width="58" height="58"/>` : ''}
+      ${t.disputa ? `<text class="disp" x="${cx}" y="${cy - 50}">en disputa</text>` : ''}</g>`;
+  }).join('');
+  const isla = m.isla || {}, [ix, iy] = MAPA.isla.c;
+  return `<svg class="territorios" viewBox="30 50 850 1140" role="group" aria-label="Mapa de ${esc(m.nombre)}">
+    <image href="assets/img/mapa_territorios.jpg" x="0" y="0" width="${MAPA.ancho}" height="${MAPA.alto}" preserveAspectRatio="none"/>${terr}
+    <g class="terr isla${isla.dueno ? ' eq-' + isla.dueno : ' cerrada'}${isla.disputa ? ' disputa' : ''}" data-n="isla" role="button" tabindex="0" style="--i:8" aria-label="Isla del detective. ${isla.dueno ? 'Equipo ' + isla.dueno : 'Sin dueño'}.">
+      <path class="hex" d="${MAPA.isla.d}"/>${isla.dueno ? `<image class="bandera" href="${ESCUDO(isla.dueno)}" x="${ix - 160}" y="${iy - 30}" width="60" height="60"/>` : ''}</g></svg>`;
 }
-document.getElementById('continente').addEventListener('mousemove', ev => {
-  const tip = document.getElementById('tip'); if (!ULTIMO) return;
-  const cv = ev.currentTarget, rect = cv.getBoundingClientRect(); const x = Math.floor((ev.clientX - rect.left) / rect.width * ULTIMO.W), y = Math.floor((ev.clientY - rect.top) / rect.height * ULTIMO.H);
-  const i = y * ULTIMO.W + x; const r = ULTIMO.reg[i];
-  if (r < 0 || r === undefined) { tip.style.display = 'none'; return; }
-  const T = ULTIMO.mapas[r].territorios[ULTIMO.ter[i]];
-  tip.style.display = 'block'; tip.style.left = (ev.clientX - rect.left + 14) + 'px'; tip.style.top = (ev.clientY - rect.top + 14) + 'px';
-  tip.textContent = `${ULTIMO.mapas[r].nombre} · Misión ${T.mision}: ` + Object.entries(T.puntos).map(([e, v]) => `${cap(e)} ${v}`).join(' · ');
-});
-document.getElementById('continente').addEventListener('mouseleave', () => { document.getElementById('tip').style.display = 'none'; });
+
 async function pintar() {
-  if (!grupo) { document.getElementById('sub').textContent = 'Falta el código de grupo.'; return; }
-  const u = await api(`/universo/${grupo}`);
-  document.getElementById('titulo').textContent = `El universo del grupo ${u.grupo.nombre}`;
+  if (!grupo) { $('titulo').textContent = 'Falta el código de grupo'; return; }
+  const u = await api(`/universo/${encodeURIComponent(grupo)}`);
+  $('titulo').textContent = `Grupo ${u.grupo.nombre}`;
+  $('r-racha').textContent = u.reglas.racha_bono; $('r-bono').textContent = u.reglas.puntos_bono;
   const eq = Object.keys(u.totales);
-  const topT = Math.max(...eq.map(e => u.totales[e].territorios));
-  document.getElementById('totales').innerHTML = eq.map(e => { const t = u.totales[e]; const lider = topT > 0 && t.territorios === topT; return `
-    <div class="tot ${e} ${lider ? 'lider' : ''}">${escudoHtml(e)}<div><div class="nom">Equipo ${cap(e)}</div>
-      <div class="cifras"><span><b>${t.territorios}</b>territorios</span><span><b>${t.materias}</b>materias</span><span><b>${t.insignias}</b>insignias</span><span><b>${t.rachas}</b>rachas activas</span><span><b>${u.alumnos[e] || 0}</b>jugadores</span></div></div>
-      ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>`; }).join('');
+  const tope = Math.max(...eq.map(e => u.totales[e].territorios));
+  $('totales').innerHTML = eq.map(e => {
+    const t = u.totales[e], lider = tope > 0 && t.territorios === tope;
+    return `<div class="uni-eq eq-${e}${lider ? ' lider' : ''}${alumno && alumno.equipo === e ? ' mio' : ''}">
+      ${escudoHtml(e)}<div class="ue-nom">${cap(e)}${lider ? `<span class="corona" title="Va al frente">${ICONO.bandera}</span>` : ''}</div>
+      <div class="ue-num"><b>${t.territorios}</b><span>territorios</span></div>
+      <div class="ue-det"><span><b>${t.materias}</b> materias</span><span><b>${t.insignias}</b> insignias</span><span><b>${t.rachas}</b> rachas</span><span><b>${u.alumnos[e] || 0}</b> jugadores</span></div>
+    </div>`;
+  }).join('');
   const misNombre = Object.fromEntries(u.misiones.map(m => [m.n, m.nombre]));
-  dibujarContinente(u, misNombre);
-  document.getElementById('regiones').innerHTML = u.mapas.length ? `<div class="resumen-regiones">${u.mapas.map(m => `
-    <div class="reflexion-card" style="margin:0;background:#fff;border:1.5px solid var(--tinta);border-radius:10px;padding:10px 14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><div><b style="font-family:var(--serif);font-size:17px">${esc(m.nombre)}</b><div class="peq suave">Mapa de ${esc(m.docente)}</div></div>
-      ${m.dueno ? `<div class="dueno" style="padding:4px 10px">${escudoHtml(m.dueno)}${cap(m.dueno)}</div>` : '<div class="dueno neutral" style="padding:4px 10px">sin dueño</div>'}</div>
-      <div class="insig-row" style="margin-top:8px">Territorios: ${Object.keys(COLOR).map(e => `<span>${escudoHtml(e)}${m.territorios.filter(t => t.dueno === e).length}</span>`).join('')}</div>
-      <div class="insig-row" style="margin-top:4px">Insignias: ${Object.entries(m.insignias).map(([e, v]) => `<span>${escudoHtml(e)}${v}</span>`).join('')}</div>
-    </div>`).join('')}</div>` : '<div class="vacio" style="margin-top:20px">Este grupo todavía no tiene mapas.</div>';
-  document.getElementById('hora').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX') + ' · se actualiza solo cada 20 segundos';
+  $('mapas').innerHTML = u.mapas.length ? u.mapas.map(m => `
+    <section class="uni-mapa" data-id="${+m.id}">
+      <div class="um-cab"><div><h2>${esc(m.nombre)}</h2><small>Mapa de ${esc(m.docente)}</small></div>
+        ${m.dueno ? `<div class="um-dueno eq-${m.dueno}">${escudoHtml(m.dueno)}<span>Materia del equipo<b>${cap(m.dueno)}</b></span></div>` : '<div class="um-dueno neutral"><span>Materia<b>sin dueño</b></span></div>'}</div>
+      <div class="mapa-marco">${mapaSvg(m)}</div>
+      <div class="um-info" aria-live="polite">${abiertos[m.id] ? infoTerritorio(m, abiertos[m.id], misNombre) : 'Toca un territorio para ver los puntos de cada equipo.'}</div>
+      <div class="um-fila"><span>Territorios</span>${eq.map(e => `<i>${escudoHtml(e)}${m.territorios.filter(t => t.dueno === e).length}</i>`).join('')}</div>
+      <div class="um-fila"><span>Insignias</span>${eq.map(e => `<i>${escudoHtml(e)}${m.insignias[e] || 0}</i>`).join('')}</div>
+    </section>`).join('') : '<p class="ayuda">Este grupo todavía no tiene mapas.</p>';
+  document.querySelectorAll('.uni-mapa').forEach(sec => {
+    const m = u.mapas.find(x => x.id === +sec.dataset.id);
+    sec.querySelectorAll('.terr').forEach(g => {
+      const elegir = () => { abiertos[m.id] = g.dataset.n; sec.querySelector('.um-info').innerHTML = infoTerritorio(m, g.dataset.n, misNombre); };
+      g.onclick = elegir; g.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); elegir(); } };
+    });
+  });
+  $('hora').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX') + ' · se actualiza solo cada 20 segundos. Nunca muestra nombres de alumnos.';
 }
-pintar();
-[...Object.values(IMG), ...Object.values(CAPA)].forEach(i => i.addEventListener('load', () => pintar(), { once: true }));
-setInterval(pintar, 20000);
+let primera = true;
+async function ciclo() {
+  try { await pintar(); } catch (e) { if (primera) toast(e.message, 5000); }
+  // solo la primera vez se animan los territorios; en las actualizaciones no deben parpadear
+  if (primera) { primera = false; setTimeout(() => document.body.classList.add('sin-entrada'), 1500); }
+}
+ciclo();
+setInterval(ciclo, 20000);
 </script>
 </body>
 </html>
