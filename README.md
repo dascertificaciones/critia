@@ -108,17 +108,17 @@ No necesitas una clave de DeepSeek para este recorrido:
 
 1. Con el servidor encendido, abre [el panel local](http://localhost:8000/docente.html). Deja el usuario vacío y entra con el valor de `ADMIN_TOKEN` como contraseña.
 2. Crea una cuenta docente. Cierra la sesión administrativa y entra con esa cuenta.
-3. En **Grupos y mapas**, crea un grupo de prueba y selecciona su nivel: 1 para 11 a 12 años, 2 para 13 a 14 o 3 para 15 a 17.
-4. Dentro del grupo, crea un **mapa** con el nombre de la materia o tema. Para usar el banco base, conserva desactivada la opción **solo los casos de este mapa**. Anota el código del grupo.
+3. En **Inicio**, escribe el tema de la actividad. Si todavía no tienes grupos, escribe el nombre del grupo y elige la edad de los alumnos: 11 a 12 años, 13 a 14 o 15 a 17.
+4. Presiona **Crear actividad**. Sin clave del modelo, la actividad usa el banco base. Al terminar, el panel muestra el código del grupo y las instrucciones para los alumnos.
 5. Abre otra ventana del navegador, preferentemente privada, y entra a la portada con ese código, un seudónimo ficticio y un equipo. Elige el mapa y abre un caso disponible.
 6. Registra una respuesta y su confianza. Para observar la escalera de ayuda, puedes elegir deliberadamente una opción incorrecta y revisar después. Guarda una reflexión al terminar.
-7. Regresa al panel docente y consulta **Resumen**, **Alumnos** y **Reflexiones** para comparar la decisión inicial, la ayuda y la decisión revisada.
+7. Regresa al panel docente y consulta **Seguimiento** (Resumen y Alumnos) y **Por revisar** (Reflexiones) para comparar la decisión inicial, la ayuda y la decisión revisada.
 
 La [guía docente en línea](https://hackaton.proyecto.digital/guia.html) describe el uso en clase; en la instalación local también está disponible en [localhost:8000/guia.html](http://localhost:8000/guia.html).
 
 ### Probar la generación de casos
 
-Configura `LLM_API_KEY` antes de iniciar el servidor. Desde la cuenta docente, abre **Generar casos**, selecciona tema, nivel y postulados, y solicita un lote. Revisa los borradores en **Casos**, edita lo necesario y apruébalos para los mapas correspondientes. La generación requiere conexión al proveedor y puede tener un costo según la cuenta utilizada.
+Configura `LLM_API_KEY` antes de iniciar el servidor. Desde la cuenta docente, escribe el tema en **Inicio** y presiona **Crear actividad**: el panel prepara un caso por territorio y te los muestra uno por uno para aprobar, editar o descartar. Para elegir postulados, nivel y cantidad a mano, usa **Ajustes → Generar con opciones**; esos borradores se aprueban en **Por revisar → Casos**. La generación requiere conexión al proveedor y puede tener un costo según la cuenta utilizada.
 
 Los [ocho ejemplos del ciclo del agua](backend/casos/ejemplos/casos_docente_demo_ciclo_agua.json) se distribuyen aparte y no se cargan automáticamente. Si quieres utilizarlos, copia el archivo a `backend/casos/docente/`, cambia su campo `docente` por tu usuario y, para recorrer la revisión como borradores, cambia `provisional` a `true` y `revisado_por_docente` a `false`. Después revísalos y asígnalos desde el panel. Estos ejemplos tienen todas las claves correctas en C; conviene equilibrarlas antes de utilizarlos en pruebas con estudiantes.
 

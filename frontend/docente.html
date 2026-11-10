@@ -39,6 +39,64 @@
   .caso-edit input[type=text], .caso-edit textarea { font-size: 15px; padding: 8px 10px; }
   .caso-edit textarea { min-height: 72px; }
   @media (max-width: 700px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---- Panel sencillo: cuatro secciones, tarjetas suaves y más aire ---- */
+  body { background: #FAF7F0; }
+  .contenedor { max-width: 980px; }
+  .cabecera { border-bottom: 1px solid var(--papel-3); }
+  .pestanas { border-bottom: 1px solid var(--papel-3); gap: 4px; margin-bottom: 14px; }
+  .pestana { font-size: 16px; padding: 12px 16px; min-height: 48px; border-radius: 10px 10px 0 0; }
+  .pestana.activa { background: #fff; }
+  .subnav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .subnav:empty { display: none; }
+  .subnav button { border: 1px solid var(--papel-3); background: #fff; border-radius: 999px; padding: 8px 16px; font: inherit; font-size: 14px; font-weight: 700; color: var(--tinta-suave); cursor: pointer; min-height: 40px; }
+  .subnav button.activa { background: var(--tinta); color: #fff; border-color: var(--tinta); }
+  .subnav .n { background: var(--ambar); color: var(--tinta); border-radius: 999px; padding: 0 7px; margin-left: 6px; font-size: 12px; }
+  .reflexion-card, .tarjeta { border: 1px solid var(--papel-3); border-radius: 14px; box-shadow: 0 1px 3px rgba(31,42,68,.06); background: #fff; }
+  #login.tarjeta { margin: 30px auto; }
+  input[type=text], input[type=password], textarea, select { border-width: 1.5px; border-color: #B9B29F; border-radius: 10px; }
+  .btn { border-radius: 10px; } .btn-primario { box-shadow: 0 3px 0 #8E2A1E; } .btn-primario:active { box-shadow: 0 1px 0 #8E2A1E; }
+  .crear { background: #fff; border: 1px solid var(--papel-3); border-radius: 18px; padding: 26px 26px 22px; box-shadow: 0 2px 8px rgba(31,42,68,.07); }
+  .crear h1 { font-size: 32px; margin: 0 0 6px; }
+  .crear #a-tema { font-size: 20px; padding: 14px 16px; margin-top: 12px; }
+  .crear-fila { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-top: 4px; }
+  .crear-fila > div { flex: 1 1 200px; }
+  .crear .btn-primario { min-height: 52px; font-size: 17px; padding: 0 26px; margin-top: 18px; }
+  .avanzado { margin-top: 14px; font-size: 15px; color: var(--tinta-suave); }
+  .avanzado label { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 10px 0 6px; }
+  .nota-caja { background: var(--ambar-claro); border-radius: 10px; padding: 10px 14px; font-size: 15px; margin-top: 12px; }
+  .actividades { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .actividad { background: #fff; border: 1px solid var(--papel-3); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .actividad h3 { font-family: var(--serif); font-size: 20px; margin: 0; }
+  .actividad .codigo { font-family: var(--serif); font-weight: 900; font-size: 24px; letter-spacing: 3px; }
+  .actividad .fila-acciones { margin-top: auto; padding-top: 6px; }
+  .pasos-asist { display: flex; gap: 8px; margin: 0 0 18px; padding: 0; list-style: none; flex-wrap: wrap; }
+  .pasos-asist li { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--papel-3); color: var(--tinta-suave); font-weight: 700; font-size: 14px; }
+  .pasos-asist li b { width: 24px; height: 24px; border-radius: 50%; background: var(--papel-3); color: var(--tinta); display: grid; place-items: center; font-size: 13px; }
+  .pasos-asist li.activo { border-color: var(--tinta); color: var(--tinta); } .pasos-asist li.activo b { background: var(--sello); color: #fff; }
+  .pasos-asist li.hecho b { background: var(--hierba); color: #fff; }
+  .gen-lista { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 8px; }
+  .gen-lista li { display: flex; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid var(--papel-3); border-radius: 10px; padding: 10px 14px; }
+  .gen-lista .estado { font-size: 14px; color: var(--tinta-suave); white-space: nowrap; }
+  .gen-lista li.ok .estado { color: var(--hierba); font-weight: 700; } .gen-lista li.no .estado { color: var(--sello); }
+  .gen-lista li.ahora { border-color: var(--ambar); background: var(--ambar-claro); }
+  .previa { background: #fff; border: 1px solid var(--papel-3); border-radius: 16px; padding: 22px; box-shadow: 0 2px 8px rgba(31,42,68,.07); }
+  .previa h2 { font-size: 26px; margin: 4px 0 10px; }
+  .previa .globo-ia { background: #F3EEE2; border-radius: 14px 14px 14px 4px; padding: 14px 16px; white-space: pre-line; font-size: 17px; line-height: 1.55; }
+  .previa .preg { font-family: var(--serif); font-weight: 700; font-size: 19px; margin: 16px 0 8px; }
+  .previa .op { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--papel-3); border-radius: 10px; margin-top: 6px; }
+  .previa .op.ok { border: 2px solid var(--hierba); background: rgba(79,122,74,.08); }
+  .previa .op b { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--papel-2); display: grid; place-items: center; font-family: var(--serif); }
+  .previa .op.ok b { background: var(--hierba); color: #fff; }
+  .previa dl { margin: 16px 0 0; display: grid; grid-template-columns: 130px 1fr; gap: 8px 14px; font-size: 15px; }
+  .previa dt { color: var(--tinta-suave); font-weight: 700; } .previa dd { margin: 0; }
+  .rev-acciones { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; position: sticky; bottom: 0; background: #FAF7F0; padding: 12px 0; }
+  .rev-acciones .btn-primario { min-height: 52px; padding: 0 28px; font-size: 17px; }
+  .en-asistente .grupos-sel, .en-asistente label:has(+ .grupos-sel), .en-asistente .aprobar-caso, .en-asistente .asignar-caso, .en-asistente .borrar-caso { display: none; }
+  .compartir { background: #fff; border: 1px solid var(--papel-3); border-radius: 18px; padding: 28px; text-align: center; box-shadow: 0 2px 8px rgba(31,42,68,.07); }
+  .compartir .codigo-grande { font-family: var(--serif); font-weight: 900; font-size: 64px; letter-spacing: 10px; line-height: 1.1; margin: 8px 0; }
+  .compartir ol { text-align: left; max-width: 460px; margin: 16px auto; font-size: 17px; } .compartir li { margin: 8px 0; }
+  @media (max-width: 600px) { .previa dl { grid-template-columns: 1fr; gap: 2px 0; } .previa dt { margin-top: 8px; } .compartir .codigo-grande { font-size: 44px; letter-spacing: 6px; } .crear { padding: 20px 16px; } }
 </style>
 </head>
 <body>
@@ -62,7 +120,8 @@
 
   <!-- Panel -->
   <section id="panel" class="oculto">
-    <div class="pestanas" id="pestanas"></div>
+    <nav class="pestanas" id="pestanas" aria-label="Secciones del panel"></nav>
+    <div class="subnav" id="subnav"></div>
     <div id="contenido"></div>
   </section>
   <footer class="pie-site">
@@ -83,22 +142,25 @@
   const $ = s => document.getElementById(s);
   let META = null;
 
-  const PESTANAS_BASE = [
-    ['resumen', 'Resumen'], ['grupos', 'Grupos y mapas'], ['generar', 'Generar casos'], ['casos', 'Casos'],
-    ['reflexiones', 'Reflexiones'], ['insignias', 'Insignias'], ['alertas', 'Alertas'], ['alumnos', 'Alumnos'],
-  ];
-  let PESTANAS = PESTANAS_BASE;
-  let activa = 'resumen';
+  // Cuatro secciones; cada una agrupa las vistas de antes
+  const SECCIONES = {
+    inicio: { nombre: 'Inicio', subs: [] },
+    revisar: { nombre: 'Por revisar', subs: [['porAprobar', 'Casos'], ['reflexiones', 'Reflexiones'], ['insignias', 'Insignias']] },
+    seguimiento: { nombre: 'Seguimiento', subs: [['resumen', 'Resumen'], ['alumnos', 'Alumnos'], ['alertas', 'Alertas']] },
+    ajustes: { nombre: 'Ajustes', subs: [['grupos', 'Grupos y mapas'], ['generar', 'Generar con opciones'], ['banco', 'Banco de casos'], ['profesores', 'Profesores']] },
+  };
+  let activa = 'inicio';
+  const subActiva = { revisar: 'porAprobar', seguimiento: 'resumen', ajustes: 'grupos' };
+  let enAsistente = false;   // mientras el asistente de actividad está abierto, no se repinta el contenido
+  function irA(seccion, sub) { activa = seccion; if (sub) subActiva[seccion] = sub; enAsistente = false; return pintarPestanas(); }
 
   async function abrirPanel() {
     YO = await api('/docente/yo', 'GET', null, H());
-    PESTANAS = YO.admin ? [...PESTANAS_BASE.filter(p => p[0] !== 'grupos'), ['profesores', 'Profesores']] : PESTANAS_BASE;
-    if (YO.admin && activa === 'grupos') activa = 'resumen';
+    if (YO.admin) { activa = 'ajustes'; subActiva.ajustes = 'profesores'; }
     $('login').classList.add('oculto'); $('panel').classList.remove('oculto');
     META = await api('/meta');
     $('estado').innerHTML = `<span class="peq">${esc(YO.nombre)}</span><a class="btn btn-enlace" href="guia.html" target="_blank">guía</a><button class="btn btn-enlace" id="salir">salir</button>`;
     $('salir').onclick = async () => { if (auth?.tipo === 'docente') { try { await api('/docente/logout', 'POST', null, H()); } catch {} } try { sessionStorage.removeItem('ss_auth'); } catch {} location.reload(); };
-    if (!YO.admin && !YO.grupos.length) { activa = 'grupos'; toast('Crea tu primer grupo, o únete a uno con su código, para que tus alumnos puedan entrar', 6000); }
     await pintarPestanas();
   }
 
@@ -117,13 +179,22 @@
   if (auth) abrirPanel().catch(() => { auth = null; try { sessionStorage.removeItem('ss_auth'); } catch {} });
 
   async function pintarPestanas() {
-    const [ref, sug, ale] = await Promise.all([
-      api('/docente/reflexiones', 'GET', null, H()), api('/docente/sugerencias', 'GET', null, H()), api('/docente/alertas', 'GET', null, H())]);
-    const conteo = { reflexiones: ref.length, insignias: sug.length, alertas: ale.length };
-    $('pestanas').innerHTML = PESTANAS.map(([k, n]) => `
-      <button class="pestana ${k === activa ? 'activa' : ''}" data-k="${k}">${n}${conteo[k] ? `<span class="n">${conteo[k]}</span>` : ''}</button>`).join('');
-    [...$('pestanas').children].forEach(b => b.onclick = () => { activa = b.dataset.k; pintarPestanas(); });
-    await VISTAS[activa]();
+    const [ref, sug, ale, casos] = await Promise.all([
+      api('/docente/reflexiones', 'GET', null, H()), api('/docente/sugerencias', 'GET', null, H()),
+      api('/docente/alertas', 'GET', null, H()), api('/docente/casos', 'GET', null, H())]);
+    const conteo = { porAprobar: casos.filter(c => c.provisional).length, reflexiones: ref.length, insignias: sug.length, alertas: ale.length };
+    const deSeccion = { revisar: conteo.porAprobar + conteo.reflexiones + conteo.insignias, seguimiento: conteo.alertas };
+    const visibles = Object.keys(SECCIONES).filter(k => !(YO.admin && k === 'inicio'));
+    const subsDe = k => SECCIONES[k].subs.filter(([v]) => YO.admin ? v !== 'grupos' : v !== 'profesores');
+    $('pestanas').innerHTML = visibles.map(k => `
+      <button class="pestana ${k === activa ? 'activa' : ''}" data-k="${k}"${k === activa ? ' aria-current="page"' : ''}>${SECCIONES[k].nombre}${deSeccion[k] ? `<span class="n">${deSeccion[k]}</span>` : ''}</button>`).join('');
+    [...$('pestanas').children].forEach(b => b.onclick = () => irA(b.dataset.k));
+    const subs = subsDe(activa);
+    if (subs.length && !subs.some(([v]) => v === subActiva[activa])) subActiva[activa] = subs[0][0];
+    $('subnav').innerHTML = enAsistente ? '' : subs.map(([v, n]) => `<button class="${v === subActiva[activa] ? 'activa' : ''}" data-v="${v}">${n}${conteo[v] ? `<span class="n">${conteo[v]}</span>` : ''}</button>`).join('');
+    [...$('subnav').children].forEach(b => b.onclick = () => irA(activa, b.dataset.v));
+    if (enAsistente) return;
+    await VISTAS[subs.length ? subActiva[activa] : activa]();
   }
 
   // Mapas de los que el docente es autor (solo en esos puede aprobar casos)
@@ -156,7 +227,7 @@
       <label>Explicación</label><textarea class="f-explicacion">${esc(c.explicacion)}</textarea>
       <label>Reflexión</label><input type="text" class="f-reflexion" value="${esc(c.reflexion || '')}">
       <label>Grupos que verán este caso</label>
-      <div class="grupos-sel">${misMapas().map(m => `<label style="display:inline-flex;gap:6px;align-items:center;margin:0 14px 6px 0;font-weight:400"><input type="checkbox" value="${m.id}" ${(c.mapas || []).includes(m.id) ? 'checked' : ''}> ${esc(m.nombre)} <span class="peq suave">grupo ${esc(m.grupo_nombre)}</span></label>`).join('') || '<span class="peq suave">No tienes mapas todavía. Crea uno en "Grupos y mapas".</span>'}</div>
+      <div class="grupos-sel">${misMapas().map(m => `<label style="display:inline-flex;gap:6px;align-items:center;margin:0 14px 6px 0;font-weight:400"><input type="checkbox" value="${m.id}" ${((c.mapas || []).includes(m.id) || (c.provisional && c.tema && m.nombre === c.tema)) ? 'checked' : ''}> ${esc(m.nombre)} <span class="peq suave">grupo ${esc(m.grupo_nombre)}</span></label>`).join('') || '<span class="peq suave">No tienes mapas todavía. Crea una actividad en Inicio.</span>'}</div>
       <div class="fila-acciones">
         <button class="btn btn-secundario btn-peq guardar-caso">Guardar cambios</button>
         ${c.provisional ? '<button class="btn btn-primario btn-peq aprobar-caso">Aprobar para esos mapas</button>' : '<button class="btn btn-secundario btn-peq asignar-caso">Actualizar mapas</button>'}
@@ -181,9 +252,12 @@
         const actual = (await api('/docente/casos', 'GET', null, H())).find(c => c.id === id);
         const cambios = leerTarjeta(card);
         cambios.opciones.forEach((o, i) => { if (!o.correcta) o.tipo_error = (actual?.opciones?.[i]?.tipo_error) || actual?.familia_error || 'acepta_sin_evidencia'; });
-        await api(`/docente/casos/${id}`, 'PUT', { cambios }, H());
+        const r = await api(`/docente/casos/${id}`, 'PUT', { cambios }, H());
+        if (r && r.avisos && r.avisos.length) toast('Guardado, con avisos: ' + r.avisos.join(' · '), 7000);
+        return r;
       };
-      card.querySelector('.guardar-caso').onclick = async () => { try { await guardar(); toast('Guardado'); } catch (e) { toast(e.message); } };
+      card._guardar = guardar;
+      card.querySelector('.guardar-caso').onclick = async () => { try { const r = await guardar(); if (!(r && r.avisos && r.avisos.length)) toast('Guardado'); } catch (e) { toast(e.message); } };
       const mapasSel = () => [...card.querySelectorAll('.grupos-sel input:checked')].map(i => +i.value);
       const ap = card.querySelector('.aprobar-caso');
       if (ap) ap.onclick = async () => {
@@ -239,7 +313,7 @@
           </div>`).join('') : '<div class="vacio" style="margin-top:18px">Todavía no tienes grupos.</div>'}`;
       $('g-crear').onclick = async () => {
         const n = $('g-nombre').value.trim(); if (!n) return;
-        try { const g = await api('/docente/grupos', 'POST', { nombre: n, nivel: +$('g-nivel').value }, H()); toast(`Grupo creado. Código: ${g.codigo}. Ahora crea tu mapa.`, 6000); VISTAS.grupos(); } catch (e) { toast(e.message); }
+        try { const g = await api('/docente/grupos', 'POST', { nombre: n, nivel: +$('g-nivel').value }, H()); toast(`Grupo creado. Código: ${g.codigo}.`, 6000); VISTAS.grupos(); } catch (e) { toast(e.message); }
       };
       $('g-unirse-ok').onclick = async () => {
         const c = $('g-unirse').value.trim().toUpperCase(); if (c.length !== 6) { toast('El código tiene 6 letras'); return; }
@@ -423,35 +497,35 @@
         (a.length ? `<table><thead><tr><th>Caso</th><th>Señal</th><th>N</th></tr></thead><tbody>${a.map(x => `<tr><td>${esc(x.caso_id)}</td><td><span class="tag aviso">${esc(texto[x.tipo] || x.tipo)}</span></td><td>${x.n}</td></tr>`).join('')}</tbody></table>` : '<div class="vacio">Sin alertas. Hacen falta más intentos o todo va bien.</div>');
     },
 
-    async casos() {
-      const lista = await api('/docente/casos', 'GET', null, H());
+    async porAprobar() {
+      const prov = (await api('/docente/casos', 'GET', null, H())).filter(c => c.provisional);
+      $('contenido').innerHTML = `<h2>Casos por aprobar</h2>
+        <p class="suave peq">Revisa, corrige lo que haga falta y aprueba. Los alumnos no ven un caso hasta que lo apruebas.</p>
+        ${prov.length ? prov.map(tarjetaCaso).join('') : '<div class="vacio">No hay casos pendientes. Para crear casos nuevos, escribe un tema en Inicio.</div>'}`;
+      enlazarTarjetas();
+    },
+
+    async banco() {
+      const resto = (await api('/docente/casos', 'GET', null, H())).filter(c => !c.provisional);
       const niv = NIVEL;
-      const prov = lista.filter(c => c.provisional);
-      const resto = lista.filter(c => !c.provisional);
-      $('contenido').innerHTML = `<h2>Casos por aprobar <span class="tag aviso">${prov.length}</span></h2>
-        <p class="suave peq">Generados desde un tema. Revisa, corrige lo que haga falta y aprueba. Los alumnos los ven con un punto amarillo hasta entonces.</p>
-        ${prov.length ? prov.map(tarjetaCaso).join('') : '<div class="vacio">No hay casos pendientes. Genera algunos en la pestaña Generar.</div>'}
-        <h2 style="margin-top:24px">Banco aprobado <span class="tag ok">${resto.length}</span></h2>
-        <table><thead><tr><th>ID</th><th>Título</th><th>Misión</th><th>Nivel (edad)</th><th>Habilidad</th><th>Revisión</th><th>Estado</th><th></th></tr></thead><tbody>
+      $('contenido').innerHTML = `<h2>Banco de casos aprobados <span class="tag ok">${resto.length}</span></h2>
+        <p class="suave peq">Incluye el banco base de Critia y tus casos aprobados. Abre un título para leer el caso completo.</p>
+        <table><thead><tr><th>Título</th><th>Misión</th><th>Nivel (edad)</th><th>Habilidad</th><th>Revisión</th></tr></thead><tbody>
         ${resto.map(c => `<tr>
-          <td class="peq">${esc(c.id)}</td>
-          <td><details><summary>${esc(c.titulo)}</summary><div class="caso-detalle"><b>Situación:</b> ${esc(c.situacion)}\n\n<b>Pregunta:</b> ${esc(c.pregunta)}\n${(c.opciones || []).map(o => `\n${o.clave}) ${esc(o.texto)} ${o.correcta ? '✓' : ''}`).join('')}\n\n<b>Pista:</b> ${esc(c.pista)}\n\n<b>Explicación:</b> ${esc(c.explicacion)}</div></details></td>
+          <td><details><summary>${esc(c.titulo)}</summary><div class="caso-detalle"><b>Situación:</b> ${esc(c.situacion)}\n\n<b>Pregunta:</b> ${esc(c.pregunta)}\n${(c.opciones || []).map(o => `\n${o.clave}) ${esc(o.texto)} ${o.correcta ? '✓' : ''}`).join('')}\n\n<b>Pista:</b> ${esc(c.pista)}\n\n<b>Explicación:</b> ${esc(c.explicacion)}</div></details><span class="peq suave">${esc(c.id)}</span></td>
           <td>${c.mision}</td>
           <td class="peq">${c.nivel ? `<b>${c.nivel}</b> · ${esc(nivelEdad(c.nivel))}` : '—'}</td>
           <td class="peq">${habTxt(c)}</td>
-          <td><span class="tag ${niv[c.nivel_revision]?.[1] || ''}">${niv[c.nivel_revision]?.[0] || c.nivel_revision}</span></td>
-          <td>${c.provisional ? '<span class="tag aviso">provisional</span>' : '<span class="tag ok">aprobado</span>'}</td>
-          <td>${c.provisional ? `<button class="btn btn-primario btn-peq" data-id="${esc(c.id)}">Aprobar</button>` : ''}</td></tr>`).join('')}
+          <td><span class="tag ${niv[c.nivel_revision]?.[1] || ''}">${niv[c.nivel_revision]?.[0] || c.nivel_revision || ''}</span></td></tr>`).join('')}
         </tbody></table>`;
-      enlazarTarjetas();
     },
 
     async alumnos() {
       const lista = await api('/docente/alumnos', 'GET', null, H());
       const mapasDe = cod => ((YO.grupos.find(g => g.codigo === cod) || {}).mapas || []);
       $('contenido').innerHTML = `<h2>Alumnos</h2><p class="suave peq">Solo seudónimos. Haz clic en el seudónimo para ver su historial. En <b>Tarea real</b> marca, por mapa, si el alumno aplicó la habilidad en la investigación que entregó (su nota de uso de IA, sus fuentes): así se registra la transferencia fuera de Critia.</p>
-        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Habilidades</th><th>Insignias</th><th>Tarea real</th></tr></thead><tbody>
-        ${lista.map(a => `<tr><td style="cursor:pointer" data-s="${esc(a.seudonimo)}"><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td>${escudoHtml(a.equipo)} ${a.equipo}</td><td>${a.casos}</td><td>${a.sentidos}</td><td>${a.insignias}</td>
+        ${lista.length ? `<table><thead><tr><th>Seudónimo</th><th>Grupo</th><th>Equipo</th><th>Casos</th><th>Puntos</th><th>Insignias</th><th>Tarea real</th></tr></thead><tbody>
+        ${lista.map(a => `<tr><td style="cursor:pointer" data-s="${esc(a.seudonimo)}"><b>${esc(a.seudonimo)}</b></td><td>${esc((YO.grupos.find(g => g.codigo === a.grupo) || {}).nombre || a.grupo || '')}</td><td>${escudoHtml(a.equipo)} ${a.equipo}</td><td>${a.casos}</td><td>${a.puntos ?? a.sentidos}</td><td>${a.insignias}</td>
           <td class="peq">${mapasDe(a.grupo).map(m => `<label style="display:flex;gap:6px;align-items:center;font-weight:400;margin:0 0 4px"><input type="checkbox" class="tr-chk" data-s="${esc(a.seudonimo)}" data-m="${m.id}" ${(a.transferencia || {})[m.id]?.aplico ? 'checked' : ''}> ${esc(m.nombre)}</label>`).join('') || '<span class="suave">sin mapas</span>'}</td></tr>`).join('')}
         </tbody></table><div id="hist"></div>` : '<div class="vacio">Nadie se ha registrado todavía.</div>'}`;
       [...$('contenido').querySelectorAll('.tr-chk')].forEach(c => c.onchange = async () => {
@@ -474,6 +548,199 @@
       });
     },
   };
+
+  // =====================================================================
+  // Inicio: un solo campo para el tema, y un asistente de tres pasos
+  // =====================================================================
+  const pasosAsistente = n => `<ol class="pasos-asist">${['Tema', 'Revisar casos', 'Compartir con alumnos'].map((t, i) =>
+    `<li class="${i + 1 < n ? 'hecho' : i + 1 === n ? 'activo' : ''}"${i + 1 === n ? ' aria-current="step"' : ''}><b>${i + 1 < n ? '✓' : i + 1}</b>${t}</li>`).join('')}</ol>`;
+  const misionDe = n => META.misiones.find(m => m.n === n) || {};
+
+  VISTAS.inicio = async function () {
+    const [yo, est, lista] = await Promise.all([api('/docente/yo', 'GET', null, H()), api('/docente/generador/estado', 'GET', null, H()), api('/docente/casos', 'GET', null, H())]);
+    YO = yo;
+    const niveles = META.marco_teorico?.niveles || [];
+    const mios = misMapas();
+    const pendientesDe = m => lista.filter(c => c.provisional && c.tema === m.nombre);
+    $('contenido').innerHTML = `
+      <section class="crear">
+        <h1>¿Qué tema vas a trabajar?</h1>
+        <p class="suave" style="margin:0;max-width:62ch">Escribe el tema de tu clase. ${est.configurado ? 'Critia prepara un caso para cada uno de los ocho territorios del mapa y tú los revisas antes de que los vean tus alumnos.' : 'Critia crea un mapa con ese nombre y usa los casos del banco base.'}</p>
+        <label for="a-tema" class="oculto">Tema</label>
+        <input type="text" id="a-tema" placeholder="Por ejemplo: el ciclo del agua" maxlength="60" autocomplete="off">
+        <div class="crear-fila">
+          <div><label for="a-grupo">Grupo</label>
+            <select id="a-grupo">${yo.grupos.map(g => `<option value="${esc(g.codigo)}">${esc(g.nombre)} · ${esc(nivelEdad(g.nivel || 2))}</option>`).join('')}<option value="">Crear un grupo nuevo…</option></select></div>
+          <div class="nuevo-grupo"><label for="a-gnombre">Nombre del grupo</label><input type="text" id="a-gnombre" placeholder="Por ejemplo: 2.º A" maxlength="40"></div>
+          <div class="nuevo-grupo"><label for="a-gnivel">Edad de los alumnos</label>
+            <select id="a-gnivel">${niveles.map(n => `<option value="${n.n}" ${n.n === 2 ? 'selected' : ''}>${esc(n.edad)}</option>`).join('')}</select></div>
+        </div>
+        ${est.configurado ? '' : '<div class="nota-caja">Este servidor no tiene configurada la generación de casos nuevos. La actividad usará el banco base de Critia. El administrador puede activarla con la clave del modelo.</div>'}
+        <button class="btn btn-primario" id="a-crear">Crear actividad</button>
+        ${est.configurado ? `<details class="avanzado"><summary>Más opciones</summary>
+          <label><input type="checkbox" id="a-base"> No generar casos nuevos; usar el banco base de Critia</label>
+          <p class="peq" style="margin:4px 0 0">¿Prefieres elegir los postulados a mano? <button class="btn btn-enlace" id="a-avanzado" style="padding:0">Abrir «Generar con opciones»</button></p>
+        </details>` : ''}
+      </section>
+      <h2 style="margin-top:28px">Tus actividades</h2>
+      ${mios.length ? `<div class="actividades">${mios.map(m => { const pen = pendientesDe(m).length; const g = yo.grupos.find(x => x.codigo === m.codigo) || {}; return `
+        <div class="actividad">
+          <h3>${esc(m.nombre)}</h3>
+          <div class="peq suave">Grupo ${esc(m.grupo_nombre)} · ${g.alumnos || 0} alumno(s)</div>
+          <div><span class="peq suave">Código para alumnos</span><div class="codigo">${esc(m.codigo)}</div></div>
+          <div class="peq">${m.solo_propios ? `${m.casos_propios} caso(s) aprobados` : `Banco base${m.casos_propios ? ` y ${m.casos_propios} caso(s) propios` : ''}`}${pen ? ` · <b>${pen} por revisar</b>` : ''}</div>
+          <div class="fila-acciones">
+            ${pen ? `<button class="btn btn-primario btn-peq act-revisar" data-id="${m.id}">Revisar casos</button>` : ''}
+            <button class="btn btn-secundario btn-peq act-compartir" data-id="${m.id}">Compartir</button>
+            <a class="btn btn-enlace btn-peq" href="universo.html?grupo=${encodeURIComponent(m.codigo)}" target="_blank">Ver mapa de equipos</a>
+          </div>
+        </div>`; }).join('')}</div>` : '<div class="vacio">Todavía no tienes actividades. Escribe un tema arriba para crear la primera.</div>'}`;
+
+    const selG = $('a-grupo');
+    const verNuevo = () => document.querySelectorAll('.nuevo-grupo').forEach(d => d.classList.toggle('oculto', selG.value !== ''));
+    selG.onchange = verNuevo; verNuevo();
+    if ($('a-avanzado')) $('a-avanzado').onclick = () => irA('ajustes', 'generar');
+    $('a-tema').onkeydown = e => { if (e.key === 'Enter') $('a-crear').click(); };
+
+    $('a-crear').onclick = async () => {
+      const tema = $('a-tema').value.trim();
+      if (tema.length < 3) { toast('Escribe el tema de tu clase'); $('a-tema').focus(); return; }
+      $('a-crear').disabled = true;
+      try {
+        let g = yo.grupos.find(x => x.codigo === selG.value);
+        if (!g) {
+          const nombre = $('a-gnombre').value.trim();
+          if (!nombre) { toast('Escribe el nombre del grupo'); $('a-gnombre').focus(); $('a-crear').disabled = false; return; }
+          g = await api('/docente/grupos', 'POST', { nombre, nivel: +$('a-gnivel').value }, H());
+        }
+        const soloBase = !est.configurado || ($('a-base') && $('a-base').checked);
+        const m = await api('/docente/mapas', 'POST', { codigo: g.codigo, nombre: tema }, H());
+        if (soloBase) return pasoCompartir(g, m);
+        await api(`/docente/mapas/${m.id}/solo-propios`, 'PUT', { valor: true }, H());
+        await pasoGenerar(g, m, tema);
+      } catch (e) { toast(e.message, 6000); $('a-crear').disabled = false; }
+    };
+    const porId = id => { const m = mios.find(x => x.id === +id); return [yo.grupos.find(g => g.codigo === m.codigo), m]; };
+    document.querySelectorAll('.act-compartir').forEach(b => b.onclick = () => pasoCompartir(...porId(b.dataset.id)));
+    document.querySelectorAll('.act-revisar').forEach(b => b.onclick = () => { const [g, m] = porId(b.dataset.id); pasoRevisar(g, m, pendientesDe(m), 0); });
+  };
+
+  function abrirAsistente(html) { enAsistente = true; $('subnav').innerHTML = ''; $('contenido').innerHTML = html; window.scrollTo(0, 0); }
+
+  // Paso 2a: un caso por territorio, uno tras otro, para poder mostrar el avance
+  async function pasoGenerar(g, m, tema) {
+    abrirAsistente(`${pasosAsistente(2)}
+      <h2>Preparando los casos de «${esc(tema)}»</h2>
+      <p class="suave">Se prepara un caso por territorio. Cada uno tarda entre 20 y 60 segundos. No cierres esta página.</p>
+      <ul class="gen-lista" id="gen-lista">${META.misiones.map(x => `<li data-n="${x.n}"><span><b>Territorio ${x.n}</b> · ${esc(x.nombre)}</span><span class="estado">en espera</span></li>`).join('')}</ul>
+      <p class="peq suave" id="gen-pie" aria-live="polite" style="margin-top:12px"></p>`);
+    const cola = [];
+    // Un postulado distinto por territorio: se prefiere el que solo pertenece a ese territorio
+    const veces = n => META.misiones.filter(x => x.postulados.includes(n)).length;
+    const usados = new Set();
+    for (const mis of META.misiones) {
+      const post = mis.postulados.find(n => veces(n) === 1 && !usados.has(n)) ?? mis.postulados.find(n => !usados.has(n)) ?? mis.postulados[0];
+      usados.add(post);
+      const li = document.querySelector(`#gen-lista li[data-n="${mis.n}"]`);
+      li.className = 'ahora'; li.querySelector('.estado').textContent = 'preparando…';
+      $('gen-pie').textContent = `Territorio ${mis.n} de ${META.misiones.length}`;
+      try {
+        const r = await api('/docente/generar', 'POST', { tema, nivel: g.nivel || 2, postulados: [post], mision: mis.n, n: 1 }, H());
+        if (r.aceptados.length) { cola.push(...r.aceptados); li.className = 'ok'; li.querySelector('.estado').textContent = 'listo para revisar'; }
+        else { li.className = 'no'; li.querySelector('.estado').textContent = 'no pasó los filtros'; }
+      } catch (e) { li.className = 'no'; li.querySelector('.estado').textContent = 'no se pudo preparar'; li.title = e.message; }
+    }
+    if (!cola.length) {
+      $('gen-pie').innerHTML = `No se pudo preparar ningún caso. Puedes usar el banco base de Critia en esta actividad. <button class="btn btn-secundario btn-peq" id="gen-base">Usar el banco base</button>`;
+      $('gen-base').onclick = async () => { await api(`/docente/mapas/${m.id}/solo-propios`, 'PUT', { valor: false }, H()); pasoCompartir(g, m); };
+      return;
+    }
+    $('gen-pie').innerHTML = `${cola.length} caso(s) listos. <button class="btn btn-primario btn-peq" id="gen-sigue">Revisar los casos</button>`;
+    $('gen-sigue').onclick = () => pasoRevisar(g, m, cola, 0);
+    $('gen-sigue').focus();
+  }
+
+  function vistaPrevia(c) {
+    const mis = misionDe(c.mision), h = habDe(c);
+    return `<div class="previa">
+      <span class="peq suave">Territorio ${c.mision} · ${esc(mis.nombre || '')}${h ? ' · habilidad: ' + esc(h.nombre) : ''}</span>
+      <h2>${esc(c.titulo)}</h2>
+      ${c.nivel_revision >= 3 ? '<div class="nota-caja" style="margin:0 0 12px">Este caso toca un tema delicado. Léelo completo antes de aprobarlo.</div>' : ''}
+      <div class="globo-ia">${esc(c.situacion)}</div>
+      <div class="preg">${esc(c.pregunta)}</div>
+      ${(c.opciones || []).map(o => `<div class="op ${o.correcta ? 'ok' : ''}"><b>${esc(o.clave)}</b><span>${esc(o.texto)}${o.correcta ? ' <span class="tag ok">correcta</span>' : ''}</span></div>`).join('')}
+      <dl>
+        <dt>Primera pista</dt><dd>${esc(c.pista_suave || 'La pregunta general de la habilidad')}</dd>
+        <dt>Segunda pista</dt><dd>${esc(c.pista_fuerte || c.pista || '')}</dd>
+        <dt>Explicación</dt><dd>${esc(c.explicacion || '')}</dd>
+        <dt>Reflexión</dt><dd>${esc(c.reflexion || '')}</dd>
+      </dl></div>`;
+  }
+
+  // Paso 2b: revisar un caso a la vez
+  function pasoRevisar(g, m, cola, i) {
+    if (i >= cola.length) return pasoCompartir(g, m);
+    const c = cola[i];
+    abrirAsistente(`${pasosAsistente(2)}
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><h2 style="margin:0">Revisa el caso ${i + 1} de ${cola.length}</h2><span class="peq suave">Actividad «${esc(m.nombre)}» · así lo verá el alumno, con la respuesta correcta marcada</span></div>
+      <div style="margin-top:12px">${vistaPrevia(c)}</div>
+      <div class="en-asistente oculto" id="rev-editar" style="margin-top:14px">${tarjetaCaso(c)}</div>
+      <div class="rev-acciones">
+        <button class="btn btn-primario" id="rev-ok">Aprobar</button>
+        <button class="btn btn-secundario" id="rev-ed">Editar</button>
+        <button class="btn btn-enlace" id="rev-no">Descartar este caso</button>
+        <button class="btn btn-enlace" id="rev-salir" style="margin-left:auto">Seguir después</button>
+      </div>`);
+    enlazarTarjetas();
+    const card = document.querySelector('#rev-editar .caso-edit');
+    $('rev-ed').onclick = () => { $('rev-editar').classList.toggle('oculto'); if (!$('rev-editar').classList.contains('oculto')) $('rev-editar').scrollIntoView({ behavior: 'smooth' }); };
+    card.querySelector('.guardar-caso').onclick = async () => {
+      try {
+        await card._guardar();
+        cola[i] = (await api('/docente/casos', 'GET', null, H())).find(x => x.id === c.id) || c;
+        pasoRevisar(g, m, cola, i);
+      } catch (e) { toast(e.message, 6000); }
+    };
+    $('rev-ok').onclick = async () => {
+      $('rev-ok').disabled = true;
+      try { await api(`/docente/casos/${encodeURIComponent(c.id)}/aprobar`, 'POST', { mapas: [m.id] }, H()); pasoRevisar(g, m, cola, i + 1); }
+      catch (e) { toast(e.message, 6000); $('rev-ok').disabled = false; }
+    };
+    $('rev-no').onclick = async () => {
+      if (!confirm('¿Descartar este caso? No se puede recuperar.')) return;
+      try { await api(`/docente/casos/${encodeURIComponent(c.id)}`, 'DELETE', null, H()); pasoRevisar(g, m, cola, i + 1); } catch (e) { toast(e.message); }
+    };
+    $('rev-salir').onclick = () => irA('inicio');
+  }
+
+  // Paso 3: el código y las instrucciones para los alumnos
+  async function pasoCompartir(g, m) {
+    const yo = await api('/docente/yo', 'GET', null, H()); YO = yo;
+    const mapa = (yo.grupos.find(x => x.codigo === g.codigo)?.mapas || []).find(x => x.id === m.id) || m;
+    const sitio = location.origin;
+    const texto = `Critia · ${m.nombre}\n1. Entra a ${sitio}\n2. Escribe el código del grupo: ${g.codigo}\n3. Elige un seudónimo (no tu nombre real) y tu equipo.\n4. Abre el mapa «${m.nombre}» y resuelve los casos de hoy.`;
+    abrirAsistente(`${pasosAsistente(3)}
+      <div class="compartir">
+        <h2 style="margin:0">La actividad «${esc(m.nombre)}» está lista</h2>
+        <p class="suave" style="margin:6px 0 0">${mapa.solo_propios ? `${mapa.casos_propios} caso(s) aprobados.${mapa.casos_propios < 8 ? ' Los territorios sin caso aparecen como «pronto» en el mapa.' : ''}` : 'Usa el banco base de Critia.'}</p>
+        <div class="peq suave" style="margin-top:18px">Código del grupo ${esc(g.nombre)}</div>
+        <div class="codigo-grande">${esc(g.codigo)}</div>
+        <ol>
+          <li>Los alumnos entran a <b>${esc(sitio)}</b></li>
+          <li>Escriben el código del grupo.</li>
+          <li>Eligen un seudónimo (no su nombre real) y un equipo.</li>
+          <li>Abren el mapa «${esc(m.nombre)}».</li>
+        </ol>
+        <div class="fila-acciones" style="justify-content:center">
+          <button class="btn btn-primario" id="comp-copiar">Copiar instrucciones</button>
+          <a class="btn btn-secundario" href="universo.html?grupo=${encodeURIComponent(g.codigo)}" target="_blank">Abrir el mapa de equipos para proyectar</a>
+          <button class="btn btn-enlace" id="comp-fin">Volver al inicio</button>
+        </div>
+      </div>`);
+    $('comp-copiar').onclick = async () => { try { await navigator.clipboard.writeText(texto); toast('Instrucciones copiadas'); } catch { prompt('Copia estas instrucciones:', texto); } };
+    $('comp-fin').onclick = () => irA('inicio');
+    pintarPestanas();
+  }
 })();
 </script>
 </body>

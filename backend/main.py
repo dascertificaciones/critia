@@ -152,6 +152,7 @@ class GenerarIn(BaseModel):
     postulados: Optional[list[int]] = None
     formato: str = "tres_opciones"
     n: int = 2
+    mision: Optional[int] = None   # territorio al que se destinan los casos (si el postulado está en varios)
 
 
 class CasoEditIn(BaseModel):
@@ -643,7 +644,8 @@ def docente_generar(d: GenerarIn, x_admin: str = Header(default=""), x_sesion: s
     try:
         total = {"aceptados": [], "rechazados": [], "archivo": None}
         for p in posts:
-            r = generador.generar(d.tema.strip(), d.nivel, p, d.formato, d.n, docente=q.usuario)
+            mision = d.mision if any(m["n"] == d.mision and p in m["postulados"] for m in META["misiones"]) else None
+            r = generador.generar(d.tema.strip(), d.nivel, p, d.formato, d.n, mision=mision, docente=q.usuario)
             total["aceptados"] += r["aceptados"]; total["rechazados"] += r["rechazados"]; total["archivo"] = r["archivo"]
         return total
     except RuntimeError as e:

@@ -902,7 +902,15 @@ def lista_alumnos_codigos(codigos):
                    (SELECT COUNT(*) FROM insignias x WHERE x.seudonimo=a.seudonimo) insignias
             FROM alumnos a LEFT JOIN intentos i ON i.seudonimo=a.seudonimo AND i.cierre IS NOT NULL
             WHERE 1=1{f} GROUP BY a.seudonimo ORDER BY a.grupo, a.equipo, a.seudonimo""", params).fetchall()
-        return [dict(r) for r in rows]
+        lista = [dict(r) for r in rows]
+        # puntos con la regla que ve el alumno (sin contar repeticiones)
+        puntos = {}
+        for r in con.execute("""SELECT seudonimo, sentidos, eval_fin, COALESCE(pistas_usadas,0) pistas FROM intentos
+                                WHERE cierre IS NOT NULL AND COALESCE(repeticion,0)=0"""):
+            puntos[r["seudonimo"]] = puntos.get(r["seudonimo"], 0) + puntos_territorio(json.loads(r["sentidos"] or "[]"), r["eval_fin"], r["pistas"])
+        for a in lista:
+            a["puntos"] = puntos.get(a["seudonimo"], 0)
+        return lista
 
 
 def reflexiones_pendientes_codigos(codigos):
