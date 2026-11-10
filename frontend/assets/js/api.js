@@ -63,3 +63,27 @@ function pintarCabecera(alumno, sentidos) {
     <button class="btn btn-enlace" id="salir">salir</button>`;
   document.getElementById('salir').onclick = () => { Sesion.borrar(); location.href = 'index.html'; };
 }
+
+// Barra de navegación del juego (Mapa, Equipo, Insignias). activo: 'mapa' | 'equipo' | 'insignias'
+function navJuegoHtml(activo) {
+  const a = Sesion.leer() || {};
+  const equipo = a.grupo ? `tablero.html?grupo=${encodeURIComponent(a.grupo)}${a.mapa ? '&mapa=' + a.mapa : ''}` : 'tablero.html';
+  const item = (clave, href, icono, texto) => `<a href="${href}" class="${activo === clave ? 'activo' : ''}"${activo === clave ? ' aria-current="page"' : ''}><span class="ico">${icono}</span>${texto}</a>`;
+  return `<nav class="nav-juego" aria-label="Secciones">${item('mapa', 'index.html', ICONO.bandera, 'Mapa')}${item('equipo', equipo, ICONO.tablero, 'Equipo')}${item('insignias', 'insignias.html', ICONO.medalla, 'Insignias')}</nav>`;
+}
+
+// Convierte una página sencilla en pantalla de juego cuando hay un alumno con sesión:
+// tema oscuro, sin cabecera ni pie de la portada, y con la barra de navegación abajo.
+function modoJuego(activo) {
+  const a = Sesion.leer();
+  if (!a) return false;
+  document.body.classList.add('juego', 'juego-pag');
+  document.body.dataset.equipo = a.equipo;
+  const c = document.querySelector('.contenedor');
+  c.classList.add('app');
+  const pie = document.createElement('div');
+  pie.className = 'pie-juego';
+  pie.innerHTML = navJuegoHtml(activo);
+  c.appendChild(pie);
+  return true;
+}

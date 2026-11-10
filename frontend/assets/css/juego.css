@@ -138,3 +138,104 @@ body.juego .toast { background: #EEF1FA; color: #141B30; font-weight: 700; }
 body.juego .btn-enlace { color: var(--tinta-suave); }
 body.juego input[type=text]::placeholder, body.juego textarea::placeholder { color: #7C86A6; }
 @media (min-width: 600px) { body.juego .app { border-color: #2A3558; } }
+
+/* ---------- Mapa de territorios ---------- */
+.barra-mapa { grid-template-columns: 1fr auto; padding: 10px 14px; }
+.quien { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.quien .escudo { width: 40px; height: 40px; flex: none; }
+.quien b { display: block; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quien small { color: var(--tinta-suave); font-size: 13px; text-transform: capitalize; }
+.marcadores { display: flex; gap: 8px; }
+.marcador { display: grid; justify-items: center; padding: 4px 10px; border-radius: 10px; background: #1E2742; border: 1px solid #3A4670; min-width: 62px; }
+.marcador b { font-family: var(--serif); font-weight: 900; font-size: 20px; line-height: 1.1; color: var(--ambar); }
+.marcador small { font-size: 11px; color: var(--tinta-suave); line-height: 1.1; }
+.marcador .racha-puntos { margin: 3px 0 0; gap: 3px; } .marcador .racha-puntos i { width: 7px; height: 7px; border-width: 1px; }
+.mapa-cuerpo { flex: 1; padding: 14px 16px 18px; }
+.mapa-titulo { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.mapa-titulo h1 { font-size: 28px; margin: 0; }
+body.juego .mapas-sel .mapa-tab { background: #1E2742; color: var(--tinta); border-color: #3A4670; min-height: 40px; }
+body.juego .mapas-sel .mapa-tab.activo { background: var(--equipo); color: #fff; border-color: #fff; } body.juego .mapas-sel .mapa-tab.activo small { color: rgba(255,255,255,.8); }
+.estado-equipo { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 10px 14px; border-radius: 14px; background: #1E2742; border: 1px solid var(--equipo); font-size: 15px; }
+.estado-equipo:empty { display: none; }
+.estado-equipo small { display: block; color: var(--tinta-suave); font-size: 13px; margin-top: 2px; }
+.ee-num { display: flex; align-items: baseline; gap: 4px; flex: none; } .ee-num b { font-family: var(--serif); font-weight: 900; font-size: 38px; line-height: 1; color: var(--equipo); } .ee-num span { font-size: 13px; color: var(--tinta-suave); }
+
+.territorios { display: block; width: 100%; max-width: 440px; margin: 10px auto 0; overflow: visible; }
+.terr { cursor: pointer; --c: #3A4670; --f: #1E2742; animation: terr-entra .35s ease both; animation-delay: calc(var(--i) * 45ms); transform-box: fill-box; transform-origin: center; outline: none; }
+.terr.eq-rojo { --c: var(--rojo); --f: #4A2130; } .terr.eq-azul { --c: var(--azul); --f: #1C3464; } .terr.eq-verde { --c: var(--verde); --f: #174A3C; } .terr.eq-violeta { --c: var(--violeta); --f: #3A2A66; }
+.terr .hex { fill: var(--f); stroke: var(--c); stroke-width: 3; stroke-linejoin: round; transition: fill .2s ease; }
+.terr:hover .hex, .terr:focus-visible .hex { fill: color-mix(in srgb, var(--f) 70%, #fff 12%); }
+.terr:focus-visible .hex { stroke: var(--ambar); stroke-width: 4; }
+.terr:active { transform: scale(.96); }
+.terr .num { font-family: var(--serif); font-weight: 900; font-size: 30px; fill: var(--tinta); text-anchor: middle; pointer-events: none; }
+.terr .pip { fill: transparent; stroke: var(--tinta-suave); stroke-width: 1.5; } .terr .pip.on { fill: var(--hierba); stroke: var(--hierba); }
+.terr .pip-txt, .terr .disp { font-size: 11px; fill: var(--tinta-suave); text-anchor: middle; font-weight: 700; pointer-events: none; }
+.terr.disputa .hex { stroke: var(--ambar); stroke-dasharray: 7 6; } .terr.disputa .disp { fill: var(--ambar); }
+.terr.vacia { opacity: .5; }
+.terr.actual .hex { animation: late 1.8s ease-in-out infinite; }
+.terr.conquista .hex { animation: conquista 1.1s ease .5s both; }
+.terr .bandera { pointer-events: none; }
+.terr.isla.actual .hex { animation: none; }
+.terr.isla .hex { stroke-dasharray: 3 5; } .terr.isla.actual .hex, .terr.isla.completa .hex { stroke-dasharray: none; stroke: var(--ambar); }
+.terr.isla .ico-isla { color: var(--tinta-suave); } .terr.isla.actual .ico-isla, .terr.isla.completa .ico-isla { color: var(--ambar); }
+.ruta-isla { fill: none; stroke: #3A4670; stroke-width: 3; stroke-dasharray: 2 8; stroke-linecap: round; }
+@keyframes terr-entra { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+@keyframes late { 0%, 100% { stroke-width: 3; filter: none; } 50% { stroke-width: 5; filter: drop-shadow(0 0 8px var(--ambar)); stroke: var(--ambar); } }
+@keyframes conquista { 0% { fill: #fff; filter: drop-shadow(0 0 18px var(--c)); } 100% { fill: var(--f); filter: none; } }
+
+.leyenda { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.leyenda li { display: grid; justify-items: center; gap: 2px; padding: 8px 4px; border-radius: 12px; background: #1E2742; border: 1px solid #3A4670; font-size: 12px; color: var(--tinta-suave); }
+.leyenda li.mio { border-color: var(--equipo); color: var(--tinta); }
+.leyenda .escudo { width: 30px; height: 30px; } .leyenda b { font-family: var(--serif); font-size: 20px; color: var(--tinta); line-height: 1; }
+
+.pie-juego { position: sticky; bottom: 0; z-index: 4; background: #0F1528; border-top: 2px solid #2A3558; padding-bottom: env(safe-area-inset-bottom); }
+.siguiente { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 10px 14px 8px; padding: 9px 16px; min-height: 56px; text-align: left; }
+.siguiente small { display: block; font-size: 12px; font-weight: 400; opacity: .8; } .siguiente .flecha { font-size: 30px; line-height: 1; }
+.nav-juego { display: grid; grid-template-columns: repeat(3, 1fr); }
+.nav-juego a { display: grid; justify-items: center; gap: 2px; padding: 8px 4px 10px; min-height: 56px; font-size: 12px; font-weight: 700; text-decoration: none; color: var(--tinta-suave); border-top: 3px solid transparent; }
+.nav-juego a .ico { width: 24px; height: 24px; } .nav-juego a .ico svg { width: 24px; height: 24px; }
+.nav-juego a.activo { color: var(--ambar); border-top-color: var(--ambar); }
+
+.hoja-fondo { position: fixed; inset: 0; background: rgba(4, 7, 16, .6); z-index: 20; animation: aparece-f .2s ease; }
+@keyframes aparece-f { from { opacity: 0; } to { opacity: 1; } }
+.hoja-terr { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 560px; max-height: 82vh; overflow-y: auto; z-index: 21; background: #141B30; color: var(--tinta); border: 2px solid #3A4670; border-bottom: 0; border-radius: 22px 22px 0 0; padding: 22px 18px calc(22px + env(safe-area-inset-bottom)); animation: sube-hoja .28s ease; }
+@keyframes sube-hoja { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
+.hoja-terr h2 { font-size: 24px; margin: 0 40px 4px 0; outline: none; }
+.hoja-cerrar { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #1E2742; color: var(--tinta); display: grid; place-items: center; cursor: pointer; }
+.hoja-cerrar svg { width: 20px; height: 20px; }
+.hoja-control:not(:empty) { padding: 12px 14px; border-radius: 14px; background: #1E2742; margin-bottom: 14px; }
+.hc-titulo { font-size: 15px; margin-bottom: 8px; } .hc-titulo b { text-transform: capitalize; }
+.hc-barra { display: grid; grid-template-columns: 62px 1fr 26px; align-items: center; gap: 8px; font-size: 13px; text-transform: capitalize; color: var(--tinta-suave); margin-top: 5px; }
+.hc-barra.mio { color: var(--tinta); font-weight: 700; }
+.hc-barra i { height: 10px; border-radius: 5px; background: #0C1122; overflow: hidden; } .hc-barra u { display: block; height: 100%; border-radius: 5px; background: var(--c); transition: width .5s ease; }
+.hc-barra.eq-rojo { --c: var(--rojo); } .hc-barra.eq-azul { --c: var(--azul); } .hc-barra.eq-verde { --c: var(--verde); } .hc-barra.eq-violeta { --c: var(--violeta); }
+.hc-barra b { text-align: right; color: var(--tinta); }
+.hoja-casos { display: grid; gap: 10px; }
+.fila-caso { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 60px; padding: 10px 14px; border-radius: 14px; background: #1E2742; border: 2px solid #3A4670; color: var(--tinta); text-decoration: none; box-shadow: 0 4px 0 #0A0F20; }
+.fila-caso:active { transform: translateY(2px); box-shadow: 0 2px 0 #0A0F20; }
+.fila-caso .fc-titulo { font-weight: 700; } .fila-caso em { font-style: normal; font-size: 11px; background: var(--ambar); color: #1A1405; padding: 1px 7px; border-radius: 999px; }
+.fila-caso .fc-estado { flex: none; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--ambar); color: #1A1405; }
+.fila-caso.hecho { box-shadow: none; border-style: dashed; } .fila-caso.hecho .fc-estado { background: transparent; color: var(--hierba); padding: 0; text-align: right; }
+
+/* ---------- Páginas sencillas en modo juego (Equipo, Insignias) ---------- */
+body.juego-pag .contenedor.app { max-width: 560px; padding: 18px 16px 0; }
+body.juego-pag .cabecera, body.juego-pag .pie-site, body.juego-pag .contenedor > .acciones { display: none; }
+body.juego-pag .contenedor > h1 { font-size: 28px; margin-top: 4px; }
+body.juego-pag .pie-juego { margin: 22px -16px 0; margin-top: auto; }
+body.juego-pag .tablero, body.juego-pag .vitrina { margin-bottom: 22px; }
+body.juego-pag .tablero { grid-template-columns: 1fr 1fr; gap: 10px; }
+body.juego-pag .equipo-card, body.juego-pag .insignia { background: #1E2742; border-color: #3A4670; border-radius: 14px; animation: entra-abajo .3s ease both; }
+body.juego-pag .equipo-card { padding: 14px; border-color: var(--c); }
+body.juego-pag .equipo-card.lider { background: #1E2742; box-shadow: 0 0 18px var(--c); }
+body.juego-pag .equipo-nombre { font-size: 18px; } body.juego-pag .gran-numero { font-size: 46px; } body.juego-pag .gran-numero small { display: block; margin: 2px 0 0; }
+body.juego-pag .corona { color: var(--ambar); }
+body.juego-pag .barra-eq { background: #0C1122; border: 0; }
+body.juego-pag .detalle { font-size: 11px; gap: 4px; } body.juego-pag .detalle b { font-size: 17px; }
+body.juego-pag .vitrina { grid-template-columns: 1fr 1fr; gap: 10px; }
+body.juego-pag .insignia:not(.obtenida) { background: transparent; }
+body.juego-pag .insignia .img { border-color: #3A4670; background: #0C1122; }
+body.juego-pag .insignia.obtenida { border-color: var(--ambar); box-shadow: 0 0 16px rgba(255,182,39,.3); }
+body.juego-pag .insignia.obtenida .img { border-color: var(--ambar); box-shadow: 0 0 0 4px rgba(255,182,39,.25); }
+body.juego-pag .insignia.obtenida .puntos span { background: var(--ambar); border-color: var(--ambar); }
+body.juego-pag .insignia .nombre { min-height: 0; }
+body.juego-pag .mapas-sel a.mapa-tab { background: #1E2742; color: var(--tinta); border-color: #3A4670; text-decoration: none; display: inline-flex; align-items: center; min-height: 40px; }

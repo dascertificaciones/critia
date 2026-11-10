@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Critia · La expedición</title>
 <link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="stylesheet" href="assets/css/juego.css">
 </head>
 <body>
-<div class="contenedor ancho">
+<div class="contenedor ancho" id="portada">
   <header class="cabecera">
     <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Critia</a>
     <div class="jugador" id="jugador"></div>
@@ -74,37 +75,48 @@
     <p class="peq suave" style="margin:12px 0 0">¿Eres docente? <a href="guia.html">Guía</a> · <a href="docente.html">Panel docente</a></p>
   </section>
 
-  <!-- Mapa -->
-  <section id="mapa-seccion" class="oculto">
-    <div class="mapa-cab">
-      <div>
-        <h1>El mapa</h1>
-        <p class="suave" style="margin:0" id="mapa-sub">Abre una parada y elige un caso.</p>
-      </div>
-      <div class="racha" id="racha"></div>
-    </div>
-    <div class="mapas-sel" id="mapas-sel"></div>
-    <div class="enlaces">
-      <a class="btn btn-secundario" href="insignias.html">Mis insignias</a>
-      <a class="btn btn-secundario" href="tablero.html" id="lnk-tablero">Tablero de equipos</a>
-      <a class="btn btn-secundario" href="universo.html" id="lnk-universo">Universo</a>
-    </div>
-    <div class="sendero" id="sendero"></div>
-  </section>
   <footer class="pie-site">
     <img class="pie-udemex" src="assets/img/udemex.png" alt="Universidad Digital del Estado de México">
     <img class="pie-banner" src="assets/img/hack4edu.jpg" alt="#Hack4Edu · Soluciones para desafíos educativos reales – 2026">
   </footer>
 </div>
 
+<!-- Mapa de territorios (alumno con sesión) -->
+<div class="app oculto" id="app-mapa">
+  <header class="barra barra-mapa">
+    <div class="quien" id="quien"></div>
+    <div class="marcadores" id="marcadores"></div>
+  </header>
+  <main class="mapa-cuerpo">
+    <div class="mapa-titulo">
+      <div><span class="paso-nombre" id="mapa-grupo"></span><h1 id="mapa-nombre">El mapa</h1></div>
+      <button class="btn btn-enlace" id="salir">Salir</button>
+    </div>
+    <div class="mapas-sel" id="mapas-sel"></div>
+    <div class="estado-equipo" id="estado-equipo" aria-live="polite"></div>
+    <svg class="territorios" id="territorios" viewBox="0 0 360 470" role="group" aria-label="Mapa de territorios. Toca un territorio para ver sus casos."></svg>
+    <ul class="leyenda" id="leyenda"></ul>
+  </main>
+  <div class="pie-juego">
+    <a class="btn btn-primario siguiente" id="siguiente" href="#"></a>
+    <div id="nav-lugar"></div>
+  </div>
+</div>
+<div class="hoja-fondo oculto" id="hoja-fondo"></div>
+<section class="hoja-terr oculto" id="hoja-terr" role="dialog" aria-modal="true" aria-labelledby="hoja-titulo">
+  <button class="hoja-cerrar" id="hoja-cerrar" aria-label="Cerrar"></button>
+  <span class="paso-nombre" id="hoja-etq"></span>
+  <h2 id="hoja-titulo" tabindex="-1"></h2>
+  <p class="ayuda" id="hoja-desc"></p>
+  <div class="hoja-control" id="hoja-control"></div>
+  <div class="hoja-casos" id="hoja-casos"></div>
+</section>
+
 <script src="assets/js/iconos.js"></script>
 <script src="assets/js/api.js"></script>
 <script>
 (async function () {
   document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
-  // iconos en enlaces
-  document.querySelectorAll('.enlaces .btn').forEach((a, i) => { a.innerHTML = `<span style="width:20px;height:20px;display:inline-block">${[ICONO.medalla, ICONO.tablero, ICONO.bandera][i] || ''}</span>` + a.textContent.trim(); });
-
   const alumno = Sesion.leer();
   const meta = await api('/meta');
 
@@ -141,113 +153,158 @@
     catch (e) { toast(e.message); }
   };
 
-  // ---- Mapa ----
+  // ---- Mapa de territorios ----
+  const $ = id => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const HEX_R = 58;
+  // Centros de los ocho territorios (panal de 3-2-3) y de la isla del detective
+  const CENTROS = { 1: [66, 66], 2: [180, 66], 3: [294, 66], 4: [123, 165], 5: [237, 165], 6: [66, 264], 7: [180, 264], 8: [294, 264], isla: [180, 400] };
+  const hexPts = (cx, cy, r) => Array.from({ length: 6 }, (_, k) => { const a = Math.PI / 180 * (60 * k - 90); return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`; }).join(' ');
+  const svgEl = (tag, attrs, html) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (html) e.innerHTML = html; return e; };
+  $('hoja-cerrar').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  $('salir').onclick = () => { if (confirm('¿Salir de tu sesión? Tu avance queda guardado.')) { Sesion.borrar(); location.href = 'index.html'; } };
+
+  let ultimoFoco = null;
+  function cerrarHoja() { $('hoja-terr').classList.add('oculto'); $('hoja-fondo').classList.add('oculto'); if (ultimoFoco) ultimoFoco.focus(); }
+  $('hoja-fondo').onclick = cerrarHoja; $('hoja-cerrar').onclick = cerrarHoja;
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('hoja-terr').classList.contains('oculto')) cerrarHoja(); });
+
   async function mostrarMapa(a) {
-    document.querySelector('.contenedor').classList.remove('ancho');
-    document.getElementById('entrada').classList.add('oculto');
-    document.getElementById('mapa-seccion').classList.remove('oculto');
+    $('portada').classList.add('oculto');
+    $('app-mapa').classList.remove('oculto');
+    document.body.classList.add('juego'); document.body.dataset.equipo = a.equipo;
     a = await Sesion.conMapas() || a;
     const mapaId = a.mapa;
     const q = mapaId ? `&mapa=${mapaId}` : '';
-    const [casos, prog] = await Promise.all([api(`/casos?seudonimo=${encodeURIComponent(a.seudonimo)}${q}`), api(`/alumno/${a.seudonimo}/progreso?x=1${q}`)]);
-    pintarCabecera(a, prog.sentidos_total);
+    const [casos, prog, uni] = await Promise.all([
+      api(`/casos?seudonimo=${encodeURIComponent(a.seudonimo)}${q}`),
+      api(`/alumno/${encodeURIComponent(a.seudonimo)}/progreso?x=1${q}`),
+      a.grupo ? api(`/universo/${a.grupo}`).catch(() => null) : null]);
     const mapaActual = (a.mapas || []).find(m => m.id === mapaId);
-    if (a.grupo_nombre) document.getElementById('mapa-sub').textContent = `Grupo ${a.grupo_nombre}${mapaActual ? ' · ' + mapaActual.nombre : ''}. Abre una parada y elige un caso.`;
-    // selector de mapas (una materia por profesor dentro del mismo grupo)
-    const sel = document.getElementById('mapas-sel');
+    progHoja = prog;
+    const terrMapa = uni ? ((uni.mapas || []).find(x => x.id === mapaId) || (uni.mapas || [])[0]) : null;
+    const terr = n => terrMapa ? terrMapa.territorios.find(t => t.mision === n) : null;
+
+    // Cabecera: quién juega, racha y habilidades
+    $('quien').innerHTML = `${escudoHtml(esc(a.equipo))}<span><b>${esc(a.seudonimo)}</b><small>Equipo ${esc(a.equipo)}</small></span>`;
+    const pts = Array.from({ length: prog.racha_para_detective }, (_, k) => `<i class="${k < prog.racha ? 'on' : ''}"></i>`).join('');
+    $('marcadores').innerHTML = `
+      <span class="marcador" title="Casos seguidos bien revisados"><b>${prog.racha}</b><small>racha</small><span class="racha-puntos">${pts}</span></span>
+      <span class="marcador" title="Habilidades ganadas en este mapa"><b>${prog.sentidos_total}</b><small>habilidades</small></span>`;
+    $('mapa-grupo').textContent = a.grupo_nombre ? `Grupo ${a.grupo_nombre}` : '';
+    $('mapa-nombre').textContent = mapaActual ? mapaActual.nombre : 'El mapa';
+    const sel = $('mapas-sel');
     sel.innerHTML = (a.mapas || []).length > 1 ? (a.mapas || []).map(m => `<button type="button" class="mapa-tab ${m.id === mapaId ? 'activo' : ''}" data-id="${+m.id}">${esc(m.nombre)}<small>${esc(m.docente || '')}</small></button>`).join('') : '';
     [...sel.querySelectorAll('.mapa-tab')].forEach(b => b.onclick = () => { Sesion.elegirMapa(+b.dataset.id); mostrarMapa(Sesion.leer()); });
-    if (a.grupo) { document.getElementById('lnk-tablero').href = `tablero.html?grupo=${a.grupo}${mapaId ? '&mapa=' + mapaId : ''}`; document.getElementById('lnk-universo').href = `universo.html?grupo=${a.grupo}`; }
+    $('nav-lugar').innerHTML = navJuegoHtml('mapa');
 
-    const puntos = Array.from({ length: prog.racha_para_detective }, (_, k) => `<i class="${k < prog.racha ? 'on' : ''}"></i>`).join('');
-    document.getElementById('racha').innerHTML = `<span class="racha-num">${prog.racha}</span><span class="peq">en racha <span class="racha-puntos">${puntos}</span></span>`;
-    // lo que tu progreso aporta al equipo (siempre visible, aunque el equipo vaya perdiendo)
-    if (a.grupo) api(`/universo/${a.grupo}`).then(u => {
-      const m = (u.mapas || []).find(x => x.id === mapaId) || (u.mapas || [])[0]; if (!m) return;
-      const mios = m.territorios.filter(t => t.dueno === a.equipo).length;
-      const bono = prog.racha >= u.reglas.racha_bono;
-      const txt = `Tu equipo tiene <b>${mios}</b> de 8 territorios en este mapa` + (m.isla?.dueno === a.equipo ? ' y la isla del detective' : '') + '. ' +
-        (bono ? `Tu racha de ${prog.racha} aporta <b>+${u.reglas.puntos_bono}</b> al territorio donde juegas.` : `Con ${u.reglas.racha_bono} casos seguidos bien revisados, tu racha aporta +${u.reglas.puntos_bono} a tu equipo.`);
-      let el = document.getElementById('aporte'); if (!el) { el = document.createElement('p'); el.id = 'aporte'; el.className = 'peq suave'; el.style.margin = '6px 0 0'; document.getElementById('racha').after(el); }
-      el.innerHTML = txt;
-    }).catch(() => {});
+    // Lo que el equipo controla (siempre visible, aunque vaya perdiendo)
+    if (terrMapa) {
+      const mios = terrMapa.territorios.filter(t => t.dueno === a.equipo).length;
+      const bono = prog.racha >= uni.reglas.racha_bono;
+      $('estado-equipo').innerHTML = `<div class="ee-num"><b>${mios}</b><span>de 8</span></div><div>Territorios de tu equipo${terrMapa.isla?.dueno === a.equipo ? ' <b>+ la isla del detective</b>' : ''}.
+        <small>${bono ? `Tu racha de ${prog.racha} suma +${uni.reglas.puntos_bono} puntos al territorio donde juegas.` : `Con ${uni.reglas.racha_bono} casos seguidos bien revisados, tu racha suma +${uni.reglas.puntos_bono} puntos a tu equipo.`}</small></div>`;
+    }
 
+    // Territorios
     const todos = Object.values(casos).flat();
     const det = todos.find(c => c.especial === 'detective');
-    const send = document.getElementById('sendero');
-    send.innerHTML = '';
-    let primeraPendiente = null;
-    const paradas = [];
-
-    meta.misiones.forEach(m => {
+    const paradas = meta.misiones.map(m => {
       const lista = (casos[m.n] || []).filter(c => !c.especial);
       const hechos = lista.filter(c => prog.casos[c.id]).length;
-      const completa = lista.length > 0 && hechos === lista.length;
-      const vacia = lista.length === 0;
-      if (!completa && !vacia && primeraPendiente === null) primeraPendiente = m.n;
-      paradas.push({ m, lista, hechos, completa, vacia });
+      return { m, lista, hechos, completa: lista.length > 0 && hechos === lista.length, vacia: lista.length === 0 };
     });
+    const actual = paradas.find(p => !p.completa && !p.vacia);
+    // ¿Cambió de dueño algún territorio desde la última visita? (se guarda en este dispositivo)
+    const claveDuenos = `critia_duenos_${a.seudonimo}_${mapaId || 0}`;
+    let antes = null; try { antes = JSON.parse(localStorage.getItem(claveDuenos) || 'null'); } catch {}
+    const ahora = {}; const ganados = [], perdidos = [];
 
-    paradas.forEach(({ m, lista, hechos, completa, vacia }) => {
-      const el = document.createElement('div');
-      el.className = 'parada' + (completa ? ' completa' : '') + (vacia ? ' bloqueada' : '') + (m.n === primeraPendiente ? ' actual' : '');
-      el.innerHTML = `
-        <div class="marca">${m.n}</div>
-        <div>
-          <div class="nombre">${m.nombre}${vacia ? '' : `<span class="avance">${hechos} de ${lista.length}</span>`}</div>
-          <div class="desc">${m.descripcion}</div>
-          <div class="pins">
-            ${vacia ? '<span class="pin hecho">próximamente</span>' : lista.map(c => {
-              const h = prog.casos[c.id];
-              return `<a class="pin ${h ? 'hecho' : 'pendiente'} ${c.provisional ? 'provisional' : ''}" href="caso.html?id=${encodeURIComponent(c.id)}">${esc(c.titulo)}${h ? `<span class="n">${h.sentidos.length}/3</span>` : ''}</a>`;
-            }).join('')}
-          </div>
-        </div>
-        ${completa ? `<div class="sello">${ICONO.sello}</div>` : ''}`;
-      send.appendChild(el);
+    const svg = $('territorios'); svg.innerHTML = '';
+    svg.appendChild(svgEl('path', { class: 'ruta-isla', d: 'M180 322 C 150 345, 210 360, 180 372' }));
+    const NOMBRE_EQ = e => e.charAt(0).toUpperCase() + e.slice(1);
+    paradas.forEach((p, i) => {
+      const n = p.m.n, [cx, cy] = CENTROS[n], t = terr(n);
+      const dueno = t && t.dueno, disputa = t && t.disputa;
+      ahora[n] = dueno || '';
+      const cambio = antes && (antes[n] || '') !== (dueno || '');
+      if (cambio && dueno === a.equipo) ganados.push(n);
+      if (cambio && antes[n] === a.equipo) perdidos.push(n);
+      const g = svgEl('g', { class: 'terr' + (dueno ? ' eq-' + dueno : '') + (disputa ? ' disputa' : '') + (p.vacia ? ' vacia' : '') + (actual && actual.m.n === n ? ' actual' : '') + (p.completa ? ' completa' : '') + (cambio && dueno ? ' conquista' : ''),
+        role: 'button', tabindex: '0', style: `--i:${i}`,
+        'aria-label': `Territorio ${n}, ${p.m.nombre}. ${dueno ? 'Lo controla el equipo ' + dueno : disputa ? 'En disputa' : 'Sin dueño'}. ${p.vacia ? 'Sin casos todavía' : `Llevas ${p.hechos} de ${p.lista.length} casos`}.` });
+      const pips = p.vacia ? '' : p.lista.length <= 5
+        ? p.lista.map((c, k) => `<circle class="pip${prog.casos[c.id] ? ' on' : ''}" cx="${cx - (p.lista.length - 1) * 7 + k * 14}" cy="${cy + 26}" r="4.5"/>`).join('')
+        : `<text class="pip-txt" x="${cx}" y="${cy + 31}">${p.hechos}/${p.lista.length}</text>`;
+      g.innerHTML = `<polygon class="hex" points="${hexPts(cx, cy, HEX_R)}"/>
+        <text class="num" x="${cx}" y="${cy + 6}">${n}</text>${pips}
+        ${dueno ? `<image class="bandera" href="${ESCUDO(dueno)}" x="${cx + 18}" y="${cy - 50}" width="30" height="30"/>` : ''}
+        ${disputa ? `<text class="disp" x="${cx}" y="${cy - 26}">en disputa</text>` : ''}
+        ${p.vacia ? `<text class="disp" x="${cx}" y="${cy + 30}">pronto</text>` : ''}`;
+      const abrir = () => abrirHoja(p, t, g);
+      g.onclick = abrir; g.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } };
+      svg.appendChild(g);
     });
-
+    // Isla del detective
     if (det) {
-      const hecho = prog.casos[det.id];
-      const abierto = prog.detective_desbloqueado;
-      const el = document.createElement('div');
-      el.className = 'parada detective' + (abierto ? ' actual' : ' bloqueada') + (hecho ? ' completa' : '');
-      el.innerHTML = `
-        <div class="marca"><span style="width:26px;height:26px;display:block">${abierto ? ICONO.lupa : ICONO.candado}</span></div>
-        <div>
-          <div class="nombre">${esc(det.titulo)}</div>
-          <div class="desc">${abierto ? 'Abierto. Un caso para resolver con tu equipo y presentar al grupo.' : `Se abre con ${prog.racha_para_detective} casos seguidos bien revisados: atinar sin pista, o corregirte después de la pista.`}</div>
-          ${abierto ? `<div class="pins"><a class="pin ${hecho ? 'hecho' : 'pendiente'}" href="caso.html?id=${encodeURIComponent(det.id)}">${hecho ? 'Resuelto' : 'Abrir el caso'}</a></div>` : ''}
-        </div>
-        ${hecho ? `<div class="sello">${ICONO.sello}</div>` : ''}`;
-      send.appendChild(el);
+      const [cx, cy] = CENTROS.isla, abierto = prog.detective_desbloqueado, hecho = prog.casos[det.id];
+      const duenoIsla = terrMapa && terrMapa.isla && terrMapa.isla.dueno;
+      const g = svgEl('g', { class: 'terr isla' + (duenoIsla ? ' eq-' + duenoIsla : '') + (abierto ? (hecho ? ' completa' : ' actual') : ' cerrada'), role: 'button', tabindex: '0', style: '--i:8',
+        'aria-label': `Isla del detective. ${abierto ? 'Abierta' : `Cerrada: se abre con ${prog.racha_para_detective} casos seguidos bien revisados`}.` });
+      g.innerHTML = `<polygon class="hex" points="${hexPts(cx, cy, 50)}"/>
+        <g class="ico-isla" transform="translate(${cx - 15} ${cy - 22})"><svg width="30" height="30" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">${(abierto ? ICONO.lupa : ICONO.candado).replace(/<\/?svg[^>]*>/g, '')}</svg></g>
+        <text class="disp" x="${cx}" y="${cy + 26}">${abierto ? 'detective' : `racha ${Math.min(prog.mejor_racha, prog.racha_para_detective)}/${prog.racha_para_detective}`}</text>
+        ${duenoIsla ? `<image class="bandera" href="${ESCUDO(duenoIsla)}" x="${cx + 14}" y="${cy - 46}" width="28" height="28"/>` : ''}`;
+      const abrir = () => abrirIsla(det, abierto, hecho, prog, g);
+      g.onclick = abrir; g.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } };
+      svg.appendChild(g);
     }
-    dibujarSendero();
+    try { localStorage.setItem(claveDuenos, JSON.stringify(ahora)); } catch {}
+    if (ganados.length) setTimeout(() => toast(`Tu equipo ganó ${ganados.length === 1 ? 'el territorio ' + ganados[0] : 'los territorios ' + ganados.join(', ')}.`, 4000), 900);
+    else if (perdidos.length) setTimeout(() => toast(`Tu equipo perdió ${perdidos.length === 1 ? 'el territorio ' + perdidos[0] : 'los territorios ' + perdidos.join(', ')}. Se puede recuperar.`, 4000), 900);
+
+    // Leyenda de equipos
+    $('leyenda').innerHTML = meta.equipos.map(e => {
+      const k = terrMapa ? terrMapa.territorios.filter(t => t.dueno === e).length : 0;
+      return `<li class="${e === a.equipo ? 'mio' : ''}">${escudoHtml(e)}<span>${NOMBRE_EQ(e)}</span><b>${k}</b></li>`;
+    }).join('');
+
+    // Botón: siguiente caso pendiente
+    const sig = $('siguiente');
+    const pendiente = actual ? actual.lista.find(c => !prog.casos[c.id]) : (det && prog.detective_desbloqueado && !prog.casos[det.id] ? det : null);
+    if (pendiente) { sig.href = `caso.html?id=${encodeURIComponent(pendiente.id)}`; sig.innerHTML = `<span><small>Siguiente caso${actual ? ' · territorio ' + actual.m.n : ''}</small>${esc(pendiente.titulo)}</span><span class="flecha" aria-hidden="true">›</span>`; sig.classList.remove('oculto'); }
+    else sig.classList.add('oculto');
   }
 
-  // Línea que une las marcas de las paradas
-  function dibujarSendero() {
-    const send = document.getElementById('sendero');
-    const viejo = send.querySelector('svg.trazo'); if (viejo) viejo.remove();
-    const marcas = [...send.querySelectorAll('.parada .marca')];
-    if (marcas.length < 2) return;
-    const base = send.getBoundingClientRect();
-    const pts = marcas.map(mk => { const r = mk.getBoundingClientRect(); return [r.left - base.left + r.width / 2, r.top - base.top + r.height / 2]; });
-    let d = `M ${pts[0][0]} ${pts[0][1]}`;
-    for (let i = 1; i < pts.length; i++) {
-      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
-      const dx = (i % 2 ? 26 : -26);
-      d += ` C ${x0 + dx} ${y0 + (y1 - y0) * .5}, ${x1 + dx} ${y0 + (y1 - y0) * .5}, ${x1} ${y1}`;
-    }
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'trazo');
-    svg.setAttribute('viewBox', `0 0 ${base.width} ${send.scrollHeight}`);
-    svg.setAttribute('preserveAspectRatio', 'none');
-    svg.innerHTML = `<path d="${d}" fill="none" stroke="#1F2A44" stroke-width="3" stroke-dasharray="8 7" stroke-linecap="round"/>`;
-    send.prepend(svg);
+  function filaCaso(c, prog) {
+    const h = prog.casos[c.id];
+    return `<a class="fila-caso ${h ? 'hecho' : 'pendiente'}" href="caso.html?id=${encodeURIComponent(c.id)}">
+      <span class="fc-titulo">${esc(c.titulo)}${c.provisional ? ' <em>nuevo</em>' : ''}</span>
+      <span class="fc-estado">${h ? `${h.sentidos.length}/3 habilidades · repetir` : 'Jugar'}</span></a>`;
   }
-  window.addEventListener('resize', () => { if (!document.getElementById('mapa-seccion').classList.contains('oculto')) dibujarSendero(); });
-  document.fonts && document.fonts.ready.then(() => { if (!document.getElementById('mapa-seccion').classList.contains('oculto')) dibujarSendero(); });
+  let progHoja = null;
+  function mostrarHoja(desde) { ultimoFoco = desde; $('hoja-fondo').classList.remove('oculto'); const h = $('hoja-terr'); h.classList.remove('oculto'); h.scrollTop = 0; $('hoja-titulo').focus({ preventScroll: true }); }
+  function abrirHoja(p, t, desde) {
+    const a = Sesion.leer();
+    $('hoja-etq').textContent = `Territorio ${p.m.n}`;
+    $('hoja-titulo').textContent = p.m.nombre;
+    $('hoja-desc').textContent = p.m.descripcion;
+    if (t) {
+      const max = Math.max(1, ...Object.values(t.puntos));
+      $('hoja-control').innerHTML = `<div class="hc-titulo">${t.dueno ? `Lo controla el equipo <b>${esc(t.dueno)}</b>` : t.disputa ? '<b>En disputa:</b> hay empate en primer lugar' : 'Todavía no tiene dueño'}</div>` +
+        meta.equipos.map(e => `<div class="hc-barra eq-${e}${e === a.equipo ? ' mio' : ''}"><span>${esc(e)}</span><i><u style="width:${Math.round(100 * t.puntos[e] / max)}%"></u></i><b>${t.puntos[e]}</b></div>`).join('');
+    } else $('hoja-control').innerHTML = '';
+    $('hoja-casos').innerHTML = p.vacia ? '<p class="ayuda">Este territorio todavía no tiene casos.</p>' : p.lista.map(c => filaCaso(c, progHoja)).join('');
+    mostrarHoja(desde);
+  }
+  function abrirIsla(det, abierto, hecho, prog, desde) {
+    $('hoja-etq').textContent = 'Isla del detective';
+    $('hoja-titulo').textContent = det.titulo;
+    $('hoja-desc').textContent = abierto ? 'Abierta. Un caso para resolver con tu equipo y presentar al grupo.' : `Se abre con ${prog.racha_para_detective} casos seguidos bien revisados: acertar sin pista, o corregirte después de la pista. Tu mejor racha es ${prog.mejor_racha}.`;
+    $('hoja-control').innerHTML = '';
+    $('hoja-casos').innerHTML = abierto ? `<a class="fila-caso ${hecho ? 'hecho' : 'pendiente'}" href="caso.html?id=${encodeURIComponent(det.id)}"><span class="fc-titulo">${esc(det.titulo)}</span><span class="fc-estado">${hecho ? 'Resuelto · repetir' : 'Jugar'}</span></a>` : '';
+    mostrarHoja(desde);
+  }
 
   if (alumno) mostrarMapa(alumno);
 })();

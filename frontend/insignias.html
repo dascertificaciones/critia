@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Critia · Insignias</title>
 <link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="stylesheet" href="assets/css/juego.css">
 <style>
   .vitrina { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 18px; }
   .insignia { border: var(--trazo) solid var(--tinta); border-radius: var(--r); padding: 16px 12px 14px; text-align: center; position: relative; background: #fff; }
@@ -53,6 +54,7 @@
   document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
   const alumno = Sesion.leer();
   if (!alumno) { location.href = 'index.html'; return; }
+  modoJuego('insignias');
   const a2 = await Sesion.conMapas() || alumno;
   const mq = a2.mapa ? `?mapa=${a2.mapa}` : '';
   const [prog, lista] = await Promise.all([api(`/alumno/${alumno.seudonimo}/progreso${mq}`), api(`/insignias/${alumno.seudonimo}${mq}`)]);

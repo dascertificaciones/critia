@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Critia · Tablero</title>
 <link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="stylesheet" href="assets/css/juego.css">
 <style>
   .contenedor { max-width: 1100px; }
   .tablero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 18px; }
@@ -18,8 +19,8 @@
   .corona { width: 22px; height: 22px; margin-left: auto; color: var(--sello); }
   .gran-numero { font-family: var(--serif); font-weight: 900; font-size: 64px; line-height: 1; color: var(--c); margin: 10px 0 2px; }
   .gran-numero small { font-family: var(--sans); font-size: 14px; color: var(--tinta-suave); font-weight: 400; margin-left: 6px; }
-  .barra { height: 10px; border: 2px solid var(--tinta); border-radius: 5px; background: var(--papel); overflow: hidden; margin: 10px 0 14px; }
-  .barra > div { height: 100%; background: var(--c); transition: width .6s ease; }
+  .barra-eq { height: 10px; border: 2px solid var(--tinta); border-radius: 5px; background: var(--papel); overflow: hidden; margin: 10px 0 14px; }
+  .barra-eq > div { height: 100%; background: var(--c); transition: width .6s ease; }
   .detalle { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 13px; color: var(--tinta-suave); }
   .detalle b { display: block; color: var(--tinta); font-size: 20px; font-family: var(--serif); }
   .detalle .ic { width: 18px; height: 18px; display: block; margin-bottom: 2px; }
@@ -52,6 +53,7 @@
 <script src="assets/js/api.js"></script>
 <script>
 document.getElementById('logo-ojo').innerHTML = ICONO.ojo;
+if (modoJuego('equipo')) document.querySelector('h1').textContent = 'Equipos';
 const params = new URLSearchParams(location.search);
 const grupoParam = params.get('grupo') || (Sesion.leer() || {}).grupo || '';
 let mapaParam = params.get('mapa') ? +params.get('mapa') : 0;
@@ -77,7 +79,7 @@ async function pintar() {
       <div class="equipo-card ${e} ${lider ? 'lider' : ''}">
         <div class="equipo-nombre">${escudoHtml(e)}${e} ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>
         <div class="gran-numero">${d.sentidos}<small>habilidades</small></div>
-        <div class="barra"><div style="width:${Math.round(100 * d.sentidos / max)}%"></div></div>
+        <div class="barra-eq"><div style="width:${Math.round(100 * d.sentidos / max)}%"></div></div>
         <div class="detalle">
           <div><span class="ic">${ICONO.justificar}</span>Justificar<b>${d.justificar}</b></div>
           <div><span class="ic">${ICONO.revisar}</span>Revisar<b>${d.revisar}</b></div>
