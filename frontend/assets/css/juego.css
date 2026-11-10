@@ -1,0 +1,140 @@
+/* Critia — pantallas de juego (tipo app). Usa los colores y tipografías de estilo.css. */
+
+body.juego { background: var(--papel-2); overscroll-behavior-y: none; }
+body.juego[data-equipo=rojo] { --equipo: var(--rojo); }
+body.juego[data-equipo=azul] { --equipo: var(--azul); }
+body.juego[data-equipo=verde] { --equipo: var(--verde); }
+body.juego[data-equipo=violeta] { --equipo: var(--violeta); }
+body.juego { --equipo: var(--tinta); }
+
+.app { max-width: 560px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; background: var(--papel); box-shadow: 0 0 0 1px var(--papel-3); }
+
+/* ---------- Barra superior ---------- */
+.barra { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px; padding: 8px 12px; background: var(--papel); border-bottom: var(--trazo) solid var(--tinta); }
+.barra-salir { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; color: var(--tinta); text-decoration: none; }
+.barra-salir svg { width: 22px; height: 22px; }
+.barra-salir:active { background: var(--papel-3); }
+.progreso { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--n, 5), 1fr); gap: 5px; }
+.progreso li { height: 10px; border-radius: 5px; background: var(--papel-3); overflow: hidden; position: relative; }
+.progreso li::after { content: ""; position: absolute; inset: 0; background: var(--equipo); transform: scaleX(0); transform-origin: left; transition: transform .35s ease; }
+.progreso li.hecho::after { transform: scaleX(1); }
+.progreso li.activo::after { transform: scaleX(.5); }
+.progreso-txt { grid-column: 2; font-size: 13px; color: var(--tinta-suave); margin-top: -4px; }
+.barra-jugador { display: flex; align-items: center; gap: 6px; font-family: var(--serif); font-weight: 900; font-size: 18px; }
+.barra-jugador .escudo { width: 30px; height: 30px; }
+.barra-jugador .cuenta { min-width: 1.2em; text-align: right; }
+.barra-jugador .cuenta.sube { animation: sube .5s ease; }
+@keyframes sube { 0% { transform: scale(1); } 40% { transform: scale(1.5); color: var(--ambar); } 100% { transform: scale(1); } }
+
+/* ---------- Pantallas (un paso por pantalla) ---------- */
+.escena { flex: 1; display: flex; flex-direction: column; }
+.pantalla { flex: 1; display: flex; flex-direction: column; animation: entra .28s ease both; }
+.pantalla.atras { animation-name: entra-atras; }
+@keyframes entra { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes entra-atras { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+.pantalla-cuerpo { flex: 1; padding: 18px 18px 24px; }
+.pantalla h1:focus, .pantalla h2:focus { outline: none; }
+.pantalla h1 { font-size: 28px; margin: 4px 0 10px; }
+.pantalla h2 { font-size: 23px; margin: 0 0 6px; }
+.paso-nombre { display: inline-block; font-size: 13px; letter-spacing: .8px; text-transform: uppercase; font-weight: 700; color: var(--equipo); margin-bottom: 4px; }
+.ayuda { color: var(--tinta-suave); font-size: 15px; margin: 0 0 14px; }
+
+.acciones-fijas { position: sticky; bottom: 0; z-index: 4; display: flex; gap: 10px; align-items: center; padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); background: var(--papel); border-top: var(--trazo) solid var(--tinta); }
+.acciones-fijas .btn { min-height: 52px; font-size: 17px; }
+.acciones-fijas .btn-primario { flex: 1; }
+.acciones-fijas .btn-atras { flex: 0 0 52px; padding: 0; }
+.acciones-fijas .btn-atras svg { width: 22px; height: 22px; }
+.btn-primario:not(:disabled).listo { animation: listo .4s ease; }
+@keyframes listo { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+
+/* ---------- Paso: leer ---------- */
+.chat-ia { background: #fff; border: var(--trazo) solid var(--tinta); border-radius: 14px 14px 14px 4px; padding: 14px 16px; white-space: pre-line; font-size: 18px; line-height: 1.55; box-shadow: 4px 4px 0 var(--papel-3); }
+.pregunta-mini { margin-top: 14px; padding: 10px 12px; border-left: 4px solid var(--equipo); background: var(--papel-2); border-radius: 0 var(--r) var(--r) 0; font-size: 15px; }
+.pregunta-mini summary { cursor: pointer; font-weight: 700; }
+.pregunta-mini div { white-space: pre-line; margin-top: 8px; }
+
+/* ---------- Paso: decidir ---------- */
+body.juego .opcion { min-height: 60px; align-items: center; border-radius: 12px; transition: transform .12s ease, background .15s ease, box-shadow .15s ease; box-shadow: 0 3px 0 var(--tinta); }
+body.juego .opcion:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--tinta); }
+body.juego .opcion.elegida { animation: elige .22s ease; box-shadow: 0 3px 0 var(--ambar); }
+body.juego .opcion:disabled { opacity: .75; }
+@keyframes elige { 0% { transform: scale(.97); } 60% { transform: scale(1.02); } 100% { transform: scale(1); } }
+.pista-btn { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 16px; padding: 12px 14px; border: 2px dashed var(--tinta); border-radius: 12px; background: transparent; color: var(--tinta); font-size: 16px; font-weight: 700; cursor: pointer; text-align: left; min-height: 52px; }
+.pista-btn small { display: block; font-weight: 400; color: var(--tinta-suave); font-size: 13px; }
+.pista-btn svg { width: 26px; height: 26px; flex: none; }
+.pista-btn:disabled { opacity: .5; cursor: default; }
+.enlace-duda { display: block; margin: 14px auto 0; }
+
+/* ---------- Paso: confianza ---------- */
+.tu-respuesta { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--tinta); color: var(--papel); font-size: 15px; margin-bottom: 18px; }
+.tu-respuesta .letra { flex: 0 0 30px; height: 30px; border-radius: 50%; background: var(--ambar); color: var(--tinta); display: grid; place-items: center; font-family: var(--serif); font-weight: 900; }
+.medidor { text-align: center; padding: 8px 0 0; }
+.medidor-num { font-family: var(--serif); font-weight: 900; font-size: 72px; line-height: 1; color: var(--tinta); font-variant-numeric: tabular-nums; }
+.medidor-palabra { font-weight: 700; font-size: 18px; color: var(--equipo); min-height: 1.5em; }
+body.juego input[type=range] { height: 44px; accent-color: var(--equipo); }
+
+/* ---------- Paso: tutor ---------- */
+.tutor-escena { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.tutor-ojo { width: 84px; height: 84px; border-radius: 50%; border: var(--trazo) solid var(--tinta); background: var(--ambar-claro); display: grid; place-items: center; animation: aparece .4s ease both; }
+.tutor-ojo svg { width: 54px; height: 54px; animation: parpadea 4s ease-in-out 1s infinite; }
+@keyframes aparece { from { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.08); } to { transform: scale(1); opacity: 1; } }
+@keyframes parpadea { 0%, 46%, 54%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.15); } }
+.globo { position: relative; margin-top: 16px; width: 100%; text-align: left; background: var(--ambar-claro); border: var(--trazo) solid var(--tinta); border-radius: 14px; padding: 14px 16px; font-size: 18px; font-weight: 700; animation: entra-abajo .35s ease .15s both; }
+.globo::before { content: ""; position: absolute; top: -10px; left: 50%; margin-left: -9px; width: 16px; height: 16px; background: var(--ambar-claro); border-left: var(--trazo) solid var(--tinta); border-top: var(--trazo) solid var(--tinta); transform: rotate(45deg); }
+.pista-carta { width: 100%; text-align: left; margin-top: 12px; background: #fff; border: 2px dashed var(--tinta); border-radius: 14px; padding: 12px 16px; font-size: 17px; animation: entra-abajo .35s ease .35s both; }
+.pista-carta .rotulo { display: block; font-size: 13px; letter-spacing: .8px; text-transform: uppercase; font-weight: 700; color: var(--sello); margin-bottom: 4px; }
+@keyframes entra-abajo { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.porque { width: 100%; text-align: left; margin-top: 12px; font-size: 14px; color: var(--tinta-suave); }
+.porque summary { cursor: pointer; padding: 8px 0; }
+
+/* ---------- Paso: resultado ---------- */
+.resultado-cab { text-align: center; padding-top: 6px; }
+.sello-res { width: 96px; height: 96px; margin: 0 auto 8px; border-radius: 50%; display: grid; place-items: center; border: 4px solid var(--hierba); color: var(--hierba); animation: estampa .45s cubic-bezier(.2, 1.4, .4, 1) both; }
+.sello-res svg { width: 52px; height: 52px; }
+.sello-res.no { border-color: var(--tinta-suave); color: var(--tinta-suave); }
+@keyframes estampa { from { transform: scale(2.2) rotate(-18deg); opacity: 0; } to { transform: scale(1) rotate(-6deg); opacity: 1; } }
+.resultado-cab h1 { margin: 0 0 4px; }
+body.juego .sentidos-ganados { margin: 18px 0 12px; }
+body.juego .sentido { border-radius: 12px; opacity: 0; animation: entra-abajo .3s ease both; }
+body.juego .sentido:nth-child(1) { animation-delay: .35s; } body.juego .sentido:nth-child(2) { animation-delay: .5s; } body.juego .sentido:nth-child(3) { animation-delay: .65s; }
+body.juego .sentido.ganado { background: #fff; border-color: var(--hierba); box-shadow: 0 3px 0 var(--hierba); }
+.puntos-equipo { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--equipo); color: #fff; animation: entra-abajo .35s ease .85s both; }
+.puntos-equipo .escudo { width: 48px; height: 48px; flex: none; background: #fff; border-radius: 50%; padding: 4px; }
+.puntos-equipo .mas { font-family: var(--serif); font-weight: 900; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.puntos-equipo .donde { font-size: 14px; opacity: .92; }
+.puntos-equipo.practica { background: var(--papel-3); color: var(--tinta); }
+.racha-linea { margin-top: 10px; font-size: 15px; display: flex; align-items: center; gap: 8px; animation: entra-abajo .35s ease 1s both; }
+.racha-linea .racha-puntos { margin: 0; }
+.bloque-titulo { font-family: var(--serif); font-weight: 700; font-size: 19px; margin: 22px 0 0; }
+body.juego .explicacion { border-radius: 12px; }
+
+@media (min-width: 600px) {
+  .app { margin: 16px auto; min-height: calc(100dvh - 32px); border: var(--trazo) solid var(--tinta); border-radius: 18px; overflow: clip; }
+  .barra { border-radius: 16px 16px 0 0; }
+}
+
+/* ---------- Tema «Noche de estrategia»: fondo oscuro, rejilla de hexágonos y brillo en lo elegido ---------- */
+body.juego { --papel:#141B30; --papel-2:#0C1122; --papel-3:#2A3558; --tinta:#EEF1FA; --tinta-suave:#A7B0CC; --sello:#FF5D5D; --ambar:#FFB627; --ambar-claro:#2B2550; --hierba:#3DDC97;
+  --azul:#4C8DFF; --rojo:#FF5D5D; --verde:#3DDC97; --violeta:#B07CFF; background:#080C18; }
+body.juego .app { background-color:#141B30; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' fill='none' stroke='%23FFFFFF' stroke-opacity='.05' stroke-width='1.5'%3E%3Cpath d='M28 0l28 16v32L28 64 0 48V16zM28 64v33M0 48l-28 16M56 48l28 16'/%3E%3C/svg%3E"), radial-gradient(circle at 50% 0, #26346B 0, transparent 60%); box-shadow:0 0 0 1px #2A3558; }
+body.juego .barra, body.juego .acciones-fijas { background:#0F1528; border-color:#2A3558; }
+body.juego .progreso li::after { box-shadow:0 0 8px var(--equipo); }
+body.juego .btn-primario { background:linear-gradient(#FFC94D,#FFA51F); border-color:#FFB627; color:#1A1405; box-shadow:0 4px 0 #9A5E00, 0 0 18px rgba(255,182,39,.35); }
+body.juego .acciones-fijas .btn-secundario { background:#1E2742; color:#EEF1FA; border-color:#3A4670; }
+body.juego .chat-ia, body.juego .opcion, body.juego .explicacion, body.juego .pista-carta, body.juego input[type=text], body.juego textarea, body.juego .sentido.ganado { background:#1E2742; color:#EEF1FA; border-color:#3A4670; }
+body.juego .chat-ia { box-shadow:none; border-left:4px solid var(--equipo); }
+body.juego .opcion { box-shadow:0 4px 0 #0A0F20; } body.juego .opcion .letra { border-color:#A7B0CC; }
+body.juego .opcion.elegida { background:var(--equipo); color:#fff; border-color:#fff; box-shadow:0 4px 0 #0A0F20, 0 0 16px var(--equipo); }
+body.juego .opcion.elegida .letra { background:#fff; color:#141B30; border-color:#fff; }
+body.juego .pista-carta { border-color:#FFB627; background:#2B2550; } body.juego .pista-carta .rotulo { color:#FFB627; }
+body.juego .pista-btn { border-color:#3A4670; color:#EEF1FA; } body.juego .pregunta-mini { background:#1E2742; }
+body.juego .tu-respuesta { background:#1E2742; color:#EEF1FA; border:2px solid var(--equipo); }
+body.juego .globo { background:#2B2550; border-color:#B07CFF; color:#fff; } body.juego .globo::before { background:#2B2550; border-color:#B07CFF; }
+body.juego .tutor-ojo { background:#FFB627; color:#141B30; border-color:#fff; box-shadow:0 0 24px rgba(255,182,39,.5); }
+body.juego .sentido { border-color:#3A4670; } body.juego .sentido.ganado { border-color:#3DDC97; box-shadow:0 3px 0 #1F8F5F, 0 0 14px rgba(61,220,151,.3); }
+body.juego .sello-res { box-shadow:0 0 22px rgba(61,220,151,.4); } body.juego .puntos-equipo { box-shadow:0 0 20px var(--equipo); }
+body.juego .habilidad-caja { background:rgba(61,220,151,.08); } body.juego .racha-puntos i { border-color:#A7B0CC; }
+body.juego .toast { background: #EEF1FA; color: #141B30; font-weight: 700; }
+body.juego .btn-enlace { color: var(--tinta-suave); }
+body.juego input[type=text]::placeholder, body.juego textarea::placeholder { color: #7C86A6; }
+@media (min-width: 600px) { body.juego .app { border-color: #2A3558; } }

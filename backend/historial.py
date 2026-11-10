@@ -148,6 +148,12 @@ def fallo_mision_previa(seudonimo, mapa_id, mision_de_caso, mision):
         return False
 
 
+def puntos_territorio(sentidos, eval_fin, pistas):
+    """Puntos que un intento cerrado aporta al territorio de su equipo:
+    una por cada habilidad ganada y una más por resolver sin ayuda."""
+    return len(sentidos) + (1 if (eval_fin == "correcta" and (pistas or 0) == 0) else 0)
+
+
 def resolucion(it):
     """Etiqueta legible de cómo terminó el intento, para el docente."""
     if it.get("eval_fin") == "abierta":
@@ -765,7 +771,7 @@ def universo(codigo, mision_de_caso, detective_ids=()):
                 if not mis:
                     continue
                 sent = json.loads(r["sentidos"] or "[]")
-                n = len(sent) + (1 if (r["eval_fin"] == "correcta" and r["pistas"] == 0) else 0)   # +1 por resolver sin ayuda
+                n = puntos_territorio(sent, r["eval_fin"], r["pistas"])
                 terr.setdefault(mis, {e: 0 for e in EQUIPOS})[r["equipo"]] += n
                 totales[r["equipo"]]["sentidos"] += n
                 st = rachas.setdefault(r["seudonimo"], [r["equipo"], 0, mis])

@@ -726,7 +726,7 @@ if FRONT.exists():
 
     def _html(f: Path):
         html = f.read_text(encoding="utf-8")
-        for a in ["assets/css/estilo.css", "assets/js/iconos.js", "assets/js/api.js"]:
+        for a in ["assets/css/estilo.css", "assets/css/juego.css", "assets/js/iconos.js", "assets/js/api.js"]:
             html = html.replace(a, f"{a}?v={VERSION}")
         return HTMLResponse(html, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
