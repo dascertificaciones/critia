@@ -79,7 +79,7 @@ async function pintar() {
     return `
       <div class="equipo-card ${e} ${lider ? 'lider' : ''}">
         <div class="equipo-nombre">${escudoHtml(e)}${e} ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>
-        <div class="gran-numero">${(d.puntos ?? d.sentidos)}<small>puntos</small></div>
+        <div class="gran-numero">${(d.puntos ?? d.sentidos)}<small>puntos${d.promedio !== undefined ? ` · ${d.promedio} por jugador` : ''}</small></div>
         <div class="barra-eq"><div style="width:${Math.round(100 * (d.puntos ?? d.sentidos) / max)}%"></div></div>
         <div class="detalle">
           <div><span class="ic">${ICONO.justificar}</span>Justificar<b>${d.justificar}</b></div>

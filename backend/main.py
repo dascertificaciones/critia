@@ -177,12 +177,40 @@ class TareaIn(BaseModel):
     tipo: str
     tema: str
     alcances: str = ""
+    entrega: Optional[str] = None      # fecha de entrega AAAA-MM-DD (opcional)
+
+
+class AvanceIn(BaseModel):
+    mapa: Optional[int] = None
+    mision: int
+    texto: str
+
+
+class AvanceRevIn(BaseModel):
+    seudonimo: str
+    mapa: int
+    mision: int
+    aceptar: bool
+    nota: str = ""
 
 
 class TareaEditIn(BaseModel):
     consigna: str
     pasos: list[dict]
     aprobada: bool = False
+    entrega: Optional[str] = None
+
+
+def _fecha(v):
+    """Fecha AAAA-MM-DD válida, o None."""
+    from datetime import date
+    v = (v or "").strip()
+    if not v:
+        return None
+    try:
+        return date.fromisoformat(v).isoformat()
+    except ValueError:
+        raise HTTPException(400, "La fecha de entrega no es válida")
 
 
 class LoginIn(BaseModel):
@@ -368,11 +396,38 @@ def duda(intento_id: int, x_alumno: str = Header(default="")):
 def tarea_alumno(mapa: Optional[int] = None, x_alumno: str = Header(default="")):
     """La tarea aprobada del mapa en el que trabaja el alumno (o null si el mapa no tiene)."""
     quien = _alumno(x_alumno)
-    t = historial.tarea_de_mapa(_mapa_de(quien, mapa) or 0)
+    mid = _mapa_de(quien, mapa)
+    t = historial.tarea_de_mapa(mid or 0)
     if not t or not t["aprobada"]:
         return None
     return {"tipo": t["tipo"], "producto": planeador.PRODUCTOS[t["tipo"]]["nombre"], "tema": t["tema"],
-            "consigna": t["consigna"], "pasos": t["pasos"]}
+            "consigna": t["consigna"], "pasos": t["pasos"], "entrega": t.get("entrega"),
+            "avances": {str(k): v for k, v in historial.avances_de_alumno(quien, mid).items()},
+            "puntos_avance": historial.PUNTOS_AVANCE}
+
+
+@app.post("/api/avance")
+def entregar_avance(d: AvanceIn, x_alumno: str = Header(default="")):
+    """El alumno entrega su avance de un paso de la tarea. Antes debe haber cerrado un caso de ese territorio, si lo hay."""
+    quien = _alumno(x_alumno)
+    mid = _mapa_de(quien, d.mapa)
+    t = historial.tarea_de_mapa(mid or 0)
+    if not t or not t["aprobada"] or not any(p["mision"] == d.mision for p in t["pasos"]):
+        raise HTTPException(404, "Ese paso no existe en la tarea de tu mapa")
+    texto = d.texto.strip()
+    if len(texto) < 15:
+        raise HTTPException(400, "Escribe tu avance con un poco más de detalle")
+    del_territorio = [c["id"] for c in _casos_visibles(quien, mid).values() if c["mision"] == d.mision and not c.get("especial")]
+    if del_territorio:
+        todos, _ = motor.cargar_casos()
+        prog = historial.progreso_alumno(quien, {c["id"]: c["postulado"] for c in todos.values()}, mid)
+        if not any(cid in prog["casos"] for cid in del_territorio):
+            raise HTTPException(400, "Primero resuelve un caso de este territorio")
+    try:
+        historial.guardar_avance(quien, mid, d.mision, texto[:3000])
+    except ValueError as e:
+        _err(e)
+    return {"ok": True, "estado": "pendiente"}
 
 
 @app.get("/api/tablero")
@@ -521,7 +576,32 @@ def docente_proponer_tarea(mapa_id: int, d: TareaIn, x_admin: str = Header(defau
         p = planeador.proponer(d.tipo, d.tema, d.alcances[:400], META["misiones"])
     except ValueError as e:
         _err(e)
-    return historial.guardar_tarea(mapa_id, d.tipo, d.tema.strip()[:120], d.alcances.strip()[:400], p["consigna"], p["pasos"])
+    return historial.guardar_tarea(mapa_id, d.tipo, d.tema.strip()[:120], d.alcances.strip()[:400], p["consigna"], p["pasos"], entrega=_fecha(d.entrega))
+
+
+@app.get("/api/docente/avances")
+def docente_avances(x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    """Avances de tarea pendientes de revisar, con el paso al que corresponden."""
+    q = _quien(x_admin, x_sesion)
+    out = []
+    for v in historial.avances_pendientes(q.codigos()):
+        t = historial.tarea_de_mapa(v["mapa_id"]) or {"pasos": []}
+        v["paso"] = next((p for p in t["pasos"] if p["mision"] == v["mision"]), None)
+        out.append(v)
+    return out
+
+
+@app.post("/api/docente/avance")
+def docente_revisar_avance(d: AvanceRevIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    q = _quien(x_admin, x_sesion)
+    m = historial.mapa(d.mapa)
+    if not m or not q.puede_grupo(m["codigo"]) or historial.grupo_de_alumno(d.seudonimo) != m["codigo"]:
+        raise HTTPException(403, "Ese avance no es de tus grupos")
+    if not d.aceptar and len(d.nota.strip()) < 5:
+        raise HTTPException(400, "Al devolver un avance, escribe qué le falta")
+    if not historial.revisar_avance(d.seudonimo, d.mapa, d.mision, d.aceptar, d.nota, q.usuario):
+        raise HTTPException(404, "Ese avance no existe")
+    return {"ok": True}
 
 
 @app.put("/api/docente/mapas/{mapa_id}/tarea")
@@ -540,7 +620,8 @@ def docente_editar_tarea(mapa_id: int, d: TareaEditIn, x_admin: str = Header(def
         pasos = planeador.limpiar_pasos(d.pasos, META["misiones"])
     except ValueError as e:
         _err(e)
-    return historial.guardar_tarea(mapa_id, t["tipo"], t["tema"], t["alcances"], consigna, pasos, aprobada=d.aprobada)
+    return historial.guardar_tarea(mapa_id, t["tipo"], t["tema"], t["alcances"], consigna, pasos, aprobada=d.aprobada,
+                                   entrega=_fecha(d.entrega) if d.entrega is not None else t.get("entrega"))
 
 
 # =====================================================================

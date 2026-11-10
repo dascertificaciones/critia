@@ -150,14 +150,15 @@
   // Cuatro secciones; cada una agrupa las vistas de antes
   const SECCIONES = {
     inicio: { nombre: 'Inicio', subs: [] },
-    revisar: { nombre: 'Por revisar', subs: [['porAprobar', 'Casos'], ['reflexiones', 'Reflexiones'], ['insignias', 'Insignias']] },
+    revisar: { nombre: 'Por revisar', subs: [['avances', 'Avances de tarea'], ['porAprobar', 'Casos'], ['reflexiones', 'Reflexiones'], ['insignias', 'Insignias']] },
     seguimiento: { nombre: 'Seguimiento', subs: [['resumen', 'Resumen'], ['alumnos', 'Alumnos'], ['alertas', 'Alertas']] },
     ajustes: { nombre: 'Ajustes', subs: [['grupos', 'Grupos y mapas'], ['generar', 'Generar con opciones'], ['banco', 'Banco de casos'], ['profesores', 'Profesores']] },
   };
   let activa = 'inicio';
   const subActiva = { revisar: 'porAprobar', seguimiento: 'resumen', ajustes: 'grupos' };
   let enAsistente = false;   // mientras el asistente de actividad está abierto, no se repinta el contenido
-  function irA(seccion, sub) { activa = seccion; if (sub) subActiva[seccion] = sub; enAsistente = false; return pintarPestanas(); }
+  let elegirSub = true;      // al entrar a una sección sin indicar pestaña, se abre la primera que tenga pendientes
+  function irA(seccion, sub) { activa = seccion; if (sub) subActiva[seccion] = sub; elegirSub = !sub; enAsistente = false; return pintarPestanas(); }
 
   async function abrirPanel() {
     YO = await api('/docente/yo', 'GET', null, H());
@@ -187,14 +188,17 @@
     const [ref, sug, ale, casos] = await Promise.all([
       api('/docente/reflexiones', 'GET', null, H()), api('/docente/sugerencias', 'GET', null, H()),
       api('/docente/alertas', 'GET', null, H()), api('/docente/casos', 'GET', null, H())]);
-    const conteo = { porAprobar: casos.filter(c => c.provisional).length, reflexiones: ref.length, insignias: sug.length, alertas: ale.length };
-    const deSeccion = { revisar: conteo.porAprobar + conteo.reflexiones + conteo.insignias, seguimiento: conteo.alertas };
+    const avs = await api('/docente/avances', 'GET', null, H());
+    const conteo = { avances: avs.length, porAprobar: casos.filter(c => c.provisional).length, reflexiones: ref.length, insignias: sug.length, alertas: ale.length };
+    const deSeccion = { revisar: conteo.avances + conteo.porAprobar + conteo.reflexiones + conteo.insignias, seguimiento: conteo.alertas };
     const visibles = Object.keys(SECCIONES).filter(k => !(YO.admin && k === 'inicio'));
     const subsDe = k => SECCIONES[k].subs.filter(([v]) => YO.admin ? v !== 'grupos' : v !== 'profesores');
     $('pestanas').innerHTML = visibles.map(k => `
       <button class="pestana ${k === activa ? 'activa' : ''}" data-k="${k}"${k === activa ? ' aria-current="page"' : ''}>${SECCIONES[k].nombre}${deSeccion[k] ? `<span class="n">${deSeccion[k]}</span>` : ''}</button>`).join('');
     [...$('pestanas').children].forEach(b => b.onclick = () => irA(b.dataset.k));
     const subs = subsDe(activa);
+    if (subs.length && elegirSub) { const conPendientes = subs.find(([v]) => conteo[v]); if (conPendientes) subActiva[activa] = conPendientes[0]; }
+    elegirSub = false;
     if (subs.length && !subs.some(([v]) => v === subActiva[activa])) subActiva[activa] = subs[0][0];
     $('subnav').innerHTML = enAsistente ? '' : subs.map(([v, n]) => `<button class="${v === subActiva[activa] ? 'activa' : ''}" data-v="${v}">${n}${conteo[v] ? `<span class="n">${conteo[v]}</span>` : ''}</button>`).join('');
     [...$('subnav').children].forEach(b => b.onclick = () => irA(activa, b.dataset.v));
@@ -474,6 +478,33 @@
       });
     },
 
+    async avances() {
+      const lista = await api('/docente/avances', 'GET', null, H());
+      if (!lista.length) { $('contenido').innerHTML = '<h2>Avances de tarea</h2><div class="vacio">No hay avances pendientes de revisar.</div>'; return; }
+      $('contenido').innerHTML = `<h2>Avances de tarea por revisar</h2><p class="suave peq">Cada avance aceptado suma puntos al territorio del equipo. Si lo devuelves, escribe qué le falta: el alumno puede corregirlo y volver a enviarlo.</p>` +
+        lista.map(v => `
+          <div class="reflexion-card" data-s="${esc(v.seudonimo)}" data-m="${v.mapa_id}" data-n="${v.mision}">
+            <div><span class="tag">Paso ${v.mision}</span> <b>${esc(v.paso ? v.paso.titulo : '')}</b> <span class="peq suave">· ${esc(v.seudonimo)} · ${escudoHtml(v.equipo)} ${esc(v.equipo)} · ${esc(v.mapa)} · ${esc((v.enviado || '').slice(0, 16).replace('T', ' '))}</span></div>
+            ${v.paso ? `<p class="peq suave" style="margin-top:8px"><b>Se pidió:</b> ${esc(v.paso.instruccion)}${v.paso.entregable ? ` <b>Entrega:</b> ${esc(v.paso.entregable)}` : ''}</p>` : ''}
+            <div class="texto">${esc(v.texto)}</div>
+            <div class="fila-acciones">
+              <input type="text" placeholder="Nota para el alumno (obligatoria si lo devuelves)" class="nota" maxlength="500">
+              <button class="btn btn-primario btn-peq av-ok">Aceptar</button>
+              <button class="btn btn-secundario btn-peq av-no">Devolver</button>
+            </div>
+          </div>`).join('');
+      document.querySelectorAll('.reflexion-card[data-s]').forEach(card => {
+        const enviar = async aceptar => {
+          try {
+            await api('/docente/avance', 'POST', { seudonimo: card.dataset.s, mapa: +card.dataset.m, mision: +card.dataset.n, aceptar, nota: card.querySelector('.nota').value }, H());
+            card.remove(); toast(aceptar ? 'Avance aceptado' : 'Avance devuelto'); pintarPestanas();
+          } catch (e) { toast(e.message, 5000); }
+        };
+        card.querySelector('.av-ok').onclick = () => enviar(true);
+        card.querySelector('.av-no').onclick = () => enviar(false);
+      });
+    },
+
     async insignias() {
       const sug = await api('/docente/sugerencias', 'GET', null, H());
       const nombre = n => { const p = META.postulados.find(p => p.n === n) || {}; return p.insignia ? `${p.insignia} (postulado ${n}: ${p.corto})` : p.corto || n; };
@@ -584,7 +615,9 @@
             <select id="a-tipo">${productos.map(x => `<option value="${esc(x.clave)}">${esc(x.nombre)}</option>`).join('')}</select></div>
         </div>
         <label for="a-alcances">Alcances <span class="suave peq" style="font-weight:400">(opcional: extensión, fecha de entrega, qué se permite hacer con la IA)</span></label>
-        <textarea id="a-alcances" maxlength="400" placeholder="Por ejemplo: una página, para el viernes. Pueden usar IA para buscar ideas, no para redactar." style="min-height:64px"></textarea>
+        <textarea id="a-alcances" maxlength="400" placeholder="Por ejemplo: una página. Pueden usar IA para buscar ideas, no para redactar." style="min-height:64px"></textarea>
+        <div class="crear-fila"><div style="flex:0 1 240px"><label for="a-entrega">Fecha de entrega <span class="suave peq" style="font-weight:400">(opcional)</span></label><input type="date" id="a-entrega" style="width:100%;padding:11px 13px;font:inherit;border:1.5px solid #B9B29F;border-radius:10px"></div>
+          <p class="peq suave" style="flex:1 1 260px;margin:0 0 6px">Ese día gana el equipo que tenga más territorios.</p></div>
         <div class="crear-fila">
           <div><label for="a-grupo">Grupo</label>
             <select id="a-grupo">${yo.grupos.map(g => `<option value="${esc(g.codigo)}">${esc(g.nombre)} · ${esc(nivelEdad(g.nivel || 2))}</option>`).join('')}<option value="">Crear un grupo nuevo…</option></select></div>
@@ -634,7 +667,7 @@
         }
         const soloBase = !est.configurado || ($('a-base') && $('a-base').checked);
         const m = await api('/docente/mapas', 'POST', { codigo: g.codigo, nombre: tema }, H());
-        const tarea = await api(`/docente/mapas/${m.id}/tarea`, 'POST', { tipo: $('a-tipo').value, tema, alcances: $('a-alcances').value }, H());
+        const tarea = await api(`/docente/mapas/${m.id}/tarea`, 'POST', { tipo: $('a-tipo').value, tema, alcances: $('a-alcances').value, entrega: $('a-entrega').value || null }, H());
         if (!soloBase) await api(`/docente/mapas/${m.id}/solo-propios`, 'PUT', { valor: true }, H());
         pasoTarea(g, m, tarea, soloBase ? () => pasoCompartir(g, m) : () => pasoGenerar(g, m, tema));
       } catch (e) { toast(e.message, 6000); $('a-crear').disabled = false; }
@@ -656,7 +689,9 @@
       <h2 style="margin:0">Critia propone esta tarea</h2>
       <p class="suave" style="margin:4px 0 14px">Actividad «${esc(m.nombre)}». Cada paso corresponde a un territorio del mapa y trabaja la misma habilidad que su caso. Cambia lo que quieras: los alumnos verán la tarea cuando la apruebes.</p>
       <div class="previa">
-        <label for="t-consigna" style="margin-top:0">Lo que se le pide al grupo</label>
+        <label for="t-entrega" style="margin-top:0">Fecha de entrega <span class="suave peq" style="font-weight:400">(opcional; ese día gana el equipo con más territorios)</span></label>
+        <input type="date" id="t-entrega" value="${esc(t.entrega || '')}" style="padding:9px 12px;font:inherit;border:1.5px solid #B9B29F;border-radius:10px">
+        <label for="t-consigna">Lo que se le pide al grupo</label>
         <textarea id="t-consigna" style="min-height:120px" maxlength="1200">${esc(t.consigna)}</textarea>
         ${t.pasos.map(p => `<div class="paso-tarea" data-n="${p.mision}">
           <div class="pt-cab"><b>${p.mision}</b><span>${esc(misionDe(p.mision).nombre || '')}</span></div>
@@ -672,7 +707,7 @@
     $('t-ok').onclick = async () => {
       $('t-ok').disabled = true;
       const pasos = [...document.querySelectorAll('.paso-tarea')].map(d => ({ mision: +d.dataset.n, titulo: d.querySelector('.pt-titulo').value, instruccion: d.querySelector('.pt-ins').value, entregable: d.querySelector('.pt-ent').value }));
-      try { await api(`/docente/mapas/${m.id}/tarea`, 'PUT', { consigna: $('t-consigna').value, pasos, aprobada: true }, H()); toast('Tarea aprobada'); alSeguir(); }
+      try { await api(`/docente/mapas/${m.id}/tarea`, 'PUT', { consigna: $('t-consigna').value, pasos, aprobada: true, entrega: $('t-entrega').value }, H()); toast('Tarea aprobada'); alSeguir(); }
       catch (e) { toast(e.message, 6000); $('t-ok').disabled = false; }
     };
     $('t-salir').onclick = () => irA('inicio');

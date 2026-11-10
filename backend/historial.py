@@ -283,10 +283,13 @@ def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
                 if p:
                     avance.setdefault(str(p), set()).add(r["caso_id"])
         ins = [r["postulado"] for r in con.execute(f"SELECT postulado FROM insignias WHERE seudonimo=?{fm}", (seudonimo,) + pm)]
+        n_av = con.execute(f"SELECT COUNT(*) FROM avances WHERE seudonimo=? AND estado='aceptado'{fm}", (seudonimo,) + pm).fetchone()[0]
+        puntos_total += n_av * PUNTOS_AVANCE
         return {
             "casos": casos,
             "sentidos_total": total,
             "puntos_total": puntos_total,
+            "avances_aceptados": n_av,
             "casos_hoy": casos_hoy,
             "puntos_hoy": puntos_hoy,
             "meta_diaria": META_DIARIA,
@@ -498,6 +501,18 @@ CREATE TABLE IF NOT EXISTS tareas (
     aprobada  INTEGER NOT NULL DEFAULT 0,
     creado    TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS avances (
+    seudonimo TEXT NOT NULL,
+    mapa_id   INTEGER NOT NULL,
+    mision    INTEGER NOT NULL,
+    texto     TEXT NOT NULL,
+    enviado   TEXT NOT NULL,
+    estado    TEXT NOT NULL DEFAULT 'pendiente',   -- pendiente | aceptado | devuelto
+    nota      TEXT,
+    docente   TEXT,
+    revisado  TEXT,
+    PRIMARY KEY (seudonimo, mapa_id, mision)
+);
 CREATE TABLE IF NOT EXISTS sesiones_alumno (
     token     TEXT PRIMARY KEY,
     seudonimo TEXT NOT NULL,
@@ -529,6 +544,9 @@ def _migrar():
         cols = [r[1] for r in con.execute("PRAGMA table_info(mapas)")]
         if "solo_propios" not in cols:
             con.execute("ALTER TABLE mapas ADD COLUMN solo_propios INTEGER DEFAULT 0")
+        cols = [r[1] for r in con.execute("PRAGMA table_info(tareas)")]
+        if "entrega" not in cols:
+            con.execute("ALTER TABLE tareas ADD COLUMN entrega TEXT")
         cols = [r[1] for r in con.execute("PRAGMA table_info(insignias)")]
         if "mapa_id" not in cols:
             con.executescript("""
@@ -804,11 +822,56 @@ def nivel_de_alumno(seudonimo):
 
 
 # ---------- Tarea propuesta para un mapa (Critia 2.0) ----------
-def guardar_tarea(mapa_id, tipo, tema, alcances, consigna, pasos, aprobada=False):
+def guardar_tarea(mapa_id, tipo, tema, alcances, consigna, pasos, aprobada=False, entrega=None):
     with conectar() as con:
-        con.execute("INSERT OR REPLACE INTO tareas (mapa_id, tipo, tema, alcances, consigna, pasos, aprobada, creado) VALUES (?,?,?,?,?,?,?,?)",
-                    (int(mapa_id), tipo, tema, alcances or "", consigna, json.dumps(pasos, ensure_ascii=False), 1 if aprobada else 0, ahora()))
+        con.execute("INSERT OR REPLACE INTO tareas (mapa_id, tipo, tema, alcances, consigna, pasos, aprobada, creado, entrega) VALUES (?,?,?,?,?,?,?,?,?)",
+                    (int(mapa_id), tipo, tema, alcances or "", consigna, json.dumps(pasos, ensure_ascii=False), 1 if aprobada else 0, ahora(), entrega or None))
     return tarea_de_mapa(mapa_id)
+
+
+# ---------- Avances de la tarea: lo que el alumno entrega en cada paso ----------
+PUNTOS_AVANCE = 3          # puntos que da al territorio un avance aceptado por el docente
+PARTICIPACION_MINIMA = 0.5 # parte del equipo que debe haber hecho el paso para poder ser dueño del territorio
+
+
+def guardar_avance(seudonimo, mapa_id, mision, texto):
+    """El alumno entrega (o vuelve a entregar) su avance de un paso. Un avance ya aceptado no se cambia."""
+    with conectar() as con:
+        r = con.execute("SELECT estado FROM avances WHERE seudonimo=? AND mapa_id=? AND mision=?", (seudonimo, mapa_id, mision)).fetchone()
+        if r and r["estado"] == "aceptado":
+            raise ValueError("Ese avance ya fue aceptado")
+        con.execute("INSERT OR REPLACE INTO avances (seudonimo, mapa_id, mision, texto, enviado, estado) VALUES (?,?,?,?,?,'pendiente')",
+                    (seudonimo, int(mapa_id), int(mision), texto, ahora()))
+
+
+def avances_de_alumno(seudonimo, mapa_id):
+    with conectar() as con:
+        return {r["mision"]: {"texto": r["texto"], "estado": r["estado"], "nota": r["nota"] or "", "enviado": r["enviado"]}
+                for r in con.execute("SELECT * FROM avances WHERE seudonimo=? AND mapa_id=?", (seudonimo, mapa_id))}
+
+
+def avances_pendientes(codigos):
+    f, params = _filtro_grupos(codigos)
+    with conectar() as con:
+        return [dict(r) for r in con.execute(f"""SELECT v.seudonimo, v.mapa_id, v.mision, v.texto, v.enviado, a.grupo, a.equipo, m.nombre mapa
+                    FROM avances v JOIN alumnos a ON a.seudonimo=v.seudonimo JOIN mapas m ON m.id=v.mapa_id
+                    WHERE v.estado='pendiente'{f} ORDER BY v.enviado""", params)]
+
+
+def revisar_avance(seudonimo, mapa_id, mision, aceptar, nota, docente):
+    with conectar() as con:
+        cur = con.execute("UPDATE avances SET estado=?, nota=?, docente=?, revisado=? WHERE seudonimo=? AND mapa_id=? AND mision=?",
+                          ("aceptado" if aceptar else "devuelto", (nota or "").strip()[:500], docente, ahora(), seudonimo, mapa_id, mision))
+        return cur.rowcount > 0
+
+
+def puntos_avances(seudonimo, mapa_id=None):
+    """Puntos por avances aceptados del alumno (en un mapa o en todos)."""
+    with conectar() as con:
+        q, p = "SELECT COUNT(*) FROM avances WHERE seudonimo=? AND estado='aceptado'", [seudonimo]
+        if mapa_id:
+            q += " AND mapa_id=?"; p.append(mapa_id)
+        return con.execute(q, p).fetchone()[0] * PUNTOS_AVANCE
 
 
 def tarea_de_mapa(mapa_id):
@@ -882,6 +945,24 @@ def universo(codigo, mision_de_caso, detective_ids=()):
                     terr.setdefault(mis, {e: 0 for e in EQUIPOS})[eq] += PUNTOS_BONO
                     bonos[eq] = bonos.get(eq, 0) + 1
                     totales[eq]["rachas"] += 1
+            # Critia 2.0: avances de la tarea. Los aceptados dan puntos; los entregados cuentan como participación.
+            tarea = tarea_de_mapa(m["id"])
+            con_tarea = bool(tarea and tarea["aprobada"])
+            hicieron = {}    # mision -> equipo -> alumnos que hicieron el paso
+            if con_tarea:
+                for r in con.execute("""SELECT a.equipo, a.seudonimo, v.mision, v.estado FROM avances v JOIN alumnos a ON a.seudonimo=v.seudonimo
+                                        WHERE a.grupo=? AND v.mapa_id=?""", (g["codigo"], m["id"])):
+                    if r["estado"] == "aceptado":
+                        terr.setdefault(r["mision"], {e: 0 for e in EQUIPOS})[r["equipo"]] += PUNTOS_AVANCE
+                        totales[r["equipo"]]["sentidos"] += PUNTOS_AVANCE
+                    if r["estado"] in ("aceptado", "pendiente"):
+                        hicieron.setdefault(r["mision"], {}).setdefault(r["equipo"], set()).add(r["seudonimo"])
+            else:
+                for r in con.execute("""SELECT a.equipo, a.seudonimo, i.caso_id FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                        WHERE i.cierre IS NOT NULL AND a.grupo=? AND i.mapa_id=?""", (g["codigo"], m["id"])):
+                    mis = mision_de_caso.get(r["caso_id"])
+                    if mis:
+                        hicieron.setdefault(mis, {}).setdefault(r["equipo"], set()).add(r["seudonimo"])
             ins = {e: 0 for e in EQUIPOS}
             ins_det = []  # [(equipo, postulado)] para las banderas
             for r in con.execute("""SELECT a.equipo, i.postulado FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
@@ -891,12 +972,24 @@ def universo(codigo, mision_de_caso, detective_ids=()):
             territorios = []
             for mis in range(1, 9):
                 pts = terr.get(mis, {e: 0 for e in EQUIPOS})
-                top = max(pts.values()) if pts else 0
-                lideres = [e for e, v in pts.items() if v == top and v > 0]
+                # Se compara el promedio por jugador, y solo puede ser dueño un equipo con participación suficiente
+                prom = {e: (round(pts[e] / alumnos_eq[e], 2) if alumnos_eq[e] else 0) for e in EQUIPOS}
+                part = {}
+                for e in EQUIPOS:
+                    n = len(hicieron.get(mis, {}).get(e, ()))
+                    part[e] = {"hicieron": n, "jugadores": alumnos_eq[e],
+                               "cumple": bool(alumnos_eq[e]) and n >= alumnos_eq[e] * PARTICIPACION_MINIMA}
+                aptos = {e: prom[e] for e in EQUIPOS if part[e]["cumple"] and prom[e] > 0}
+                top = max(aptos.values()) if aptos else 0
+                lideres = [e for e, v in aptos.items() if v == top]
                 dueno = lideres[0] if len(lideres) == 1 else None
                 if dueno:
                     totales[dueno]["territorios"] += 1
-                territorios.append({"mision": mis, "dueno": dueno, "disputa": len(lideres) > 1, "puntos": pts})
+                # el que va arriba en promedio pero todavía no tiene a la mitad de su equipo en el paso
+                mejor = max(prom.values())
+                falta = [e for e in EQUIPOS if mejor > 0 and prom[e] == mejor and not part[e]["cumple"]]
+                territorios.append({"mision": mis, "dueno": dueno, "disputa": len(lideres) > 1, "puntos": pts,
+                                    "promedio": prom, "participacion": part, "falta_participacion": falta})
             # isla del detective: equipo con más reflexiones del caso del detective aprobadas por el docente
             isla = {e: 0 for e in EQUIPOS}
             if detective_ids:
@@ -919,12 +1012,32 @@ def universo(codigo, mision_de_caso, detective_ids=()):
                 totales[dueno_materia]["materias"] += 1
             for e in EQUIPOS:
                 totales[e]["insignias"] += ins[e]
+            # Cierre del mapa: en la fecha de entrega gana el equipo con más territorios
+            cierre = None
+            if con_tarea:
+                cuenta = {e: sum(1 for t in territorios if t["dueno"] == e) for e in EQUIPOS}
+                mas = max(cuenta.values())
+                punteros = [e for e, v in cuenta.items() if v == mas and v > 0]
+                pasos = {p["mision"] for p in tarea["pasos"]}
+                listos = {}
+                for r in con.execute("""SELECT a.equipo, v.seudonimo, COUNT(*) n FROM avances v JOIN alumnos a ON a.seudonimo=v.seudonimo
+                                        WHERE a.grupo=? AND v.mapa_id=? AND v.estado='aceptado' GROUP BY v.seudonimo""", (g["codigo"], m["id"])):
+                    if r["n"] >= len(pasos):
+                        listos[r["equipo"]] = listos.get(r["equipo"], 0) + 1
+                cerrado = bool(tarea.get("entrega")) and ahora()[:10] > tarea["entrega"]
+                cierre = {"entrega": tarea.get("entrega"), "cerrado": cerrado,
+                          "puntero": punteros[0] if len(punteros) == 1 else None,
+                          "ganador": (punteros[0] if len(punteros) == 1 else None) if cerrado else None,
+                          "terminaron": {e: listos.get(e, 0) for e in EQUIPOS},
+                          "equipo_completo": [e for e in EQUIPOS if alumnos_eq[e] and listos.get(e, 0) >= alumnos_eq[e]]}
             salida.append({"id": m["id"], "nombre": m["nombre"], "docente": m["docente_nombre"] or m["docente"],
+                           "con_tarea": con_tarea, "cierre": cierre,
                            "territorios": territorios, "insignias": ins, "banderas": ins_det, "dueno": dueno_materia,
                            "rachas": bonos, "isla": {"dueno": isla_dueno, "disputa": len(lid) > 1, "puntos": isla}})
         return {"grupo": {"codigo": g["codigo"], "nombre": g["nombre"], "nivel": g.get("nivel") or 2},
                 "alumnos": alumnos_eq, "mapas": salida, "totales": totales,
-                "reglas": {"racha_bono": RACHA_BONO, "puntos_bono": PUNTOS_BONO, "detective_ok": DETECTIVE_OK}}
+                "reglas": {"racha_bono": RACHA_BONO, "puntos_bono": PUNTOS_BONO, "detective_ok": DETECTIVE_OK,
+                           "puntos_avance": PUNTOS_AVANCE, "participacion_minima": PARTICIPACION_MINIMA}}
 
 
 def reto_semanal(codigo):
@@ -976,6 +1089,14 @@ def tablero_equipos_grupo(codigo, mapa_id=None):
         for r in con.execute(f"""SELECT a.equipo, COUNT(*) n FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
                                 WHERE a.grupo=?{fm} GROUP BY a.equipo""", (codigo,) + pm):
             tab[r["equipo"]]["insignias"] = r["n"]
+        for e in EQUIPOS:
+            tab[e]["avances"] = 0
+        for r in con.execute(f"""SELECT a.equipo, COUNT(*) n FROM avances i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                WHERE a.grupo=? AND i.estado='aceptado'{fm} GROUP BY a.equipo""", (codigo,) + pm):
+            tab[r["equipo"]]["avances"] = r["n"]
+            tab[r["equipo"]]["puntos"] += r["n"] * PUNTOS_AVANCE
+        for e in EQUIPOS:
+            tab[e]["promedio"] = round(tab[e]["puntos"] / tab[e]["alumnos"], 1) if tab[e]["alumnos"] else 0
         return tab
 
 

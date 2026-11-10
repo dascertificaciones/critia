@@ -21,7 +21,9 @@
     <summary>¿Cómo se gana un territorio?</summary>
     <ul>
       <li>Cada materia es un mapa con ocho territorios, uno por misión.</li>
-      <li>Un territorio es del equipo que más puntos ha ganado ahí. Si hay empate, queda en disputa.</li>
+      <li>Un territorio es del equipo con mejor promedio de puntos por jugador. Si hay empate, queda en disputa.</li>
+      <li>Para ser dueño, al menos la mitad del equipo debe haber hecho ese paso.</li>
+      <li>En los mapas con tarea, cada avance aceptado por el docente suma puntos al territorio. En la fecha de entrega gana el equipo con más territorios.</li>
       <li>Una racha personal de <b id="r-racha">3</b> casos o más suma <b id="r-bono">2</b> puntos extra al territorio donde ese alumno juega.</li>
       <li>La materia completa es del equipo con más insignias en ese mapa.</li>
       <li>La isla del detective es del equipo con más reflexiones del caso del detective aprobadas por el docente.</li>
@@ -40,6 +42,7 @@
 const alumno = Sesion.leer();
 const grupo = new URLSearchParams(location.search).get('grupo') || (alumno || {}).grupo || '';
 const cap = e => e.charAt(0).toUpperCase() + e.slice(1);
+const fechaCorta = f => { if (!f) return ''; const [y, m, d] = f.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('es-MX', { day: 'numeric', month: 'long' }); };
 const $ = id => document.getElementById(id);
 // Con sesión de alumno: barra de navegación del juego. Sin sesión (proyección en el salón): pantalla limpia.
 if (alumno) { modoJuego('equipo'); $('volver').classList.add('oculto'); }
@@ -52,7 +55,8 @@ function infoTerritorio(m, n, misNombre) {
     return `<b>Isla del detective</b> · ${i.dueno ? 'equipo ' + cap(i.dueno) : i.disputa ? 'en disputa' : 'sin dueño'}<span>${Object.entries(i.puntos).map(([e, v]) => `${cap(e)} ${v}`).join(' · ')}</span>`;
   }
   const t = m.territorios.find(x => x.mision === +n);
-  return `<b>${n} · ${esc(misNombre[n] || '')}</b> · ${t.dueno ? 'equipo ' + cap(t.dueno) : t.disputa ? 'en disputa' : 'sin dueño'}<span>${Object.entries(t.puntos).map(([e, v]) => `${cap(e)} ${v}`).join(' · ')}</span>`;
+  const prom = t.promedio || t.puntos, part = t.participacion || {}, falta = t.falta_participacion || [];
+  return `<b>${n} · ${esc(misNombre[n] || '')}</b> · ${t.dueno ? 'equipo ' + cap(t.dueno) : t.disputa ? 'en disputa' : falta.length ? `va arriba ${cap(falta[0])}, pero le falta participación` : 'sin dueño'}<span>Promedio por jugador (hicieron el paso): ${Object.entries(prom).filter(([e]) => !part[e] || part[e].jugadores).map(([e, v]) => `${cap(e)} ${v}${part[e] ? ` (${part[e].hicieron}/${part[e].jugadores})` : ''}`).join(' · ')}</span>`;
 }
 
 function mapaSvg(m) {
@@ -90,6 +94,10 @@ async function pintar() {
     <section class="uni-mapa" data-id="${+m.id}">
       <div class="um-cab"><div><h2>${esc(m.nombre)}</h2><small>Mapa de ${esc(m.docente)}</small></div>
         ${m.dueno ? `<div class="um-dueno eq-${m.dueno}">${escudoHtml(m.dueno)}<span>Materia del equipo<b>${cap(m.dueno)}</b></span></div>` : '<div class="um-dueno neutral"><span>Materia<b>sin dueño</b></span></div>'}</div>
+      ${m.cierre ? `<div class="um-cierre${m.cierre.cerrado ? ' cerrado' : ''}">${m.cierre.cerrado
+          ? (m.cierre.ganador ? `La entrega terminó. <b>Ganó el equipo ${cap(m.cierre.ganador)}.</b>` : 'La entrega terminó. No hubo un equipo ganador.')
+          : `${m.cierre.entrega ? 'Entrega el ' + fechaCorta(m.cierre.entrega) + '. ' : ''}${m.cierre.puntero ? 'Va al frente el equipo ' + cap(m.cierre.puntero) + '.' : 'Todavía nadie va al frente.'}`}
+        ${m.cierre.equipo_completo.length ? `<span>Equipo completo (todos terminaron la tarea): ${m.cierre.equipo_completo.map(cap).join(', ')}</span>` : ''}</div>` : ''}
       <div class="mapa-marco">${mapaSvg(m)}</div>
       <div class="um-info" aria-live="polite">${abiertos[m.id] ? infoTerritorio(m, abiertos[m.id], misNombre) : 'Toca un territorio para ver los puntos de cada equipo.'}</div>
       <div class="um-fila"><span>Territorios</span>${eq.map(e => `<i>${escudoHtml(e)}${m.territorios.filter(t => t.dueno === e).length}</i>`).join('')}</div>

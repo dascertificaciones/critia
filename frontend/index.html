@@ -183,7 +183,13 @@
     tareaMapa = await api(`/tarea${mapaId ? '?mapa=' + mapaId : ''}`).catch(() => null);
     const cajaTarea = $('tarea-mapa');
     cajaTarea.classList.toggle('oculto', !tareaMapa);
-    if (tareaMapa) { cajaTarea.querySelector('summary').textContent = `Tu tarea: ${tareaMapa.producto} · ${tareaMapa.tema}`; cajaTarea.querySelector('p').textContent = tareaMapa.consigna; }
+    if (tareaMapa) {
+      const hechos = Object.values(tareaMapa.avances || {}).filter(v => v.estado === 'aceptado').length;
+      cajaTarea.querySelector('summary').textContent = `Tu tarea: ${tareaMapa.producto} · ${hechos} de ${tareaMapa.pasos.length} pasos aceptados${tareaMapa.entrega ? ' · entrega el ' + fechaCorta(tareaMapa.entrega) : ''}`;
+      cajaTarea.querySelector('p').textContent = tareaMapa.consigna;
+    }
+    const cierre = terrMapaDe(uni, mapaId)?.cierre;
+    if (cierre && cierre.cerrado) setTimeout(() => toast(cierre.ganador ? `La entrega terminó. Ganó el equipo ${cierre.ganador}.` : 'La entrega terminó. No hubo un equipo ganador.', 5000), 1200);
     const mapaActual = (a.mapas || []).find(m => m.id === mapaId);
     progHoja = prog;
     const terrMapa = uni ? ((uni.mapas || []).find(x => x.id === mapaId) || (uni.mapas || [])[0]) : null;
@@ -329,6 +335,8 @@
       <span class="fc-estado">${h ? `${h.puntos} ${h.puntos === 1 ? 'punto' : 'puntos'} · repetir` : 'Jugar'}</span></a>`;
   }
   let progHoja = null, tareaMapa = null;
+  const fechaCorta = f => { if (!f) return ''; const [y, m, d] = f.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('es-MX', { day: 'numeric', month: 'long' }); };
+  const terrMapaDe = (uni, mapaId) => uni ? ((uni.mapas || []).find(x => x.id === mapaId) || (uni.mapas || [])[0]) : null;
   function mostrarHoja(desde) { ultimoFoco = desde; $('hoja-fondo').classList.remove('oculto'); const h = $('hoja-terr'); h.classList.remove('oculto'); h.scrollTop = 0; $('hoja-titulo').focus({ preventScroll: true }); }
   function abrirHoja(p, t, desde) {
     const a = Sesion.leer();
@@ -339,11 +347,45 @@
     if (paso) $('hoja-desc').insertAdjacentHTML('beforeend', `<span class="paso-alumno"><b>Paso ${p.m.n} de tu tarea: ${esc(paso.titulo)}</b>${esc(paso.instruccion)}${paso.entregable ? `<em>Entregas: ${esc(paso.entregable)}</em>` : ''}</span>`);
     if (t) {
       const max = Math.max(1, ...Object.values(t.puntos));
-      $('hoja-control').innerHTML = `<div class="hc-titulo">${t.dueno ? `Lo controla el equipo <b>${esc(t.dueno)}</b>` : t.disputa ? '<b>En disputa:</b> hay empate en primer lugar' : 'Todavía no tiene dueño'}</div>` +
-        meta.equipos.map(e => `<div class="hc-barra eq-${e}${e === a.equipo ? ' mio' : ''}"><span>${esc(e)}</span><i><u style="width:${Math.round(100 * t.puntos[e] / max)}%"></u></i><b>${t.puntos[e]}</b></div>`).join('');
+      const prom = t.promedio || t.puntos, part = t.participacion || {};
+      const maxP = Math.max(1, ...Object.values(prom));
+      const falta = (t.falta_participacion || []);
+      $('hoja-control').innerHTML = `<div class="hc-titulo">${t.dueno ? `Lo controla el equipo <b>${esc(t.dueno)}</b>` : t.disputa ? '<b>En disputa:</b> hay empate en primer lugar' : falta.length ? `El equipo <b>${esc(falta[0])}</b> va arriba, pero le falta que la mitad haga este paso` : 'Todavía no tiene dueño'}</div>
+        <div class="hc-nota">Promedio de puntos por jugador · cuántos del equipo hicieron este paso</div>` +
+        meta.equipos.filter(e => !part[e] || part[e].jugadores).map(e => `<div class="hc-barra eq-${e}${e === a.equipo ? ' mio' : ''}"><span>${esc(e)}</span><i><u style="width:${Math.round(100 * prom[e] / maxP)}%"></u></i><b>${prom[e]}</b>${part[e] ? `<small class="${part[e].cumple ? 'ok' : ''}">${part[e].hicieron}/${part[e].jugadores}</small>` : ''}</div>`).join('');
     } else $('hoja-control').innerHTML = '';
     $('hoja-casos').innerHTML = p.vacia ? '<p class="ayuda">Este territorio todavía no tiene casos.</p>' : p.lista.map(c => filaCaso(c, progHoja)).join('');
+    if (paso) pintarAvance(p, paso);
     mostrarHoja(desde);
+  }
+  // Avance de la tarea en este territorio: el alumno lo entrega y el docente lo acepta o lo devuelve
+  function pintarAvance(p, paso) {
+    const n = p.m.n, av = (tareaMapa.avances || {})[n];
+    const conCaso = p.vacia || p.lista.some(c => progHoja.casos[c.id]);
+    const caja = document.createElement('div'); caja.className = 'avance';
+    if (av && av.estado === 'aceptado') {
+      caja.classList.add('aceptado');
+      caja.innerHTML = `<b>Avance aceptado · +${tareaMapa.puntos_avance} puntos</b><p>${esc(av.texto)}</p>${av.nota ? `<small>Nota de tu maestro: ${esc(av.nota)}</small>` : ''}`;
+    } else if (!conCaso) {
+      caja.innerHTML = `<b>Tu avance de este paso</b><small>Primero resuelve un caso de este territorio. Después podrás entregar tu avance.</small>`;
+    } else {
+      const estado = av ? (av.estado === 'devuelto' ? `<small class="devuelto">Tu maestro lo devolvió: ${esc(av.nota || 'revísalo y vuelve a enviarlo')}</small>` : '<small>Enviado. Tu maestro todavía no lo revisa; puedes corregirlo y volver a enviarlo.</small>') : '';
+      caja.innerHTML = `<label for="av-texto"><b>Tu avance de este paso</b></label>${estado}
+        <textarea id="av-texto" maxlength="3000" placeholder="Escribe o pega aquí lo que hiciste en este paso...">${av ? esc(av.texto) : ''}</textarea>
+        <button class="btn btn-primario" id="av-enviar" style="min-height:48px">${av ? 'Volver a enviar' : 'Enviar avance'}</button>`;
+    }
+    $('hoja-casos').appendChild(caja);
+    const b = document.getElementById('av-enviar');
+    if (b) b.onclick = async () => {
+      const texto = document.getElementById('av-texto').value.trim();
+      if (texto.length < 15) { toast('Escribe tu avance con un poco más de detalle'); return; }
+      b.disabled = true;
+      try {
+        const al = Sesion.leer();
+        await api('/avance', 'POST', { mapa: al.mapa || null, mision: n, texto });
+        toast('Avance enviado. Tu maestro lo revisará.'); cerrarHoja(); mostrarMapa(Sesion.leer());
+      } catch (e) { toast(e.message, 5000); b.disabled = false; }
+    };
   }
   function abrirResumenHoy(prog, habs) {
     $('hoja-etq').textContent = 'Misión de hoy';

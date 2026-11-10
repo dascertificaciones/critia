@@ -95,7 +95,16 @@ Hecho hasta ahora:
 - Critia propone una consigna y ocho pasos, uno por territorio; cada paso trabaja la misma habilidad que la misión de ese territorio. La propuesta sale de plantillas escritas a mano en `backend/planeador.py`, no de un modelo.
 - El docente edita y aprueba la propuesta. El alumno ve la tarea en el mapa y, en cada territorio, el paso que le toca.
 
-Pendiente: que el alumno entregue su avance en cada paso, que el docente lo revise, y la lógica de competencia entre equipos para la tarea.
+- **Avances por paso.** Después de resolver un caso del territorio, el alumno entrega su avance de ese paso. El docente lo acepta o lo devuelve con una nota en **Por revisar → Avances de tarea**; un avance devuelto se puede corregir y volver a enviar.
+- **Competencia entre equipos:**
+  1. Un territorio se gana con casos y con avances: cada avance aceptado suma 3 puntos.
+  2. Se compara el promedio de puntos por jugador, no la suma, para que el tamaño del equipo no decida.
+  3. Un equipo solo puede ser dueño de un territorio si al menos la mitad de sus integrantes hizo ese paso (entregó su avance; en mapas sin tarea, cerró un caso).
+  4. El docente puede fijar una fecha de entrega. Pasado ese día, gana el equipo con más territorios. Un equipo en el que todos terminaron la tarea aparece como «equipo completo».
+
+Las reglas están en `backend/historial.py` (`PUNTOS_AVANCE`, `PARTICIPACION_MINIMA` y la función `universo`). No se han probado con estudiantes.
+
+Pendiente: probarlo con un grupo real; que la propuesta de tarea se adapte al tema con ayuda del modelo; avisar al alumno cuando su avance fue revisado.
 
 ## Siguiente versión
 

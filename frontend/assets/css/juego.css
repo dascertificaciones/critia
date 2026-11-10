@@ -359,3 +359,15 @@ body.juego-pag .punteria.revision { border-color: var(--azul); margin-top: 10px;
 .tarea-mapa p { margin: 0 0 12px; color: var(--tinta-suave); }
 .paso-alumno { display: block; margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: #2B2550; border-left: 4px solid var(--violeta); color: var(--tinta); font-size: 15px; }
 .paso-alumno b { display: block; margin-bottom: 4px; } .paso-alumno em { display: block; margin-top: 8px; font-style: normal; font-size: 13px; color: var(--tinta-suave); }
+
+/* ---------- Critia 2.0: avances de la tarea y competencia por promedio ---------- */
+.hc-nota { font-size: 12px; color: var(--tinta-suave); margin: -4px 0 6px; }
+.hc-barra:has(small) { grid-template-columns: 62px 1fr 38px 40px; }
+.hc-barra small { text-align: right; font-size: 12px; color: var(--tinta-suave); text-transform: none; } .hc-barra small.ok { color: var(--hierba); font-weight: 700; }
+.avance { display: grid; gap: 8px; padding: 14px; border-radius: 14px; background: #1E2742; border: 2px solid var(--violeta); }
+.avance b { font-size: 16px; } .avance small { font-size: 13px; color: var(--tinta-suave); } .avance small.devuelto { color: var(--ambar); }
+.avance p { margin: 0; white-space: pre-wrap; color: var(--tinta-suave); font-size: 15px; }
+.avance textarea { min-height: 120px; } .avance label { margin: 0; }
+.avance.aceptado { border-color: var(--hierba); } .avance.aceptado b { color: var(--hierba); }
+.um-cierre { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: #2B2550; border: 1px solid var(--violeta); font-size: 14px; }
+.um-cierre.cerrado { border-color: var(--ambar); } .um-cierre span { display: block; margin-top: 4px; color: var(--hierba); font-weight: 700; }
