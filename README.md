@@ -50,11 +50,45 @@ El banco base de esta copia contiene **30 casos: 27 de opción múltiple y tres 
 
 Las tres capturas se extrajeron de [el video de presentación](https://filedn.com/lzob2HCMOzYmKrnRoiB89Q8/WhatsApp%20Video%202026-11-05%20at%207.40.58%20PM.mp4). Su resolución y encuadre corresponden al video fuente.
 
+## Versión actual: rediseño de juego (noviembre de 2026)
+
+Esta versión cambia la experiencia del alumno y del docente. Las capturas de la sección anterior corresponden al diseño previo, extraído del video; todavía no se han sustituido.
+
+**Para el alumno**
+
+- **El caso en pasos cortos.** Un paso por pantalla: leer, decidir, seguridad, pista del tutor, revisar, resultado y reflexión. Barra de avance, botón principal fijo abajo y animaciones breves, que se desactivan si el dispositivo pide reducir el movimiento.
+- **Mapa ilustrado de territorios.** Un continente con ocho territorios y la isla del detective. Cada territorio se tiñe con el color del equipo que lo controla y muestra el avance del alumno. Al tocarlo se abren sus casos y los puntos de cada equipo.
+- **Barra de navegación** con tres secciones: Mapa, Equipo e Insignias. El Universo usa el mismo mapa para todas las materias del grupo.
+- **Misión de hoy.** Tres casos por día, con avance visible y un resumen al cumplirla. No bloquea seguir jugando.
+- **Puntos con una sola regla** en el mapa, el caso y la página Equipo: un punto por cada habilidad ganada (justificar, revisar, calibrar) y uno más por resolver sin pistas. Antes de jugar, el caso explica cómo se suman; corregir después de una pista también cuenta.
+- **Ruta recomendada** en el mapa, en el orden de las misiones. Es una sugerencia, no un bloqueo.
+- **Retomar un caso.** Si el alumno recarga la página a medio caso, vuelve al paso donde se quedó.
+- **Tema oscuro de juego** en las pantallas del alumno. La portada, la guía y el panel docente conservan el tema claro.
+
+**Para el docente**
+
+- **Inicio con un solo campo:** el tema de la clase. Un asistente de tres pasos crea la actividad, prepara un caso por territorio, los muestra uno por uno para aprobar, editar o descartar, y termina con el código del grupo y las instrucciones para los alumnos.
+- **Cuatro secciones** en lugar de nueve pestañas: Inicio, Por revisar, Seguimiento y Ajustes.
+- La generación por tema envía cada caso a su territorio. Antes, un postulado compartido por dos misiones mandaba el caso siempre a la primera.
+
+**Cómo se comprobó.** Los recorridos del alumno y del docente se probaron en un navegador automatizado, en tamaño de celular y de escritorio, con datos de prueba. El asistente de generación se probó con respuestas simuladas del modelo: **falta probarlo con una clave real del proveedor**. El repositorio sigue sin pruebas automáticas.
+
+## Siguiente versión
+
+Trabajo planeado, todavía sin construir:
+
+1. **Historia corta.** El alumno es un explorador que revisa mensajes de una IA antes de que su equipo los use; cada territorio abre con dos líneas de historia.
+2. **Reto de equipo.** Una meta que se logra entre todos, por ejemplo diez casos bien revisados en la semana, útil también para el equipo que va perdiendo.
+3. **Medidor de puntería.** Muestra si la seguridad que declara el alumno coincide con sus aciertos; hace visible la habilidad de calibrar.
+4. **Nuevos tipos de caso,** además de la opción múltiple: señalar la frase dudosa de la respuesta de la IA u ordenar qué revisar primero.
+5. **Dificultad por caso,** para que la ruta recomendada vaya de fácil a difícil y no solo en el orden de las misiones.
+6. **Pendientes antes de un piloto:** reforzar la identidad del alumno al volver a entrar; validar los casos editados antes de guardarlos; incluir el bono de racha en la página Equipo; permitir que el docente cambie la meta diaria; equilibrar las claves de los ocho casos del ciclo del agua (todas están en C); sustituir las capturas de este README; revisar accesibilidad con lector de pantalla.
+
 ## Cómo está construido
 
 | Componente | Tecnología | Función |
 | --- | --- | --- |
-| Interfaz | HTML, CSS y JavaScript | Pantallas del alumno, panel docente, mapa, insignias y Universo; sin compilación de frontend. |
+| Interfaz | HTML, CSS y JavaScript | Pantallas del alumno, panel docente, mapa ilustrado con capa SVG de territorios, insignias y Universo; sin compilación de frontend. |
 | Servidor | Python y FastAPI | API, acceso a grupos y coordinación de la actividad. |
 | Tutor explicable | Reglas ASP y clingo | A partir de hechos estructurados, selecciona una intervención, su motivo y la intensidad inicial de ayuda. |
 | Registro | SQLite | Guarda intentos, decisiones, confianza, pistas y revisiones. |
@@ -137,10 +171,10 @@ Los [ocho ejemplos del ciclo del agua](backend/casos/ejemplos/casos_docente_demo
 
 | Ruta | Acceso |
 | --- | --- |
-| `/` | Portada y entrada del alumno al mapa. |
+| `/` | Portada y entrada del alumno; con sesión, el mapa de territorios. |
 | `/caso.html?id=...` | Ejercicio; requiere una sesión de alumno y un caso disponible. |
 | `/insignias.html` | Insignias del alumno. |
-| `/tablero.html` y `/universo.html` | Vistas de equipos y territorios; los enlaces del grupo incorporan sus parámetros. |
+| `/tablero.html` y `/universo.html` | Puntos por equipo y territorios de todas las materias; los enlaces del grupo incorporan sus parámetros. Sin sesión de alumno sirven para proyectar en el salón. |
 | `/docente.html` | Acceso docente y administrativo. |
 | `/guia.html` | Guía para docentes. |
 | `/docs` | Documentación interactiva de la API FastAPI. |
@@ -160,13 +194,16 @@ backend/
   casos/docente/      Casos adicionales generados o importados
   casos/ejemplos/     Ejemplos para preparar una demostración
 frontend/             HTML, CSS, JavaScript e ilustraciones
+  assets/css/juego.css      Pantallas de juego del alumno y tema oscuro
+  assets/js/mapa.js         Fronteras de los territorios, alineadas con la ilustración
+  assets/img/mapa_territorios.jpg   Ilustración del mapa
 docs/capturas/        Capturas utilizadas en este README
 Dockerfile            Imagen del servicio
 docker-compose.yml    Ejecución con volumen persistente
 respaldo.sh           Respaldo de SQLite y casos en el VPS
 ```
 
-Las reglas de racha e insignias están en `backend/historial.py`: `RACHA_PARA_DETECTIVE = 3` y `CASOS_PARA_INSIGNIA = 2`. Una insignia se sugiere con dos casos distintos del mismo postulado resueltos sin pista en el mismo mapa; el docente decide si la otorga. La cobertura disponible depende del nivel y de los casos asignados.
+Las reglas de juego están en `backend/historial.py`: `META_DIARIA = 3` (casos de la misión de hoy), `RACHA_PARA_DETECTIVE = 3`, `CASOS_PARA_INSIGNIA = 2` y la función `puntos_territorio`, que define los puntos de cada caso. Una insignia se sugiere con dos casos distintos del mismo postulado resueltos sin pista en el mismo mapa; el docente decide si la otorga. La cobertura disponible depende del nivel y de los casos asignados.
 
 ## Alcance y estado del prototipo
 
@@ -178,7 +215,7 @@ El navegador necesita alcanzar un servidor; no es una aplicación autónoma sin 
 
 El servidor utiliza tokens de alumno y docente, comprueba la propiedad de los intentos y bloquea la reescritura de decisiones cerradas. Las sesiones docentes caducan a las 12 horas; los fallos de inicio de sesión tienen un bloqueo temporal. El frontend incorpora escape de texto para su inserción en HTML.
 
-Quedan pendientes mejoras antes de las pruebas con estudiantes, entre ellas reforzar la identidad del alumno al volver a entrar, validar casos editados antes de guardarlos y alinear algunos cómputos de progreso y recompensas. El reingreso actual se basa en grupo, seudónimo y equipo; esos datos no equivalen a una credencial individual. Utiliza información ficticia en las demostraciones y revisa la configuración antes de un uso real.
+Quedan pendientes mejoras antes de las pruebas con estudiantes, entre ellas reforzar la identidad del alumno al volver a entrar y validar casos editados antes de guardarlos. Los puntos del alumno ya usan una sola regla; el bono de racha todavía se suma solo en el mapa. El reingreso actual se basa en grupo, seudónimo y equipo; esos datos no equivalen a una credencial individual. Utiliza información ficticia en las demostraciones y revisa la configuración antes de un uso real.
 
 <details>
 <summary>Operación del VPS y respaldos</summary>
@@ -217,7 +254,7 @@ Las bases de Hack4Edu 2026 piden identificar qué existía antes del hackatón y
 
 - Autor y dirección del proyecto: Erandi Carrasco Alcántara (Universidad Digital del Estado de México, Hack4Edu 2026).
 - Código y contenidos redactados con asistencia de IA (Claude, Anthropic) bajo dirección y revisión del autor.
-- Ilustraciones del Universo (continente y mar) e insignias: generadas con Higgsfield a partir de indicaciones del autor. Escudos de equipo: aportados por el autor.
+- Ilustración del mapa de territorios: generada con Higgsfield a partir de un trazado propio de las fronteras; el continente y sus territorios son originales de Critia. Ilustraciones anteriores del Universo (continente y mar) e insignias: generadas con Higgsfield a partir de indicaciones del autor. Escudos de equipo: aportados por el autor.
 - Logotipo de UDEMEX: propiedad de la Universidad Digital del Estado de México; se usa con fines institucionales del proyecto.
 - Modelo de lenguaje para generación de casos: DeepSeek (API). Motor lógico: clingo (Potassco).
 - Licencia del código: MIT (ver `LICENSE`). Los casos, la guía y los textos pedagógicos se comparten bajo la misma licencia.
