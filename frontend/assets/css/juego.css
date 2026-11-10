@@ -310,12 +310,15 @@ body:not(.juego) .punteria { display: none; }
 
 /* ---------- Seguridad como armadura: cuatro niveles ---------- */
 .armadura { text-align: center; }
-.guerrero { width: min(34vw, 140px); aspect-ratio: 316 / 600; margin: 0 auto; background: url("../img/guerrero_niveles.png") no-repeat; background-size: 400% 100%; background-position: 0 0; opacity: .35; filter: grayscale(1); transition: opacity .2s ease, filter .2s ease; }
+/* Hoja de 4 columnas (niveles de armadura) por 3 filas (poses: guardia, saludo, listo). En reposo se ve la pose «listo». */
+.guerrero { width: min(38vw, 148px); aspect-ratio: 242 / 430; margin: 0 auto; background: url("../img/guerrero_niveles.png") no-repeat; background-size: 400% 300%; background-position: 0 100%; opacity: .35; filter: grayscale(1); transition: opacity .2s ease, filter .2s ease; }
 .guerrero[data-n] { opacity: 1; filter: none; }
-.guerrero[data-n="2"] { background-position: 33.333% 0; } .guerrero[data-n="3"] { background-position: 66.666% 0; } .guerrero[data-n="4"] { background-position: 100% 0; }
-.guerrero.cambia { animation: equipa .32s cubic-bezier(.2, 1.4, .4, 1); }
-.guerrero[data-n="4"].cambia { animation: equipa .32s cubic-bezier(.2, 1.4, .4, 1), brilla .9s ease .1s; }
-@keyframes equipa { 0% { transform: scale(.86) translateY(8px); opacity: .4; } 100% { transform: none; opacity: 1; } }
+.guerrero[data-n="2"] { background-position-x: 33.333%; } .guerrero[data-n="3"] { background-position-x: 66.666%; } .guerrero[data-n="4"] { background-position-x: 100%; }
+/* Al cambiar de nivel: se pone en guardia, saluda con el puño al pecho y queda listo */
+.guerrero.cambia { animation: poses .66s steps(1) both, equipa .66s ease both; }
+.guerrero[data-n="4"].cambia { animation: poses .66s steps(1) both, equipa .66s ease both, brilla 1s ease .3s; }
+@keyframes poses { 0% { background-position-y: 0%; } 38% { background-position-y: 50%; } 74%, 100% { background-position-y: 100%; } }
+@keyframes equipa { 0% { transform: translateY(6px) scale(.94); } 38% { transform: translateY(-4px) scale(1.04); } 74% { transform: scale(1.02); } 100% { transform: none; } }
 @keyframes brilla { 0%, 100% { filter: none; } 40% { filter: drop-shadow(0 0 14px var(--ambar)) brightness(1.15); } }
 .arm-palabra { font-weight: 700; font-size: 17px; color: var(--ambar); min-height: 1.6em; margin: 6px 0 10px; }
 .arm-niveles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }

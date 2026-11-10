@@ -65,7 +65,7 @@ Esta versión cambia la experiencia del alumno y del docente. Las capturas de la
 - **Retomar un caso.** Si el alumno recarga la página a medio caso, vuelve al paso donde se quedó.
 - **Historia corta.** El alumno es un explorador que revisa lo que responde una IA antes de que su equipo lo use. Cada territorio tiene un lugar y dos líneas de historia, que se muestran la primera vez que entra.
 - **Reto de equipo semanal.** Casos bien revisados entre todos, de lunes a domingo. La meta es de tres casos por jugador, con un mínimo de seis. Es un logro compartido: no da puntos.
-- **Seguridad como armadura.** El alumno declara su seguridad en cuatro niveles: 25, 50, 75 y 100. Un guerrero lleva más armadura con cada nivel, de ninguna a completa. Hay que elegir un nivel antes de decidir.
+- **Seguridad como armadura.** El alumno declara su seguridad en cuatro niveles: 25, 50, 75 y 100. Un guerrero lleva más armadura con cada nivel, de ninguna a completa; al cambiar de nivel hace un movimiento corto de tres poses (guardia, saludo y listo). Hay que elegir un nivel antes de decidir.
 - **Medidor de puntería.** Al cerrar un caso se indica si la seguridad declarada coincidió con la primera respuesta; la página Insignias muestra el acumulado. Cuentan como «seguro» los niveles 75 y 100.
 - **Tema oscuro de juego** en las pantallas del alumno. La portada, la guía y el panel docente conservan el tema claro.
 
