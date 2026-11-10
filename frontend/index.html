@@ -93,6 +93,7 @@
       <button class="btn btn-enlace" id="salir">Salir</button>
     </div>
     <div class="mapas-sel" id="mapas-sel"></div>
+    <div class="mision-hoy" id="mision-hoy"></div>
     <div class="estado-equipo" id="estado-equipo" aria-live="polite"></div>
     <div class="mapa-marco"><svg class="territorios" id="territorios" viewBox="30 50 850 1140" role="group" aria-label="Mapa de territorios. Toca un territorio para ver sus casos."></svg></div>
     <ul class="leyenda" id="leyenda"></ul>
@@ -182,12 +183,12 @@
     const terrMapa = uni ? ((uni.mapas || []).find(x => x.id === mapaId) || (uni.mapas || [])[0]) : null;
     const terr = n => terrMapa ? terrMapa.territorios.find(t => t.mision === n) : null;
 
-    // Cabecera: quién juega, racha y habilidades
+    // Cabecera: quién juega, racha y puntos
     $('quien').innerHTML = `${escudoHtml(esc(a.equipo))}<span><b>${esc(a.seudonimo)}</b><small>Equipo ${esc(a.equipo)}</small></span>`;
     const pts = Array.from({ length: prog.racha_para_detective }, (_, k) => `<i class="${k < prog.racha ? 'on' : ''}"></i>`).join('');
     $('marcadores').innerHTML = `
       <span class="marcador" title="Casos seguidos bien revisados"><b>${prog.racha}</b><small>racha</small><span class="racha-puntos">${pts}</span></span>
-      <span class="marcador" title="Habilidades ganadas en este mapa"><b>${prog.sentidos_total}</b><small>habilidades</small></span>`;
+      <span class="marcador" title="Puntos que has dado a tu equipo en este mapa"><b>${prog.puntos_total}</b><small>puntos</small></span>`;
     $('mapa-grupo').textContent = a.grupo_nombre ? `Grupo ${a.grupo_nombre}` : '';
     $('mapa-nombre').textContent = mapaActual ? mapaActual.nombre : 'El mapa';
     const sel = $('mapas-sel');
@@ -203,8 +204,21 @@
         <small>${bono ? `Tu racha de ${prog.racha} suma +${uni.reglas.puntos_bono} puntos al territorio donde juegas.` : `Con ${uni.reglas.racha_bono} casos seguidos bien revisados, tu racha suma +${uni.reglas.puntos_bono} puntos a tu equipo.`}</small></div>`;
     }
 
-    // Territorios
+    // Misión de hoy: una meta corta por sesión
     const todos = Object.values(casos).flat();
+    const nHoy = Math.min(prog.casos_hoy.length, prog.meta_diaria), cumplida = prog.casos_hoy.length >= prog.meta_diaria;
+    $('mision-hoy').className = 'mision-hoy' + (cumplida ? ' cumplida' : '');
+    $('mision-hoy').innerHTML = `<div class="mh-txt"><b>${cumplida ? 'Misión de hoy cumplida' : 'Misión de hoy'}</b><small>${cumplida ? `Sumaste ${prog.puntos_hoy} ${prog.puntos_hoy === 1 ? 'punto' : 'puntos'} hoy. Puedes seguir jugando si quieres.` : `Resuelve ${prog.meta_diaria} casos. Llevas ${nHoy}.`}</small></div>
+      <div class="mh-pasos" role="img" aria-label="${nHoy} de ${prog.meta_diaria} casos">${Array.from({ length: prog.meta_diaria }, (_, k) => `<i class="${k < nHoy ? 'on' : ''}"></i>`).join('')}</div>`;
+    const claveMision = `critia_mision_${a.seudonimo}_${mapaId || 0}_${new Date().toDateString()}`;
+    let yaVista = false; try { yaVista = !!localStorage.getItem(claveMision); } catch {}
+    if (cumplida && !yaVista) {
+      try { localStorage.setItem(claveMision, '1'); } catch {}
+      const habs = [...new Set(prog.casos_hoy.map(id => (todos.find(c => c.id === id) || {}).habilidad).filter(Boolean).map(h => h.nombre))];
+      setTimeout(() => abrirResumenHoy(prog, habs), 700);
+    }
+
+    // Territorios
     const det = todos.find(c => c.especial === 'detective');
     const paradas = meta.misiones.map(m => {
       const lista = (casos[m.n] || []).filter(c => !c.especial);
@@ -220,6 +234,13 @@
     const svg = $('territorios'); svg.innerHTML = '';
     svg.appendChild(svgEl('image', { href: 'assets/img/mapa_territorios.jpg', x: 0, y: 0, width: MAPA.ancho, height: MAPA.alto, preserveAspectRatio: 'none' }));
     const NOMBRE_EQ = e => e.charAt(0).toUpperCase() + e.slice(1);
+    // Ruta recomendada: el orden de las misiones (1 a 8). No bloquea nada; solo sugiere por dónde seguir.
+    const conCasos = paradas.filter(p => !p.vacia).map(p => MAPA.territorios[p.m.n].c);
+    if (conCasos.length > 1) {
+      svg.appendChild(svgEl('path', { class: 'ruta', d: 'M' + conCasos.map(c => c.join(' ')).join(' L') }));
+      const hechas = paradas.filter(p => !p.vacia && (p.completa || (actual && p.m.n === actual.m.n))).map(p => MAPA.territorios[p.m.n].c);
+      if (hechas.length > 1) svg.appendChild(svgEl('path', { class: 'ruta hecha', d: 'M' + hechas.map(c => c.join(' ')).join(' L') }));
+    }
     paradas.forEach((p, i) => {
       const n = p.m.n, geo = MAPA.territorios[n], [cx, cy] = geo.c, t = terr(n);
       const dueno = t && t.dueno, disputa = t && t.disputa;
@@ -272,7 +293,7 @@
     // Botón: siguiente caso pendiente
     const sig = $('siguiente');
     const pendiente = actual ? actual.lista.find(c => !prog.casos[c.id]) : (det && prog.detective_desbloqueado && !prog.casos[det.id] ? det : null);
-    if (pendiente) { sig.href = `caso.html?id=${encodeURIComponent(pendiente.id)}`; sig.innerHTML = `<span><small>Siguiente caso${actual ? ' · territorio ' + actual.m.n : ''}</small>${esc(pendiente.titulo)}</span><span class="flecha" aria-hidden="true">›</span>`; sig.classList.remove('oculto'); }
+    if (pendiente) { sig.href = `caso.html?id=${encodeURIComponent(pendiente.id)}`; sig.innerHTML = `<span><small>${cumplida ? 'Seguir jugando' : `Caso ${nHoy + 1} de ${prog.meta_diaria} de hoy`}${actual ? ' · territorio ' + actual.m.n : ''}</small>${esc(pendiente.titulo)}</span><span class="flecha" aria-hidden="true">›</span>`; sig.classList.remove('oculto'); }
     else sig.classList.add('oculto');
   }
 
@@ -280,7 +301,7 @@
     const h = prog.casos[c.id];
     return `<a class="fila-caso ${h ? 'hecho' : 'pendiente'}" href="caso.html?id=${encodeURIComponent(c.id)}">
       <span class="fc-titulo">${esc(c.titulo)}${c.provisional ? ' <em>nuevo</em>' : ''}</span>
-      <span class="fc-estado">${h ? `${h.sentidos.length}/3 habilidades · repetir` : 'Jugar'}</span></a>`;
+      <span class="fc-estado">${h ? `${h.puntos} ${h.puntos === 1 ? 'punto' : 'puntos'} · repetir` : 'Jugar'}</span></a>`;
   }
   let progHoja = null;
   function mostrarHoja(desde) { ultimoFoco = desde; $('hoja-fondo').classList.remove('oculto'); const h = $('hoja-terr'); h.classList.remove('oculto'); h.scrollTop = 0; $('hoja-titulo').focus({ preventScroll: true }); }
@@ -296,6 +317,15 @@
     } else $('hoja-control').innerHTML = '';
     $('hoja-casos').innerHTML = p.vacia ? '<p class="ayuda">Este territorio todavía no tiene casos.</p>' : p.lista.map(c => filaCaso(c, progHoja)).join('');
     mostrarHoja(desde);
+  }
+  function abrirResumenHoy(prog, habs) {
+    $('hoja-etq').textContent = 'Misión de hoy';
+    $('hoja-titulo').textContent = 'Misión cumplida';
+    $('hoja-desc').textContent = `Resolviste ${prog.casos_hoy.length} casos y sumaste ${prog.puntos_hoy} ${prog.puntos_hoy === 1 ? 'punto' : 'puntos'} para tu equipo.`;
+    $('hoja-control').innerHTML = habs.length ? `<div class="hc-titulo">Hoy practicaste:</div><ul class="hoy-habs">${habs.map(h => `<li>${esc(h)}</li>`).join('')}</ul>` : '';
+    $('hoja-casos').innerHTML = `<p class="ayuda" style="margin:0">Tu racha es de ${prog.racha}. Puedes seguir jugando o volver mañana.</p><button class="btn btn-primario" id="hoy-ok" style="min-height:52px">Entendido</button>`;
+    mostrarHoja($('siguiente'));
+    $('hoy-ok').onclick = cerrarHoja;
   }
   function abrirIsla(det, abierto, hecho, prog, desde) {
     $('hoja-etq').textContent = 'Isla del detective';

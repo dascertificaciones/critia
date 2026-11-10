@@ -26,6 +26,15 @@
         <h1 id="titulo"></h1>
         <p class="ayuda">Lee con calma lo que pasó. Después decides.</p>
         <div class="chat-ia" id="situacion"></div>
+        <details class="como-sumas" id="como-sumas">
+          <summary>Cómo sumas puntos para tu equipo</summary>
+          <ul>
+            <li><b>Justificar:</b> explicas por qué elegiste tu respuesta.</li>
+            <li><b>Revisar:</b> si te equivocas y corriges después de la pista, también sumas.</li>
+            <li><b>Calibrar:</b> ajustas tu seguridad hacia lo correcto.</li>
+            <li><b>Sin pistas:</b> resolver sin ayuda da un punto más.</li>
+          </ul>
+        </details>
       </div>
       <div class="acciones-fijas">
         <button class="btn btn-primario" id="b-leer">Ya lo leí</button>
@@ -167,9 +176,9 @@
   const mapaQ = Sesion.mapa() ? `?mapa=${Sesion.mapa()}` : '';
   const urlProgreso = `/alumno/${encodeURIComponent(alumno.seudonimo)}/progreso${mapaQ}`;
   const prog = await api(urlProgreso);
-  let habilidades = prog.sentidos_total;
+  let habilidades = prog.puntos_total;   // puntos que el alumno ha dado a su equipo en este mapa
   const pintarJugador = sube => {
-    $('jugador-mini').innerHTML = `${escudoHtml(esc(alumno.equipo))}<span class="cuenta${sube ? ' sube' : ''}" title="Habilidades ganadas en este mapa" aria-label="${habilidades} habilidades ganadas">${habilidades}</span>`;
+    $('jugador-mini').innerHTML = `${escudoHtml(esc(alumno.equipo))}<span class="cuenta${sube ? ' sube' : ''}" title="Puntos que has dado a tu equipo en este mapa" aria-label="${habilidades} puntos">${habilidades}</span>`;
   };
   pintarJugador(false);
 
@@ -213,6 +222,7 @@
   $('situacion').textContent = caso.situacion;
   $('situacion-mini').textContent = caso.situacion;
   $('pregunta').textContent = caso.pregunta;
+  try { if (!localStorage.getItem('critia_reglas_vistas')) { $('como-sumas').open = true; localStorage.setItem('critia_reglas_vistas', '1'); } } catch {}
   $('b-leer').onclick = () => ir('decidir');
   $('b-decidir-atras').onclick = () => ir('leer');
   $('b-conf-atras').onclick = () => ir('decidir');
@@ -369,8 +379,8 @@
       pe.innerHTML = `${escudoHtml(esc(alumno.equipo))}<div><div class="mas" id="pts-num"></div>
         <div class="donde">${pts === 1 ? 'punto' : 'puntos'} para el equipo ${esc(alumno.equipo)}${mision ? ' en «' + esc(mision.nombre) + '»' : ''}</div></div>`;
       contar($('pts-num'), pts, '+');
-      habilidades += r2.sentidos.length;
-      setTimeout(() => pintarJugador(r2.sentidos.length > 0), 700);
+      habilidades += pts;
+      setTimeout(() => pintarJugador(true), 700);
     }
     $('explicacion').textContent = r2.explicacion;
     if (r2.habilidad) {
@@ -387,6 +397,10 @@
       if (!r2.repeticion && p.racha > 0) {
         const puntos = Array.from({ length: meta3 }, (_, i) => `<i class="${i < p.racha ? 'on' : ''}"></i>`).join('');
         $('racha-linea').innerHTML = `<span class="racha-puntos">${puntos}</span><span>Racha: <b>${p.racha}</b> ${p.racha === 1 ? 'caso bien revisado' : 'casos seguidos bien revisados'}${p.racha >= meta3 ? '. Tu racha ya suma puntos extra a tu equipo.' : ''}</span>`;
+      }
+      if (!r2.repeticion) {
+        const n = Math.min(p.casos_hoy.length, p.meta_diaria), lista = p.casos_hoy.length >= p.meta_diaria;
+        $('racha-linea').insertAdjacentHTML('beforeend', `<span class="mision-mini${lista ? ' lista' : ''}">${lista ? 'Misión de hoy cumplida' : `Misión de hoy: ${n} de ${p.meta_diaria}`}</span>`);
       }
     } catch {}
   }

@@ -191,6 +191,7 @@ def errores_previos(seudonimo):
 
 
 # ---------- Consultas para el juego ----------
+META_DIARIA = 3            # casos nuevos que forman la «misión de hoy» del alumno
 RACHA_PARA_DETECTIVE = 3   # casos seguidos "bien revisados" para desbloquear el caso del detective
 CASOS_PARA_INSIGNIA = 2    # casos del mismo postulado sin pista para sugerir insignia
 
@@ -205,15 +206,21 @@ def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
     fm = " AND mapa_id=?" if mapa_id else ""
     pm = (mapa_id,) if mapa_id else ()
     with conectar() as con:
-        rows = con.execute(f"""SELECT caso_id, sentidos, eval_ini, eval_fin FROM intentos
+        rows = con.execute(f"""SELECT caso_id, sentidos, eval_ini, eval_fin, cierre, COALESCE(pistas_usadas,0) pistas FROM intentos
                               WHERE seudonimo=? AND cierre IS NOT NULL AND COALESCE(repeticion,0)=0{fm} ORDER BY cierre""",
                            (seudonimo,) + pm).fetchall()
         casos, total, racha, mejor_racha = {}, 0, 0, 0
         avance = {}
+        puntos_total, hoy, casos_hoy, puntos_hoy = 0, ahora()[:10], [], 0
         for r in rows:
             s = json.loads(r["sentidos"] or "[]")
-            casos[r["caso_id"]] = {"sentidos": s, "eval_ini": r["eval_ini"], "eval_fin": r["eval_fin"]}
+            pts = puntos_territorio(s, r["eval_fin"], r["pistas"])
+            casos[r["caso_id"]] = {"sentidos": s, "eval_ini": r["eval_ini"], "eval_fin": r["eval_fin"], "puntos": pts}
             total += len(s)
+            puntos_total += pts
+            if (r["cierre"] or "")[:10] == hoy:
+                casos_hoy.append(r["caso_id"])
+                puntos_hoy += pts
             if _bien_revisado(s, r["eval_ini"]):
                 racha += 1
                 mejor_racha = max(mejor_racha, racha)
@@ -227,6 +234,10 @@ def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
         return {
             "casos": casos,
             "sentidos_total": total,
+            "puntos_total": puntos_total,
+            "casos_hoy": casos_hoy,
+            "puntos_hoy": puntos_hoy,
+            "meta_diaria": META_DIARIA,
             "insignias": ins,
             "avance_insignias": {p: len(v) for p, v in avance.items()},
             "casos_para_insignia": CASOS_PARA_INSIGNIA,
@@ -842,13 +853,15 @@ def tablero_equipos_grupo(codigo, mapa_id=None):
     fm = " AND i.mapa_id=?" if mapa_id else ""
     pm = (mapa_id,) if mapa_id else ()
     with conectar() as con:
-        tab = {e: {"sentidos": 0, "casos": 0, "alumnos": 0, "insignias": 0, "justificar": 0, "revisar": 0, "calibrar": 0} for e in EQUIPOS}
+        tab = {e: {"puntos": 0, "sentidos": 0, "casos": 0, "alumnos": 0, "insignias": 0, "justificar": 0, "revisar": 0, "calibrar": 0, "sin_ayuda": 0} for e in EQUIPOS}
         for r in con.execute("SELECT equipo, COUNT(*) n FROM alumnos WHERE grupo=? GROUP BY equipo", (codigo,)):
             tab[r["equipo"]]["alumnos"] = r["n"]
-        for r in con.execute(f"""SELECT a.equipo, i.sentidos FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+        for r in con.execute(f"""SELECT a.equipo, i.sentidos, i.eval_fin, COALESCE(i.pistas_usadas,0) pistas FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
                                 WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND a.grupo=?{fm}""", (codigo,) + pm):
             s = json.loads(r["sentidos"] or "[]"); t = tab[r["equipo"]]
             t["sentidos"] += len(s); t["casos"] += 1
+            t["puntos"] += puntos_territorio(s, r["eval_fin"], r["pistas"])
+            t["sin_ayuda"] += 1 if (r["eval_fin"] == "correcta" and r["pistas"] == 0) else 0
             for k in s:
                 if k in t: t[k] += 1
         for r in con.execute(f"""SELECT a.equipo, COUNT(*) n FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo

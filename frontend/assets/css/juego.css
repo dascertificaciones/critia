@@ -272,3 +272,21 @@ body.sin-entrada .terr { animation: none; }
 .um-info b { color: var(--tinta); } .um-info span { display: block; font-size: 13px; margin-top: 2px; }
 .um-fila { display: flex; align-items: center; gap: 12px; margin-top: 8px; font-size: 13px; color: var(--tinta-suave); }
 .um-fila span { width: 76px; } .um-fila i { font-style: normal; display: inline-flex; align-items: center; gap: 4px; color: var(--tinta); font-weight: 700; } .um-fila .escudo { width: 22px; height: 22px; }
+
+/* ---------- Misión de hoy, reglas y ruta recomendada ---------- */
+.mision-hoy { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding: 10px 14px; border-radius: 14px; background: #2B2550; border: 1px solid var(--ambar); }
+.mision-hoy:empty { display: none; }
+.mh-txt b { display: block; font-size: 16px; color: var(--ambar); } .mh-txt small { color: var(--tinta); font-size: 13px; }
+.mh-pasos { display: flex; gap: 6px; flex: none; }
+.mh-pasos i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--ambar); display: block; }
+.mh-pasos i.on { background: var(--ambar); box-shadow: 0 0 10px rgba(255,182,39,.6); animation: pop .35s ease; }
+.mision-hoy.cumplida { background: rgba(61,220,151,.12); border-color: var(--hierba); } .mision-hoy.cumplida .mh-txt b { color: var(--hierba); }
+.mision-hoy.cumplida .mh-pasos i { border-color: var(--hierba); background: var(--hierba); box-shadow: none; }
+.hoy-habs { margin: 0; padding-left: 20px; } .hoy-habs li { margin: 3px 0; font-weight: 700; }
+.ruta { fill: none; stroke: #EEF1FA; stroke-opacity: .5; stroke-width: 5; stroke-dasharray: 3 16; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.ruta.hecha { stroke: var(--ambar); stroke-opacity: .95; stroke-width: 6; }
+.como-sumas { margin-top: 14px; border-radius: 12px; background: #1E2742; border: 1px solid #3A4670; padding: 4px 14px; font-size: 15px; }
+.como-sumas summary { cursor: pointer; font-weight: 700; padding: 8px 0; min-height: 28px; }
+.como-sumas ul { margin: 0 0 10px; padding-left: 20px; color: var(--tinta-suave); } .como-sumas li { margin: 4px 0; } .como-sumas b { color: var(--tinta); }
+.mision-mini { margin-left: auto; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--ambar); color: var(--ambar); white-space: nowrap; }
+.mision-mini.lista { border-color: var(--hierba); color: var(--hierba); }

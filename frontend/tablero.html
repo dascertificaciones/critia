@@ -37,7 +37,7 @@
   </header>
 
   <h1>Tablero de la expedición</h1>
-  <p class="suave" style="margin:0" id="sub">Habilidades por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.</p>
+  <p class="suave" style="margin:0" id="sub">Puntos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.</p>
   <div class="mapas-sel" id="mapas-sel"></div>
 
   <div class="tablero" id="tablero"></div>
@@ -61,7 +61,7 @@ async function pintar() {
   const r = await api('/tablero' + (grupoParam ? `?grupo=${grupoParam}${mapaParam ? '&mapa=' + mapaParam : ''}` : ''));
   const t = r.equipos;
   if (r.grupo) {
-    document.getElementById('sub').textContent = `Grupo ${r.grupo.nombre}${r.mapa ? ' · ' + r.mapa.nombre : ' · todos los mapas'} · habilidades por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.`;
+    document.getElementById('sub').textContent = `Grupo ${r.grupo.nombre}${r.mapa ? ' · ' + r.mapa.nombre : ' · todos los mapas'} · puntos por equipo. Se actualiza solo cada 15 segundos. Nunca muestra nombres de alumnos.`;
     const sel = document.getElementById('mapas-sel');
     const mapas = r.mapas || [];
     sel.innerHTML = mapas.length > 1 ? [`<button type="button" class="mapa-tab ${!mapaParam ? 'activo' : ''}" data-id="0">Todo el grupo</button>`]
@@ -70,23 +70,23 @@ async function pintar() {
     [...sel.querySelectorAll('button.mapa-tab')].forEach(b => b.onclick = () => { mapaParam = +b.dataset.id; pintar(); });
   }
   const equipos = Object.keys(t);
-  const max = Math.max(1, ...equipos.map(e => t[e].sentidos));
-  const tope = Math.max(...equipos.map(e => t[e].sentidos));
+  const max = Math.max(1, ...equipos.map(e => (t[e].puntos ?? t[e].sentidos)));
+  const tope = Math.max(...equipos.map(e => (t[e].puntos ?? t[e].sentidos)));
   document.getElementById('tablero').innerHTML = equipos.map(e => {
     const d = t[e];
-    const lider = tope > 0 && d.sentidos === tope;
+    const lider = tope > 0 && (d.puntos ?? d.sentidos) === tope;
     return `
       <div class="equipo-card ${e} ${lider ? 'lider' : ''}">
         <div class="equipo-nombre">${escudoHtml(e)}${e} ${lider ? `<span class="corona">${ICONO.bandera}</span>` : ''}</div>
-        <div class="gran-numero">${d.sentidos}<small>habilidades</small></div>
-        <div class="barra-eq"><div style="width:${Math.round(100 * d.sentidos / max)}%"></div></div>
+        <div class="gran-numero">${(d.puntos ?? d.sentidos)}<small>puntos</small></div>
+        <div class="barra-eq"><div style="width:${Math.round(100 * (d.puntos ?? d.sentidos) / max)}%"></div></div>
         <div class="detalle">
           <div><span class="ic">${ICONO.justificar}</span>Justificar<b>${d.justificar}</b></div>
           <div><span class="ic">${ICONO.revisar}</span>Revisar<b>${d.revisar}</b></div>
           <div><span class="ic">${ICONO.calibrar}</span>Calibrar<b>${d.calibrar}</b></div>
         </div>
         <div class="detalle" style="margin-top:12px">
-          <div>Casos<b>${d.casos}</b></div>
+          <div>Sin pistas<b>${d.sin_ayuda ?? 0}</b></div>
           <div>Jugadores<b>${d.alumnos}</b></div>
           <div>Insignias<b>${d.insignias}</b></div>
         </div>
