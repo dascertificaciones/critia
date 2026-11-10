@@ -371,3 +371,57 @@ body.juego-pag .punteria.revision { border-color: var(--azul); margin-top: 10px;
 .avance.aceptado { border-color: var(--hierba); } .avance.aceptado b { color: var(--hierba); }
 .um-cierre { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: #2B2550; border: 1px solid var(--violeta); font-size: 14px; }
 .um-cierre.cerrado { border-color: var(--ambar); } .um-cierre span { display: block; margin-top: 4px; color: var(--hierba); font-weight: 700; }
+
+/* ---------- Portada de entrada, con el estilo del juego ---------- */
+body.portada-juego { background: #080C18; }
+.portada { max-width: 1120px; margin: 0 auto; padding: 0 16px 32px; color: var(--tinta); }
+.pt-barra { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; }
+.pt-barra .logo { color: var(--tinta); } .pt-barra .logo .ojo { color: var(--ambar); }
+.pt-docente { color: var(--tinta-suave); font-size: 15px; text-underline-offset: 4px; padding: 10px 4px; }
+.pt-heroe { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: 28px; align-items: center; padding: 28px; border-radius: 24px; overflow: hidden; border: 2px solid #2A3558; background: #0B1630; }
+.pt-fondo { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,12,24,.94) 0%, rgba(8,12,24,.72) 48%, rgba(8,12,24,.86) 100%), url("../img/mapa_territorios.jpg") center 38% / cover no-repeat; }
+.pt-texto, .pt-entrada { position: relative; }
+.pt-texto .paso-nombre { color: var(--ambar); }
+.pt-texto h1 { font-size: clamp(34px, 5vw, 58px); line-height: 1.02; letter-spacing: -1.2px; margin: 6px 0 14px; }
+.pt-texto h1 span { color: var(--ambar); display: block; }
+.pt-texto p { font-size: 18px; max-width: 30em; margin: 0; color: #D9DEEE; }
+.pt-guerrero { width: 150px; margin: 18px 0 0; filter: drop-shadow(0 8px 18px rgba(0,0,0,.6)); animation: aparece .5s ease both; }
+.pt-entrada { background: rgba(20,27,48,.94); border: 2px solid #3A4670; border-radius: 20px; padding: 22px; box-shadow: 0 12px 40px rgba(0,0,0,.45); }
+.pt-entrada h2 { font-size: 26px; margin: 0 0 12px; }
+.pt-pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.pt-pasos label, .pt-etiqueta { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; margin: 0 0 8px; }
+.pt-pasos b { width: 28px; height: 28px; flex: none; border-radius: 50%; display: grid; place-items: center; background: #2A3558; color: var(--tinta); font-family: var(--serif); font-size: 15px; transition: background .2s ease; }
+.pt-pasos li.listo b { background: var(--hierba); color: #06231A; }
+body.juego .pt-entrada input[type=text] { background: #0F1528; color: var(--tinta); border: 2px solid #3A4670; border-radius: 12px; min-height: 52px; font-size: 18px; }
+body.juego .pt-entrada input[type=text]:focus { border-color: var(--ambar); outline: none; box-shadow: 0 0 0 3px rgba(255,182,39,.25); }
+body.juego .pt-entrada input.pt-codigo { text-transform: uppercase; letter-spacing: 8px; font-family: var(--serif); font-weight: 900; font-size: 26px; text-align: center; }
+.pt-ayuda { font-size: 13px; color: var(--tinta-suave); margin: 6px 0 0; min-height: 18px; }
+.pt-ayuda.bien { color: var(--hierba); font-weight: 700; font-size: 15px; } .pt-ayuda.mal { color: #FF8A8A; font-weight: 700; }
+.pt-entrada .equipos { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+body.juego .equipo-btn { --c: #3A4670; display: grid; justify-items: center; gap: 4px; min-height: 92px; padding: 10px 4px; border: 2px solid #3A4670; border-radius: 14px; background: #0F1528; color: var(--tinta); font-size: 14px; box-shadow: 0 4px 0 #060913; transition: transform .12s ease, border-color .15s ease; }
+body.juego .equipo-btn.eq-rojo { --c: var(--rojo); } body.juego .equipo-btn.eq-azul { --c: var(--azul); } body.juego .equipo-btn.eq-verde { --c: var(--verde); } body.juego .equipo-btn.eq-violeta { --c: var(--violeta); }
+body.juego .equipo-btn .escudo { width: 48px; height: 48px; margin: 0; }
+body.juego .equipo-btn:active { transform: translateY(2px); }
+body.juego .equipo-btn.activo { background: #1E2742; border-color: var(--c); color: #fff; box-shadow: 0 4px 0 #060913, 0 0 16px var(--c); animation: elige .22s ease; }
+.pt-entrada #entrar { width: 100%; min-height: 56px; font-size: 18px; margin-top: 18px; }
+#entrar-falta { text-align: center; }
+.pt-como { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+.pt-como > div { background: #141B30; border: 1px solid #2A3558; border-radius: 16px; padding: 16px; }
+.pt-como b { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--ambar); color: #1A1405; font-family: var(--serif); }
+.pt-como h3 { font-family: var(--serif); font-size: 19px; margin: 10px 0 4px; } .pt-como p { margin: 0; font-size: 15px; color: var(--tinta-suave); }
+.pt-aviso { margin-top: 16px; font-size: 14px; color: var(--tinta-suave); border-top: 1px solid #2A3558; padding-top: 6px; }
+.pt-aviso summary { cursor: pointer; padding: 10px 0; font-weight: 700; color: var(--tinta); } .pt-aviso p { margin: 0 0 8px; max-width: 80ch; }
+.pt-enlaces { font-size: 14px; color: var(--tinta-suave); margin: 8px 0 0; } .pt-enlaces a { color: var(--tinta); }
+body.portada-juego .pie-site { border-top-color: #2A3558; }
+body.portada-juego .pie-site .pie-udemex { background: #fff; border-radius: 10px; padding: 6px; }
+@media (max-width: 820px) {
+  .pt-heroe { grid-template-columns: 1fr; padding: 18px 16px 16px; gap: 16px; }
+  .pt-fondo { background: linear-gradient(180deg, rgba(8,12,24,.78) 0%, rgba(8,12,24,.93) 55%), url("../img/mapa_territorios.jpg") center top / cover no-repeat; }
+  .pt-texto { display: grid; grid-template-columns: 1fr 84px; gap: 4px 12px; align-items: end; }
+  .pt-texto .paso-nombre, .pt-texto h1 { grid-column: 1; } .pt-texto p { grid-column: 1 / -1; font-size: 16px; }
+  .pt-texto h1 { font-size: 32px; margin: 2px 0 0; }
+  .pt-guerrero { grid-column: 2; grid-row: 1 / span 2; width: 84px; margin: 0; }
+  .pt-como { grid-template-columns: 1fr; }
+  .pt-entrada { padding: 18px 16px; }
+}
+@media (max-width: 380px) { body.juego .equipo-btn { min-height: 84px; font-size: 13px; } body.juego .equipo-btn .escudo { width: 40px; height: 40px; } }

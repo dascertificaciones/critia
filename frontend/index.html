@@ -2,79 +2,63 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1528">
 <title>Critia · La expedición</title>
 <link rel="stylesheet" href="assets/css/estilo.css">
 <link rel="stylesheet" href="assets/css/juego.css">
 </head>
-<body>
-<div class="contenedor ancho" id="portada">
-  <header class="cabecera">
+<body class="juego portada-juego">
+<div class="portada" id="portada">
+  <header class="pt-barra">
     <a class="logo" href="index.html"><span class="ojo" id="logo-ojo"></span>Critia</a>
-    <div class="jugador" id="jugador"></div>
+    <a class="pt-docente" href="docente.html">Soy docente</a>
   </header>
 
-  <!-- Entrada -->
-  <section id="entrada">
-    <div class="heroe">
-      <div class="heroe-txt">
-        <div class="nota-mano">cuaderno de expedición · Hack4Edu 2026</div>
-        <h1>Aprende a usar la IA <span class="marca">sin que piense por ti.</span></h1>
-        <p class="lead">Critia te acompaña mientras haces cualquier tarea de investigación. Practicas con respuestas de IA como las que vas a encontrar, y el tutor te hace pensar antes de darte la respuesta.</p>
-        <p class="paradas">Son <b>ocho paradas</b>. Cada una entrena una habilidad; con ellas ganas insignias que izan la bandera de tu equipo en el Universo.</p>
-        <div class="heroe-acc">
-          <a class="btn btn-primario" href="#ficha">Empezar la expedición</a>
-        </div>
-      </div>
-      <div class="hoja">
-        <span class="cinta c1"></span><span class="cinta c2"></span>
-        <svg viewBox="0 0 560 440" role="img" aria-label="Mapa de una expedición: un camino punteado sube por las colinas pasando por tres paradas, leer lo que dijo la IA, decidir y recibir pistas, hasta un castillo con una bandera roja">
-          <path d="M0 330C80 290 150 300 230 320C320 342 420 300 560 310V440H0Z" fill="#EAE3D3"/>
-          <path d="M0 380C100 350 200 370 300 372C400 374 490 352 560 360V440H0Z" fill="#DED5C0"/>
-          <path d="M300 250C360 190 430 200 480 230C520 254 540 250 560 244V320C470 296 380 330 300 300Z" fill="#F0EADA"/>
-          <g fill="none" stroke="#1F2A44" stroke-width="2" stroke-linecap="round" opacity=".5"><path d="M0 330C80 290 150 300 230 320C320 342 420 300 560 310"/><path d="M0 380C100 350 200 370 300 372C400 374 490 352 560 360"/></g>
-          <g fill="#DED5C0" stroke="#1F2A44" stroke-width="2.5" stroke-linejoin="round"><path d="M52 330L68 296L84 330Z"/><path d="M468 358L482 328L496 358Z"/><path d="M510 340L522 314L534 340Z"/><path d="M330 402L344 374L358 402Z"/></g>
-          <g stroke="#1F2A44" stroke-width="2.5"><path d="M68 330V340M482 358V366M522 340V348M344 402V410"/></g>
-          <path d="M96 392C130 350 170 360 206 330C246 298 214 262 262 244C312 226 330 262 370 226C400 198 404 170 430 140" fill="none" stroke="#1F2A44" stroke-width="3.5" stroke-dasharray="2 10" stroke-linecap="round"/>
-          <g transform="translate(426 52)"><path d="M0 90V30H12V20H22V30H34V20H44V30H56V20H66V30H78V90Z" fill="#F3EEE2" stroke="#1F2A44" stroke-width="3" stroke-linejoin="round"/><path d="M30 90V66C30 56 48 56 48 66V90Z" fill="#1F2A44"/><path d="M39 20V-18" stroke="#1F2A44" stroke-width="3" stroke-linecap="round"/><path d="M39 -18L66 -8L39 2Z" fill="#C8402F" stroke="#1F2A44" stroke-width="2.5" stroke-linejoin="round"/></g>
-          <g transform="translate(30 30)"><circle cx="30" cy="30" r="26" fill="none" stroke="#1F2A44" stroke-width="2.5"/><path d="M30 6L36 30L30 54L24 30Z" fill="#C8402F" stroke="#1F2A44" stroke-width="2" stroke-linejoin="round"/><path d="M6 30L30 24L54 30L30 36Z" fill="#F3EEE2" stroke="#1F2A44" stroke-width="2" stroke-linejoin="round"/><text x="30" y="-2" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="14" fill="#1F2A44">N</text></g>
-          <g font-family="Fraunces, Georgia, serif" font-weight="900" font-size="20" text-anchor="middle">
-            <g transform="translate(206 330)"><circle r="17" fill="#F3EEE2" stroke="#1F2A44" stroke-width="3"/><text y="7" fill="#1F2A44">1</text></g>
-            <g transform="translate(262 244)"><circle r="17" fill="#F3EEE2" stroke="#1F2A44" stroke-width="3"/><text y="7" fill="#1F2A44">2</text></g>
-            <g transform="translate(370 226)"><circle r="17" fill="#C8402F" stroke="#1F2A44" stroke-width="3"/><text y="7" fill="#fff">3</text></g>
-          </g>
-          <g font-family="Caveat, cursive" font-weight="600" font-size="23" fill="#1F2A44"><text x="228" y="368">lees lo que dijo la IA</text><text x="176" y="214" transform="rotate(-4 176 214)">decides y dudas</text><text x="326" y="296">pistas, no la solución</text><text x="300" y="86" fill="#C8402F" transform="rotate(-3 300 86)">tu tarea real</text></g>
-        </svg>
-      </div>
+  <main class="pt-heroe">
+    <div class="pt-fondo" aria-hidden="true"></div>
+    <div class="pt-texto">
+      <span class="paso-nombre">Expedición por equipos</span>
+      <h1>Usa la IA <span>sin que piense por ti.</span></h1>
+      <p>Revisa lo que responde una IA, elige tu armadura y gana territorios con tu equipo mientras haces tu tarea.</p>
+      <div class="guerrero pt-guerrero" data-n="4" role="img" aria-label="Guerrero con armadura completa"></div>
     </div>
 
-    <div class="ficha" id="ficha">
-      <span class="cinta c3"></span>
-      <div class="nota-mano">ficha de expedición</div>
-      <h2>Apunta tu nombre de explorador</h2>
-      <p class="suave" style="margin:0 0 14px">Usa un seudónimo, no tu nombre real. Tu maestro o maestra te da el código del grupo y puede ver cómo vas.</p>
+    <!-- Entrada: tres datos, en orden -->
+    <section class="pt-entrada" id="ficha" aria-labelledby="pt-titulo">
+      <h2 id="pt-titulo">Entra a tu expedición</h2>
+      <ol class="pt-pasos">
+        <li>
+          <label for="grupo"><b>1</b> Código de tu grupo</label>
+          <input type="text" id="grupo" class="pt-codigo" placeholder="K7PQ2M" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text">
+          <div id="grupo-ok" class="pt-ayuda" aria-live="polite">Te lo da tu maestro o maestra. Son 6 letras o números.</div>
+        </li>
+        <li>
+          <label for="seudonimo"><b>2</b> Tu seudónimo</label>
+          <input type="text" id="seudonimo" placeholder="Por ejemplo: zorro07" maxlength="24" autocomplete="off" autocapitalize="none" spellcheck="false">
+          <div class="pt-ayuda" id="seud-ayuda">No uses tu nombre real. De 3 a 24 letras o números, sin espacios.</div>
+        </li>
+        <li>
+          <span class="pt-etiqueta" id="eq-etiqueta"><b>3</b> Tu equipo</span>
+          <div class="equipos" id="equipos" role="group" aria-labelledby="eq-etiqueta"></div>
+        </li>
+      </ol>
+      <button class="btn btn-primario" id="entrar" disabled>Entrar al mapa</button>
+      <p class="pt-ayuda" id="entrar-falta" aria-live="polite"></p>
+    </section>
+  </main>
 
-      <label for="grupo">Código del grupo (6 letras)</label>
-      <input type="text" id="grupo" placeholder="K7PQ2M" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:3px;font-family:var(--serif);font-weight:700;font-size:22px">
-      <div id="grupo-ok" class="peq" style="min-height:20px;margin-top:4px"></div>
-
-      <label for="seudonimo">Seudónimo</label>
-      <input type="text" id="seudonimo" placeholder="por ejemplo: zorro07" maxlength="24" autocomplete="off" pattern="[A-Za-z0-9_\-]{3,24}">
-
-      <label>Tu equipo</label>
-      <div class="equipos" id="equipos"></div>
-
-      <div class="acciones">
-        <button class="btn btn-primario" id="entrar" disabled>Empezar la expedición</button>
-      </div>
-    </div>
-
-    <div class="aviso">
-      <b>Sobre este acompañante.</b> Puedo ayudarte a practicar cómo revisar lo que responde una IA mientras haces tu tarea de investigación, y a decidir qué evidencia hace falta. Uso ejercicios escritos por personas y reglas explícitas. No veo lo que haces con tu IA, no puedo verificar todo lo que hay en internet, ni saber cómo piensas, ni sustituir a tu maestro o maestra. Si algo involucra tu seguridad, tu privacidad o consecuencias serias, consulta a una persona de confianza.
-    </div>
-    <p class="peq suave" style="margin:12px 0 0">¿Eres docente? <a href="guia.html">Guía</a> · <a href="docente.html">Panel docente</a></p>
+  <section class="pt-como" aria-label="Cómo se juega">
+    <div><b>1</b><h3>Lee lo que dijo la IA</h3><p>Cada caso trae una respuesta de IA con algo que revisar.</p></div>
+    <div><b>2</b><h3>Elige tu armadura</h3><p>Entre más seguro digas estar, más armadura llevas. Si fallas con ella, se abolla.</p></div>
+    <div><b>3</b><h3>Gana territorios</h3><p>Tus puntos suman a tu equipo en el mapa.</p></div>
   </section>
 
+  <details class="pt-aviso">
+    <summary>Sobre este acompañante</summary>
+    <p>Puedo ayudarte a practicar cómo revisar lo que responde una IA mientras haces tu tarea de investigación, y a decidir qué evidencia hace falta. Uso ejercicios escritos por personas y reglas explícitas. No veo lo que haces con tu IA, no puedo verificar todo lo que hay en internet, ni saber cómo piensas, ni sustituir a tu maestro o maestra. Si algo involucra tu seguridad, tu privacidad o consecuencias serias, consulta a una persona de confianza.</p>
+  </details>
+  <p class="pt-enlaces">¿Eres docente? <a href="guia.html">Guía</a> · <a href="docente.html">Panel docente</a></p>
   <footer class="pie-site">
     <img class="pie-udemex" src="assets/img/udemex.png" alt="Universidad Digital del Estado de México">
     <img class="pie-banner" src="assets/img/hack4edu.jpg" alt="#Hack4Edu · Soluciones para desafíos educativos reales – 2026">
@@ -128,9 +112,9 @@
   let equipoElegido = null;
   meta.equipos.forEach(e => {
     const b = document.createElement('button');
-    b.className = 'equipo-btn'; b.type = 'button';
-    b.innerHTML = `${escudoHtml(e)}${e}`;
-    b.onclick = () => { equipoElegido = e; [...cajaEquipos.children].forEach(x => x.classList.remove('activo')); b.classList.add('activo'); validar(); };
+    b.className = 'equipo-btn eq-' + e; b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `${escudoHtml(e)}<span>${e}</span>`;
+    b.onclick = () => { equipoElegido = e; [...cajaEquipos.children].forEach(x => { x.classList.remove('activo'); x.setAttribute('aria-pressed', 'false'); }); b.classList.add('activo'); b.setAttribute('aria-pressed', 'true'); validar(); };
     cajaEquipos.appendChild(b);
   });
   const inp = document.getElementById('seudonimo');
@@ -138,22 +122,35 @@
   const okG = document.getElementById('grupo-ok');
   const btnEntrar = document.getElementById('entrar');
   let grupoValido = null;
-  function validar() { btnEntrar.disabled = !(inp.value.trim().length >= 3 && equipoElegido && grupoValido); }
+  const SEUD = /^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ_\-]{3,24}$/;
+  function validar() {
+    const seud = inp.value.trim(), seudOk = SEUD.test(seud);
+    document.getElementById('seud-ayuda').classList.toggle('mal', seud.length > 0 && !seudOk);
+    const falta = !grupoValido ? 'Escribe el código de tu grupo.' : !seudOk ? 'Escribe tu seudónimo.' : !equipoElegido ? 'Elige tu equipo.' : '';
+    btnEntrar.disabled = !!falta;
+    document.getElementById('entrar-falta').textContent = falta;
+    // marca qué paso ya está listo
+    const pasos = document.querySelectorAll('.pt-pasos > li');
+    [!!grupoValido, seudOk, !!equipoElegido].forEach((ok, i) => pasos[i].classList.toggle('listo', ok));
+  }
+  validar();
   inp.oninput = validar;
+  inp.onkeydown = e => { if (e.key === 'Enter' && !btnEntrar.disabled) btnEntrar.click(); };
   let t = null;
   inpG.oninput = () => {
     inpG.value = inpG.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    grupoValido = null; okG.textContent = ''; validar();
+    grupoValido = null; okG.className = 'pt-ayuda'; okG.textContent = inpG.value.length < 6 ? 'Te lo da tu maestro o maestra. Son 6 letras o números.' : 'Buscando el grupo…'; validar();
     clearTimeout(t);
     if (inpG.value.length === 6) t = setTimeout(async () => {
-      try { const g = await api(`/grupo/${inpG.value}`); grupoValido = g.codigo; okG.innerHTML = `<span style="color:var(--hierba);font-weight:700">Grupo ${esc(g.nombre)}</span>`; }
-      catch { okG.innerHTML = '<span style="color:var(--sello)">Ese código no existe. Revísalo con tu maestro.</span>'; }
+      try { const g = await api(`/grupo/${inpG.value}`); grupoValido = g.codigo; okG.className = 'pt-ayuda bien'; okG.textContent = `Grupo ${g.nombre}`; inp.focus(); }
+      catch { okG.className = 'pt-ayuda mal'; okG.textContent = 'Ese código no existe. Revísalo con tu maestro o maestra.'; }
       validar();
     }, 250);
   };
   btnEntrar.onclick = async () => {
+    btnEntrar.disabled = true;
     try { const a = await api('/alumno', 'POST', { seudonimo: inp.value.trim(), equipo: equipoElegido, grupo: grupoValido }); Sesion.guardar(a); mostrarMapa(a); }
-    catch (e) { toast(e.message); }
+    catch (e) { document.getElementById('entrar-falta').textContent = e.message; btnEntrar.disabled = false; }
   };
 
   // ---- Mapa de territorios ----
@@ -171,7 +168,7 @@
   async function mostrarMapa(a) {
     $('portada').classList.add('oculto');
     $('app-mapa').classList.remove('oculto');
-    document.body.classList.add('juego'); document.body.dataset.equipo = a.equipo;
+    document.body.classList.remove('portada-juego'); document.body.classList.add('juego'); document.body.dataset.equipo = a.equipo;
     a = await Sesion.conMapas() || a;
     const mapaId = a.mapa;
     const q = mapaId ? `&mapa=${mapaId}` : '';
