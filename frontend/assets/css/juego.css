@@ -242,3 +242,33 @@ body.juego-pag .insignia.obtenida .img { border-color: var(--ambar); box-shadow:
 body.juego-pag .insignia.obtenida .puntos span { background: var(--ambar); border-color: var(--ambar); }
 body.juego-pag .insignia .nombre { min-height: 0; }
 body.juego-pag .mapas-sel a.mapa-tab { background: #1E2742; color: var(--tinta); border-color: #3A4670; text-decoration: none; display: inline-flex; align-items: center; min-height: 40px; }
+
+/* ---------- Universo: todos los mapas del grupo ---------- */
+body.juego-pag .contenedor.app.ancha { max-width: 1180px; }
+body.universo .mapa-marco { max-width: none; margin-top: 10px; }
+body.sin-entrada .terr { animation: none; }
+.uni-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.uni-cab h1 { font-size: 28px; margin: 0; }
+.uni-reglas { margin: 10px 0 0; font-size: 15px; color: var(--tinta-suave); }
+.uni-reglas summary { cursor: pointer; padding: 8px 0; font-weight: 700; color: var(--tinta); }
+.uni-reglas ul { margin: 4px 0 0; padding-left: 20px; } .uni-reglas li { margin: 4px 0; }
+.uni-totales { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
+.uni-eq { --c: #3A4670; display: grid; grid-template-columns: 44px 1fr; gap: 2px 10px; align-items: center; padding: 12px; border-radius: 14px; background: #1E2742; border: 2px solid var(--c); }
+.uni-eq.eq-rojo, .um-dueno.eq-rojo { --c: var(--rojo); } .uni-eq.eq-azul, .um-dueno.eq-azul { --c: var(--azul); } .uni-eq.eq-verde, .um-dueno.eq-verde { --c: var(--verde); } .uni-eq.eq-violeta, .um-dueno.eq-violeta { --c: var(--violeta); }
+.uni-eq.lider { box-shadow: 0 0 18px var(--c); }
+.uni-eq .escudo { width: 44px; height: 44px; grid-row: span 2; }
+.ue-nom { font-family: var(--serif); font-weight: 700; font-size: 17px; display: flex; align-items: center; gap: 6px; }
+.ue-nom .corona { width: 18px; height: 18px; color: var(--ambar); }
+.ue-num { display: flex; align-items: baseline; gap: 5px; } .ue-num b { font-family: var(--serif); font-weight: 900; font-size: 30px; line-height: 1; color: var(--c); } .ue-num span { font-size: 12px; color: var(--tinta-suave); }
+.ue-det { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 12px; color: var(--tinta-suave); margin-top: 6px; } .ue-det b { color: var(--tinta); }
+.uni-mapas { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; }
+.uni-mapa { background: #141B30; border: 1px solid #2A3558; border-radius: 18px; padding: 14px; max-width: 520px; width: 100%; justify-self: center; }
+.um-cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.um-cab h2 { font-size: 21px; margin: 0; } .um-cab small { color: var(--tinta-suave); font-size: 13px; }
+.um-dueno { --c: #3A4670; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 12px; border: 2px solid var(--c); font-size: 11px; color: var(--tinta-suave); }
+.um-dueno.neutral { border-style: dashed; }
+.um-dueno .escudo { width: 28px; height: 28px; } .um-dueno b { display: block; font-size: 14px; color: var(--tinta); }
+.um-info { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: #1E2742; font-size: 14px; min-height: 44px; color: var(--tinta-suave); }
+.um-info b { color: var(--tinta); } .um-info span { display: block; font-size: 13px; margin-top: 2px; }
+.um-fila { display: flex; align-items: center; gap: 12px; margin-top: 8px; font-size: 13px; color: var(--tinta-suave); }
+.um-fila span { width: 76px; } .um-fila i { font-style: normal; display: inline-flex; align-items: center; gap: 4px; color: var(--tinta); font-weight: 700; } .um-fila .escudo { width: 22px; height: 22px; }
