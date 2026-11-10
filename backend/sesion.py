@@ -151,7 +151,7 @@ def revisar(intento_id, clave, confianza):
     r["pistas_usadas"] = it2.get("pistas_usadas") or 0
     r["resolucion"] = historial.resolucion(it2)
     r["repeticion"] = bool(it2.get("repeticion"))
-    acerto_ini, seguro_ini = it["eval_ini"] == "correcta", (it["conf_ini"] or 0) >= 50
+    acerto_ini, seguro_ini = it["eval_ini"] == "correcta", (it["conf_ini"] or 0) >= historial.SEGURO_DESDE
     r["punteria_caso"] = {"confianza": it["conf_ini"], "acerto": acerto_ini, "coincide": acerto_ini == seguro_ini}
     r["puntos_equipo"] = 0 if r["repeticion"] else historial.puntos_territorio(r["sentidos"], eval_, r["pistas_usadas"])
     r["continua"] = False

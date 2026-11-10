@@ -191,6 +191,7 @@ def errores_previos(seudonimo):
 
 
 # ---------- Consultas para el juego ----------
+SEGURO_DESDE = 60          # seguridad desde la que cuenta como «seguro» (niveles 75 y 100 de la armadura)
 RETO_POR_JUGADOR = 3       # casos bien revisados por jugador que forman el reto semanal del equipo
 RETO_MINIMO = 6            # meta mínima del reto semanal, para equipos pequeños
 META_DIARIA = 3            # casos nuevos que forman la «misión de hoy» del alumno
@@ -218,7 +219,7 @@ def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
         punteria = {"total": 0, "coinciden": 0, "seguro_y_mal": 0, "duda_y_bien": 0}
         for r in rows:
             if r["eval_ini"] in ("correcta", "error_esperado", "error_otro") and r["conf_ini"] is not None:
-                acerto, seguro = r["eval_ini"] == "correcta", r["conf_ini"] >= 50
+                acerto, seguro = r["eval_ini"] == "correcta", r["conf_ini"] >= SEGURO_DESDE
                 punteria["total"] += 1
                 punteria["coinciden"] += 1 if acerto == seguro else 0
                 punteria["seguro_y_mal"] += 1 if (seguro and not acerto) else 0

@@ -307,3 +307,25 @@ body.juego-pag .punteria { display: flex; gap: 12px; align-items: flex-start; ma
 body:not(.juego) .punteria { display: none; }
 .reto-eq { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 0 0 4px; padding: 6px 10px; border-radius: 8px; border: 1px dashed var(--tinta-suave); font-size: 12px; color: var(--tinta-suave); }
 .reto-eq b { color: var(--tinta); font-size: 14px; } .reto-eq.cumplido { border-style: solid; border-color: var(--hierba); color: var(--hierba); }
+
+/* ---------- Seguridad como armadura: cuatro niveles ---------- */
+.armadura { text-align: center; }
+.guerrero { width: min(34vw, 140px); aspect-ratio: 316 / 600; margin: 0 auto; background: url("../img/guerrero_niveles.png") no-repeat; background-size: 400% 100%; background-position: 0 0; opacity: .35; filter: grayscale(1); transition: opacity .2s ease, filter .2s ease; }
+.guerrero[data-n] { opacity: 1; filter: none; }
+.guerrero[data-n="2"] { background-position: 33.333% 0; } .guerrero[data-n="3"] { background-position: 66.666% 0; } .guerrero[data-n="4"] { background-position: 100% 0; }
+.guerrero.cambia { animation: equipa .32s cubic-bezier(.2, 1.4, .4, 1); }
+.guerrero[data-n="4"].cambia { animation: equipa .32s cubic-bezier(.2, 1.4, .4, 1), brilla .9s ease .1s; }
+@keyframes equipa { 0% { transform: scale(.86) translateY(8px); opacity: .4; } 100% { transform: none; opacity: 1; } }
+@keyframes brilla { 0%, 100% { filter: none; } 40% { filter: drop-shadow(0 0 14px var(--ambar)) brightness(1.15); } }
+.arm-palabra { font-weight: 700; font-size: 17px; color: var(--ambar); min-height: 1.6em; margin: 6px 0 10px; }
+.arm-niveles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.arm-niveles button { display: grid; gap: 2px; justify-items: center; align-content: center; min-height: 64px; padding: 8px 2px; border-radius: 12px; border: 2px solid #3A4670; background: #1E2742; color: var(--tinta); font: inherit; cursor: pointer; box-shadow: 0 4px 0 #0A0F20; transition: transform .12s ease, background .15s ease; }
+.arm-niveles button b { font-family: var(--serif); font-weight: 900; font-size: 24px; line-height: 1; }
+.arm-niveles button small { font-size: 11px; color: var(--tinta-suave); line-height: 1.15; }
+.arm-niveles button:active { transform: translateY(2px); box-shadow: 0 2px 0 #0A0F20; }
+.arm-niveles button.elegida { background: var(--equipo); border-color: #fff; color: #fff; box-shadow: 0 4px 0 #0A0F20, 0 0 14px var(--equipo); }
+.arm-niveles button.elegida small { color: rgba(255,255,255,.9); }
+.armadura.compacta { display: grid; grid-template-columns: 74px 1fr; gap: 4px 12px; align-items: center; text-align: left; margin-top: 8px; }
+.armadura.compacta .guerrero { width: 74px; grid-row: span 2; }
+.armadura.compacta .arm-palabra { margin: 0; font-size: 15px; }
+.armadura.compacta .arm-niveles button { min-height: 52px; } .armadura.compacta .arm-niveles small { display: none; }

@@ -66,11 +66,17 @@
         <span class="paso-nombre">Tu seguridad</span>
         <h2>¿Qué tan seguro estás?</h2>
         <div class="tu-respuesta" id="tu-respuesta"></div>
-        <div class="medidor">
-          <div class="medidor-num" id="conf-valor">50</div>
-          <div class="medidor-palabra" id="conf-palabra"></div>
-          <input type="range" id="conf" min="0" max="100" step="5" value="50" aria-label="Qué tan seguro estás, de 0 a 100">
-          <div class="escala"><span>Nada seguro</span><span>Totalmente seguro</span></div>
+        <p class="ayuda">Elige tu armadura. Más seguridad es más armadura: lleva la completa solo si tienes evidencia.</p>
+        <div class="armadura" id="arm1">
+          <div class="guerrero" role="img" aria-label="Guerrero sin armadura elegida"></div>
+          <div class="arm-palabra" aria-live="polite">Elige un nivel</div>
+          <div class="arm-niveles" role="radiogroup" aria-label="Qué tan seguro estás">
+            <button type="button" role="radio" aria-checked="false" data-v="25"><b>25</b><small>Poco seguro</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="50"><b>50</b><small>Algo seguro</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="75"><b>75</b><small>Bastante seguro</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="100"><b>100</b><small>Totalmente seguro</small></button>
+          </div>
+          <input type="hidden" id="conf" value="">
         </div>
         <div id="just-caja">
           <label for="just">¿Por qué elegiste eso?</label>
@@ -105,10 +111,17 @@
         <p class="ayuda">Puedes quedarte con tu respuesta o cambiarla. Lo que cuenta es que la revises.</p>
         <div class="pista-carta oculto" id="rev-pista-caja" style="margin:0 0 14px;animation:none"><span class="rotulo" id="rev-rotulo"></span><span id="rev-pista"></span></div>
         <div class="opciones" id="opciones2"></div>
-        <div class="confianza">
-          <div class="confianza-cab"><label for="conf2" style="margin:0">¿Y ahora qué tan seguro estás?</label><span class="confianza-valor" id="conf2-valor">50</span></div>
-          <input type="range" id="conf2" min="0" max="100" step="5" value="50">
-          <div class="escala"><span>Nada seguro</span><span>Totalmente seguro</span></div>
+        <div class="bloque-titulo" style="font-size:17px">¿Y ahora qué tan seguro estás?</div>
+        <div class="armadura compacta" id="arm2">
+          <div class="guerrero" role="img" aria-label="Guerrero"></div>
+          <div class="arm-palabra" aria-live="polite"></div>
+          <div class="arm-niveles" role="radiogroup" aria-label="Qué tan seguro estás">
+            <button type="button" role="radio" aria-checked="false" data-v="25"><b>25</b><small>Poco seguro</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="50"><b>50</b><small>Algo seguro</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="75"><b>75</b><small>Bastante seguro</small></button>
+            <button type="button" role="radio" aria-checked="false" data-v="100"><b>100</b><small>Totalmente seguro</small></button>
+          </div>
+          <input type="hidden" id="conf2" value="">
         </div>
       </div>
       <div class="acciones-fijas">
@@ -292,10 +305,36 @@
   };
 
   // ---- Confianza ----
-  const PALABRA = v => v <= 10 ? 'Nada seguro' : v <= 35 ? 'Poco seguro' : v <= 60 ? 'Más o menos' : v <= 85 ? 'Bastante seguro' : 'Totalmente seguro';
-  const pintarConf = () => { $('conf-valor').textContent = $('conf').value; $('conf-palabra').textContent = PALABRA(+$('conf').value); };
-  $('conf').oninput = pintarConf; pintarConf();
-  $('conf2').oninput = () => $('conf2-valor').textContent = $('conf2').value;
+  // La seguridad se elige en cuatro niveles. El guerrero lleva más armadura cuanto más seguro dice estar el alumno.
+  const ARMADURA = { 25: 'Sin armadura · poco seguro', 50: 'Armadura ligera · algo seguro', 75: 'Media armadura · bastante seguro', 100: 'Armadura completa · totalmente seguro' };
+  const aNivel = v => Math.min(100, Math.max(25, Math.round((+v || 0) / 25) * 25));   // ajusta valores antiguos (0 a 100) al nivel más cercano
+  function armadura(raiz, alElegir) {
+    const guerrero = raiz.querySelector('.guerrero'), palabra = raiz.querySelector('.arm-palabra'), campo = raiz.querySelector('input[type=hidden]');
+    const botones = [...raiz.querySelectorAll('.arm-niveles button')];
+    function fijar(v, avisar) {
+      v = aNivel(v);
+      campo.value = v;
+      botones.forEach(b => { const on = +b.dataset.v === v; b.classList.toggle('elegida', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
+      guerrero.dataset.n = v / 25;
+      guerrero.setAttribute('aria-label', 'Guerrero: ' + ARMADURA[v]);
+      guerrero.classList.remove('cambia'); void guerrero.offsetWidth; guerrero.classList.add('cambia');
+      palabra.textContent = ARMADURA[v];
+      if (avisar && alElegir) alElegir(v);
+    }
+    botones.forEach((b, i) => {
+      b.onclick = () => fijar(b.dataset.v, true);
+      b.onkeydown = e => {   // flechas, como en un grupo de opciones
+        const d = e.key === 'ArrowRight' || e.key === 'ArrowUp' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowDown' ? -1 : 0;
+        if (!d) return; e.preventDefault();
+        const j = Math.min(botones.length - 1, Math.max(0, i + d)); botones[j].focus(); fijar(botones[j].dataset.v, true);
+      };
+    });
+    botones[0].tabIndex = 0;
+    return { fijar };
+  }
+  const arm1 = armadura($('arm1'), () => activar($('enviar')));
+  const arm2 = armadura($('arm2'));
+  $('enviar').disabled = true;   // hay que elegir un nivel antes de decidir
 
   // ---- Tutor y revisión ----
   function mostrarTutor(dice, motivo, pista, nivel, ultima) {
@@ -315,7 +354,7 @@
     pintarOpciones($('opciones2'), k => { clave2 = k; activar($('enviar2')); });
     const idx = caso.opciones.findIndex(o => o.clave === claveBase);
     if (idx >= 0) $('opciones2').children[idx].click();
-    $('conf2').value = conf; $('conf2-valor').textContent = conf;
+    arm2.fijar(conf);
   }
   $('b-tutor').onclick = () => ir('revisar');
 

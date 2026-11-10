@@ -65,7 +65,8 @@ Esta versión cambia la experiencia del alumno y del docente. Las capturas de la
 - **Retomar un caso.** Si el alumno recarga la página a medio caso, vuelve al paso donde se quedó.
 - **Historia corta.** El alumno es un explorador que revisa lo que responde una IA antes de que su equipo lo use. Cada territorio tiene un lugar y dos líneas de historia, que se muestran la primera vez que entra.
 - **Reto de equipo semanal.** Casos bien revisados entre todos, de lunes a domingo. La meta es de tres casos por jugador, con un mínimo de seis. Es un logro compartido: no da puntos.
-- **Medidor de puntería.** Al cerrar un caso se indica si la seguridad declarada coincidió con la primera respuesta; la página Insignias muestra el acumulado. Cuenta como «seguro» una seguridad de 50 o más.
+- **Seguridad como armadura.** El alumno declara su seguridad en cuatro niveles: 25, 50, 75 y 100. Un guerrero lleva más armadura con cada nivel, de ninguna a completa. Hay que elegir un nivel antes de decidir.
+- **Medidor de puntería.** Al cerrar un caso se indica si la seguridad declarada coincidió con la primera respuesta; la página Insignias muestra el acumulado. Cuentan como «seguro» los niveles 75 y 100.
 - **Tema oscuro de juego** en las pantallas del alumno. La portada, la guía y el panel docente conservan el tema claro.
 
 **Para el docente**
@@ -203,7 +204,7 @@ docker-compose.yml    Ejecución con volumen persistente
 respaldo.sh           Respaldo de SQLite y casos en el VPS
 ```
 
-Las reglas de juego están en `backend/historial.py`: `META_DIARIA = 3` (casos de la misión de hoy), `RETO_POR_JUGADOR = 3` y `RETO_MINIMO = 6` (reto semanal de equipo), `RACHA_PARA_DETECTIVE = 3`, `CASOS_PARA_INSIGNIA = 2` y la función `puntos_territorio`, que define los puntos de cada caso. Una insignia se sugiere con dos casos distintos del mismo postulado resueltos sin pista en el mismo mapa; el docente decide si la otorga. La cobertura disponible depende del nivel y de los casos asignados.
+Las reglas de juego están en `backend/historial.py`: `META_DIARIA = 3` (casos de la misión de hoy), `RETO_POR_JUGADOR = 3` y `RETO_MINIMO = 6` (reto semanal de equipo), `SEGURO_DESDE = 60` (umbral de la puntería), `RACHA_PARA_DETECTIVE = 3`, `CASOS_PARA_INSIGNIA = 2` y la función `puntos_territorio`, que define los puntos de cada caso. Una insignia se sugiere con dos casos distintos del mismo postulado resueltos sin pista en el mismo mapa; el docente decide si la otorga. La cobertura disponible depende del nivel y de los casos asignados.
 
 ## Alcance y estado del prototipo
 
@@ -254,6 +255,7 @@ Las bases de Hack4Edu 2026 piden identificar qué existía antes del hackatón y
 
 - Autor y dirección del proyecto: Erandi Carrasco Alcántara (Universidad Digital del Estado de México, Hack4Edu 2026).
 - Código y contenidos redactados con asistencia de IA (Claude, Anthropic) bajo dirección y revisión del autor.
+- Guerrero de los niveles de seguridad: generado con Higgsfield a partir de indicaciones del autor.
 - Ilustración del mapa de territorios: generada con Higgsfield a partir de un trazado propio de las fronteras; el continente y sus territorios son originales de Critia. Ilustraciones anteriores del Universo (continente y mar) e insignias: generadas con Higgsfield a partir de indicaciones del autor. Escudos de equipo: aportados por el autor.
 - Logotipo de UDEMEX: propiedad de la Universidad Digital del Estado de México; se usa con fines institucionales del proyecto.
 - Modelo de lenguaje para generación de casos: DeepSeek (API). Motor lógico: clingo (Potassco).
