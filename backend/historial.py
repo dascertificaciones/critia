@@ -191,6 +191,8 @@ def errores_previos(seudonimo):
 
 
 # ---------- Consultas para el juego ----------
+RETO_POR_JUGADOR = 3       # casos bien revisados por jugador que forman el reto semanal del equipo
+RETO_MINIMO = 6            # meta mínima del reto semanal, para equipos pequeños
 META_DIARIA = 3            # casos nuevos que forman la «misión de hoy» del alumno
 RACHA_PARA_DETECTIVE = 3   # casos seguidos "bien revisados" para desbloquear el caso del detective
 CASOS_PARA_INSIGNIA = 2    # casos del mismo postulado sin pista para sugerir insignia
@@ -206,13 +208,21 @@ def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
     fm = " AND mapa_id=?" if mapa_id else ""
     pm = (mapa_id,) if mapa_id else ()
     with conectar() as con:
-        rows = con.execute(f"""SELECT caso_id, sentidos, eval_ini, eval_fin, cierre, COALESCE(pistas_usadas,0) pistas FROM intentos
+        rows = con.execute(f"""SELECT caso_id, sentidos, eval_ini, eval_fin, cierre, conf_ini, COALESCE(pistas_usadas,0) pistas FROM intentos
                               WHERE seudonimo=? AND cierre IS NOT NULL AND COALESCE(repeticion,0)=0{fm} ORDER BY cierre""",
                            (seudonimo,) + pm).fetchall()
         casos, total, racha, mejor_racha = {}, 0, 0, 0
         avance = {}
         puntos_total, hoy, casos_hoy, puntos_hoy = 0, ahora()[:10], [], 0
+        # Puntería: ¿la seguridad inicial coincidió con el resultado de la primera respuesta?
+        punteria = {"total": 0, "coinciden": 0, "seguro_y_mal": 0, "duda_y_bien": 0}
         for r in rows:
+            if r["eval_ini"] in ("correcta", "error_esperado", "error_otro") and r["conf_ini"] is not None:
+                acerto, seguro = r["eval_ini"] == "correcta", r["conf_ini"] >= 50
+                punteria["total"] += 1
+                punteria["coinciden"] += 1 if acerto == seguro else 0
+                punteria["seguro_y_mal"] += 1 if (seguro and not acerto) else 0
+                punteria["duda_y_bien"] += 1 if (acerto and not seguro) else 0
             s = json.loads(r["sentidos"] or "[]")
             pts = puntos_territorio(s, r["eval_fin"], r["pistas"])
             casos[r["caso_id"]] = {"sentidos": s, "eval_ini": r["eval_ini"], "eval_fin": r["eval_fin"], "puntos": pts}
@@ -238,6 +248,7 @@ def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
             "casos_hoy": casos_hoy,
             "puntos_hoy": puntos_hoy,
             "meta_diaria": META_DIARIA,
+            "punteria": punteria,
             "insignias": ins,
             "avance_insignias": {p: len(v) for p, v in avance.items()},
             "casos_para_insignia": CASOS_PARA_INSIGNIA,
@@ -838,6 +849,28 @@ def universo(codigo, mision_de_caso, detective_ids=()):
         return {"grupo": {"codigo": g["codigo"], "nombre": g["nombre"], "nivel": g.get("nivel") or 2},
                 "alumnos": alumnos_eq, "mapas": salida, "totales": totales,
                 "reglas": {"racha_bono": RACHA_BONO, "puntos_bono": PUNTOS_BONO, "detective_ok": DETECTIVE_OK}}
+
+
+def reto_semanal(codigo):
+    """Reto de equipo de la semana en curso (lunes a domingo): casos bien revisados entre todos.
+    La meta crece con el tamaño del equipo. No da puntos: es un logro compartido."""
+    from datetime import date, timedelta
+    hoy = date.fromisoformat(ahora()[:10])
+    lunes = (hoy - timedelta(days=hoy.weekday())).isoformat()
+    with conectar() as con:
+        jugadores = {e: 0 for e in EQUIPOS}
+        for r in con.execute("SELECT equipo, COUNT(*) n FROM alumnos WHERE grupo=? GROUP BY equipo", (codigo,)):
+            jugadores[r["equipo"]] = r["n"]
+        hechos = {e: 0 for e in EQUIPOS}
+        for r in con.execute("""SELECT a.equipo, i.sentidos, i.eval_ini FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                WHERE a.grupo=? AND i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND i.cierre>=?""", (codigo, lunes)):
+            if _bien_revisado(json.loads(r["sentidos"] or "[]"), r["eval_ini"]):
+                hechos[r["equipo"]] += 1
+        out = {}
+        for e in EQUIPOS:
+            meta = max(RETO_MINIMO, RETO_POR_JUGADOR * jugadores[e]) if jugadores[e] else 0
+            out[e] = {"hechos": hechos[e], "meta": meta, "cumplido": bool(meta and hechos[e] >= meta)}
+        return {"desde": lunes, "equipos": out}
 
 
 # ---------- Vistas filtradas por grupo ----------

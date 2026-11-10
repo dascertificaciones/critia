@@ -24,6 +24,7 @@
       <div class="pantalla-cuerpo">
         <span class="paso-nombre" id="etiqueta"></span>
         <h1 id="titulo"></h1>
+        <p class="historia oculto" id="historia"></p>
         <p class="ayuda">Lee con calma lo que pasó. Después decides.</p>
         <div class="chat-ia" id="situacion"></div>
         <details class="como-sumas" id="como-sumas">
@@ -126,6 +127,7 @@
         <div class="sentidos-ganados" id="sentidos"></div>
         <div class="puntos-equipo" id="puntos-equipo"></div>
         <div class="racha-linea" id="racha-linea"></div>
+        <div class="punteria-caso oculto" id="punteria-caso"></div>
         <div class="bloque-titulo">Lo que había que ver</div>
         <div class="explicacion" id="explicacion"></div>
         <div class="habilidad-caja" id="habilidad"></div>
@@ -217,7 +219,13 @@
   };
 
   // ---- Leer ----
-  $('etiqueta').textContent = `Misión ${caso.mision}${mision ? ' · ' + mision.nombre : ''}`;
+  $('etiqueta').textContent = `Territorio ${caso.mision}${mision ? ' · ' + (mision.lugar || mision.nombre) : ''}`;
+  // La historia del territorio se muestra la primera vez que el alumno entra a él
+  if (mision && mision.historia && !caso.especial) {
+    const claveH = `critia_hist_${alumno.seudonimo}_${Sesion.mapa() || 0}_${caso.mision}`;
+    let vista = true; try { vista = !!localStorage.getItem(claveH); } catch {}
+    if (!vista) { $('historia').textContent = mision.historia; $('historia').classList.remove('oculto'); try { localStorage.setItem(claveH, '1'); } catch {} }
+  }
   $('titulo').textContent = caso.titulo;
   $('situacion').textContent = caso.situacion;
   $('situacion-mini').textContent = caso.situacion;
@@ -386,6 +394,11 @@
     if (r2.habilidad) {
       const hDef = (meta.marco_teorico?.habilidades || []).find(h => h.clave === r2.habilidad.clave) || {};
       $('habilidad').innerHTML = `<span class="icono">${ICONO.lupa || ''}</span><div><b>Habilidad que practicaste:</b> ${esc(r2.habilidad.nombre)} <span class="suave">· ${esc(r2.habilidad.autor)}</span>${hDef.definicion ? `<div class="peq suave">${esc(hDef.definicion)}</div>` : ''}</div>`;
+    }
+    const pc = r2.punteria_caso;
+    if (pc && !esAbierta && pc.confianza !== null) {
+      $('punteria-caso').className = 'punteria-caso' + (pc.coincide ? ' coincide' : '');
+      $('punteria-caso').innerHTML = `<span class="icono">${ICONO.calibrar}</span><span><b>Puntería:</b> marcaste ${pc.confianza} de seguridad y tu primera respuesta fue ${pc.acerto ? 'correcta' : 'incorrecta'}. ${pc.coincide ? 'Tu seguridad coincidió con el resultado.' : pc.acerto ? 'Podías confiar más: tenías razón.' : 'Estabas más seguro de lo que la evidencia permitía.'}</span>`;
     }
     conReflexion = !!(r2.reflexion && !esAbierta);
     if (conReflexion) $('reflexion-pregunta').textContent = r2.reflexion;

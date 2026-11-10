@@ -40,6 +40,7 @@
     <a class="btn btn-secundario" href="tablero.html">Ver tablero</a>
   </div>
 
+  <div class="punteria" id="punteria"></div>
   <div class="vitrina" id="vitrina"></div>
   <footer class="pie-site">
     <img class="pie-udemex" src="assets/img/udemex.png" alt="Universidad Digital del Estado de México">
@@ -62,6 +63,13 @@
   const mapaActual = (a2.mapas || []).find(m => m.id === a2.mapa);
   if (mapaActual && (a2.mapas || []).length > 1) document.querySelector('h1').insertAdjacentHTML('afterend', `<p class="peq suave" style="margin:-6px 0 8px">Mapa: <b>${esc(mapaActual.nombre)}</b>. Cada mapa tiene sus propias insignias.</p>`);
   document.getElementById('meta-n').textContent = prog.casos_para_insignia;
+
+  const pu = prog.punteria || { total: 0 };
+  document.getElementById('punteria').innerHTML = pu.total < 3
+    ? `<span class="icono">${ICONO.calibrar}</span><div><b>Tu puntería</b><div class="peq suave">Resuelve al menos 3 casos para ver si tu seguridad coincide con tus resultados. Llevas ${pu.total}.</div></div>`
+    : `<span class="icono">${ICONO.calibrar}</span><div style="flex:1"><b>Tu puntería: ${pu.coinciden} de ${pu.total}</b>
+        <div class="reto-barra"><i style="width:${Math.round(100 * pu.coinciden / pu.total)}%"></i></div>
+        <div class="peq suave">Casos en los que tu seguridad coincidió con tu primera respuesta. ${pu.seguro_y_mal > pu.duda_y_bien ? `En ${pu.seguro_y_mal} estabas seguro y fallaste: baja tu seguridad cuando no tengas evidencia.` : pu.duda_y_bien > pu.seguro_y_mal ? `En ${pu.duda_y_bien} dudaste y tenías razón: confía más cuando tengas evidencia.` : 'Sigue ajustando tu seguridad a la evidencia.'}</div></div>`;
 
   document.getElementById('vitrina').innerHTML = lista.map(i => {
     const puntos = Array.from({ length: i.meta }, (_, k) => `<span class="${k < i.avance ? 'on' : ''}"></span>`).join('');

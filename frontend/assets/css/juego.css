@@ -290,3 +290,20 @@ body.sin-entrada .terr { animation: none; }
 .como-sumas ul { margin: 0 0 10px; padding-left: 20px; color: var(--tinta-suave); } .como-sumas li { margin: 4px 0; } .como-sumas b { color: var(--tinta); }
 .mision-mini { margin-left: auto; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--ambar); color: var(--ambar); white-space: nowrap; }
 .mision-mini.lista { border-color: var(--hierba); color: var(--hierba); }
+
+/* ---------- Historia, reto de equipo y puntería ---------- */
+.estado-equipo { display: block; } .ee-fila { display: flex; align-items: center; gap: 12px; }
+.reto { margin-top: 10px; padding-top: 10px; border-top: 1px solid #3A4670; }
+.reto-txt { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--tinta-suave); } .reto-txt b { color: var(--tinta); font-size: 14px; }
+.reto-barra { height: 10px; border-radius: 5px; background: #0C1122; overflow: hidden; margin: 6px 0 2px; }
+.reto-barra i { display: block; height: 100%; border-radius: 5px; background: var(--equipo); transition: width .6s ease; }
+.reto.cumplido .reto-txt b { color: var(--hierba); } .reto.cumplido .reto-barra i { background: var(--hierba); }
+.historia { margin: 0 0 12px; padding: 12px 14px; border-radius: 12px; background: #2B2550; border-left: 4px solid var(--violeta); font-size: 16px; animation: entra-abajo .4s ease both; }
+.punteria-caso { display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: #1E2742; border: 1px solid #3A4670; font-size: 14px; color: var(--tinta-suave); animation: entra-abajo .35s ease 1.1s both; }
+.punteria-caso b { color: var(--tinta); } .punteria-caso .icono { width: 22px; height: 22px; flex: none; color: var(--ambar); }
+.punteria-caso.coincide { border-color: var(--hierba); } .punteria-caso.coincide .icono { color: var(--hierba); }
+body.juego-pag .punteria { display: flex; gap: 12px; align-items: flex-start; margin-top: 14px; padding: 14px; border-radius: 14px; background: #1E2742; border: 1px solid var(--ambar); }
+.punteria .icono { width: 30px; height: 30px; flex: none; color: var(--ambar); } .punteria .reto-barra i { background: var(--ambar); }
+body:not(.juego) .punteria { display: none; }
+.reto-eq { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 0 0 4px; padding: 6px 10px; border-radius: 8px; border: 1px dashed var(--tinta-suave); font-size: 12px; color: var(--tinta-suave); }
+.reto-eq b { color: var(--tinta); font-size: 14px; } .reto-eq.cumplido { border-style: solid; border-color: var(--hierba); color: var(--hierba); }

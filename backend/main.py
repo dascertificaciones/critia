@@ -360,7 +360,8 @@ def tablero(grupo: Optional[str] = None, mapa: Optional[int] = None):
         m = historial.mapa(mapa) if mapa else None
         return {"grupo": {"codigo": g["codigo"], "nombre": g["nombre"]}, "mapa": m,
                 "mapas": historial.mapas_de_grupo(g["codigo"]),
-                "equipos": historial.tablero_equipos_grupo(g["codigo"], m["id"] if m else None)}
+                "equipos": historial.tablero_equipos_grupo(g["codigo"], m["id"] if m else None),
+                "reto": historial.reto_semanal(g["codigo"])}
     return {"grupo": None, "equipos": historial.tablero_equipos()}
 
 
@@ -373,6 +374,7 @@ def universo(codigo: str):
     if not u:
         raise HTTPException(404, "Grupo no existe")
     u["misiones"] = [{"n": m["n"], "nombre": m["nombre"]} for m in META["misiones"]]
+    u["reto"] = historial.reto_semanal(codigo)
     return u
 
 

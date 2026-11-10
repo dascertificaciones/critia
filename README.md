@@ -63,6 +63,9 @@ Esta versión cambia la experiencia del alumno y del docente. Las capturas de la
 - **Puntos con una sola regla** en el mapa, el caso y la página Equipo: un punto por cada habilidad ganada (justificar, revisar, calibrar) y uno más por resolver sin pistas. Antes de jugar, el caso explica cómo se suman; corregir después de una pista también cuenta.
 - **Ruta recomendada** en el mapa, en el orden de las misiones. Es una sugerencia, no un bloqueo.
 - **Retomar un caso.** Si el alumno recarga la página a medio caso, vuelve al paso donde se quedó.
+- **Historia corta.** El alumno es un explorador que revisa lo que responde una IA antes de que su equipo lo use. Cada territorio tiene un lugar y dos líneas de historia, que se muestran la primera vez que entra.
+- **Reto de equipo semanal.** Casos bien revisados entre todos, de lunes a domingo. La meta es de tres casos por jugador, con un mínimo de seis. Es un logro compartido: no da puntos.
+- **Medidor de puntería.** Al cerrar un caso se indica si la seguridad declarada coincidió con la primera respuesta; la página Insignias muestra el acumulado. Cuenta como «seguro» una seguridad de 50 o más.
 - **Tema oscuro de juego** en las pantallas del alumno. La portada, la guía y el panel docente conservan el tema claro.
 
 **Para el docente**
@@ -77,12 +80,9 @@ Esta versión cambia la experiencia del alumno y del docente. Las capturas de la
 
 Trabajo planeado, todavía sin construir:
 
-1. **Historia corta.** El alumno es un explorador que revisa mensajes de una IA antes de que su equipo los use; cada territorio abre con dos líneas de historia.
-2. **Reto de equipo.** Una meta que se logra entre todos, por ejemplo diez casos bien revisados en la semana, útil también para el equipo que va perdiendo.
-3. **Medidor de puntería.** Muestra si la seguridad que declara el alumno coincide con sus aciertos; hace visible la habilidad de calibrar.
-4. **Nuevos tipos de caso,** además de la opción múltiple: señalar la frase dudosa de la respuesta de la IA u ordenar qué revisar primero.
-5. **Dificultad por caso,** para que la ruta recomendada vaya de fácil a difícil y no solo en el orden de las misiones.
-6. **Pendientes antes de un piloto:** reforzar la identidad del alumno al volver a entrar; validar los casos editados antes de guardarlos; incluir el bono de racha en la página Equipo; permitir que el docente cambie la meta diaria; equilibrar las claves de los ocho casos del ciclo del agua (todas están en C); sustituir las capturas de este README; revisar accesibilidad con lector de pantalla.
+1. **Nuevos tipos de caso,** además de la opción múltiple: señalar la frase dudosa de la respuesta de la IA u ordenar qué revisar primero.
+2. **Dificultad por caso,** para que la ruta recomendada vaya de fácil a difícil y no solo en el orden de las misiones.
+3. **Pendientes antes de un piloto:** reforzar la identidad del alumno al volver a entrar; validar los casos editados antes de guardarlos; incluir el bono de racha en la página Equipo; permitir que el docente cambie la meta diaria; equilibrar las claves de los ocho casos del ciclo del agua (todas están en C); sustituir las capturas de este README; revisar accesibilidad con lector de pantalla.
 
 ## Cómo está construido
 
@@ -188,7 +188,7 @@ backend/
   motor.py            Preparación de hechos y consulta del solver
   historial.py        SQLite, grupos, mapas y seguimiento
   generador.py        Borradores de ejercicios con modelo externo
-  misiones.json       Misiones, postulados, habilidades y niveles
+  misiones.json       Misiones (con su lugar e historia), postulados, habilidades y niveles
   asp/                Reglas de diagnóstico y tutoría
   casos/casos.json    Banco base
   casos/docente/      Casos adicionales generados o importados
@@ -203,7 +203,7 @@ docker-compose.yml    Ejecución con volumen persistente
 respaldo.sh           Respaldo de SQLite y casos en el VPS
 ```
 
-Las reglas de juego están en `backend/historial.py`: `META_DIARIA = 3` (casos de la misión de hoy), `RACHA_PARA_DETECTIVE = 3`, `CASOS_PARA_INSIGNIA = 2` y la función `puntos_territorio`, que define los puntos de cada caso. Una insignia se sugiere con dos casos distintos del mismo postulado resueltos sin pista en el mismo mapa; el docente decide si la otorga. La cobertura disponible depende del nivel y de los casos asignados.
+Las reglas de juego están en `backend/historial.py`: `META_DIARIA = 3` (casos de la misión de hoy), `RETO_POR_JUGADOR = 3` y `RETO_MINIMO = 6` (reto semanal de equipo), `RACHA_PARA_DETECTIVE = 3`, `CASOS_PARA_INSIGNIA = 2` y la función `puntos_territorio`, que define los puntos de cada caso. Una insignia se sugiere con dos casos distintos del mismo postulado resueltos sin pista en el mismo mapa; el docente decide si la otorga. La cobertura disponible depende del nivel y de los casos asignados.
 
 ## Alcance y estado del prototipo
 
