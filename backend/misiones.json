@@ -1,8 +1,11 @@
 {
+  "historia_inicio": "Tu equipo explora un continente donde todos consultan a una IA. Tu trabajo es revisar lo que la IA responde antes de que tu equipo lo use. Cada caso bien revisado suma puntos para ganar un territorio.",
   "misiones": [
     {
       "n": 1,
       "nombre": "El sentido de la duda",
+      "lugar": "Bosque de Niebla",
+      "historia": "En el Bosque de Niebla todo suena seguro, aunque no se vea bien. Antes de avanzar, tu equipo necesita saber qué tiene pruebas y qué solo suena convincente.",
       "postulados": [
         1,
         2
@@ -12,6 +15,8 @@
     {
       "n": 2,
       "nombre": "La fuente fantasma",
+      "lugar": "Montañas del Eco",
+      "historia": "En las Montañas del Eco se repiten citas que nadie ha visto. Tu equipo solo puede usar las fuentes que de verdad se pueden encontrar.",
       "postulados": [
         3
       ],
@@ -20,6 +25,8 @@
     {
       "n": 3,
       "nombre": "Lo que falta",
+      "lugar": "Pantano de las Preguntas",
+      "historia": "En el Pantano las respuestas llegan incompletas. Para cruzarlo hay que descubrir qué dato falta en cada pregunta.",
       "postulados": [
         1,
         7
@@ -29,6 +36,8 @@
     {
       "n": 4,
       "nombre": "El termómetro",
+      "lugar": "Dunas del Termómetro",
+      "historia": "En las Dunas es fácil confiarse y perder el rumbo. Aquí ganas cuando tu seguridad sube o baja según la evidencia.",
       "postulados": [
         5,
         6
@@ -38,6 +47,8 @@
     {
       "n": 5,
       "nombre": "El criterio justo",
+      "lugar": "Terrazas del Criterio",
+      "historia": "En las Terrazas vive gente muy distinta. Tu equipo debe distinguir un consejo justo de uno que juzga a las personas por su grupo.",
       "postulados": [
         8
       ],
@@ -46,6 +57,8 @@
     {
       "n": 6,
       "nombre": "La bóveda",
+      "lugar": "Pradera de la Bóveda",
+      "historia": "En la Pradera muchos mensajes piden datos a cambio de ayuda. Tu equipo cuida su información y la de los demás.",
       "postulados": [
         10
       ],
@@ -54,6 +67,8 @@
     {
       "n": 7,
       "nombre": "Mi nombre, mi trabajo",
+      "lugar": "Cañón de las Firmas",
+      "historia": "En el Cañón cada explorador firma lo que entrega. Usar una IA no quita la responsabilidad: hay que poder explicar el trabajo y decir cómo se hizo.",
       "postulados": [
         9,
         12
@@ -63,6 +78,8 @@
     {
       "n": 8,
       "nombre": "El sexto sentido",
+      "lugar": "Selva del Sexto Sentido",
+      "historia": "En la Selva hay decisiones que una IA no debe tomar sola. Tu equipo aprende a reconocer cuándo hace falta una persona.",
       "postulados": [
         4,
         11

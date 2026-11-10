@@ -200,8 +200,11 @@
     if (terrMapa) {
       const mios = terrMapa.territorios.filter(t => t.dueno === a.equipo).length;
       const bono = prog.racha >= uni.reglas.racha_bono;
-      $('estado-equipo').innerHTML = `<div class="ee-num"><b>${mios}</b><span>de 8</span></div><div>Territorios de tu equipo${terrMapa.isla?.dueno === a.equipo ? ' <b>+ la isla del detective</b>' : ''}.
-        <small>${bono ? `Tu racha de ${prog.racha} suma +${uni.reglas.puntos_bono} puntos al territorio donde juegas.` : `Con ${uni.reglas.racha_bono} casos seguidos bien revisados, tu racha suma +${uni.reglas.puntos_bono} puntos a tu equipo.`}</small></div>`;
+      const reto = uni.reto && uni.reto.equipos[a.equipo];
+      const retoHtml = reto && reto.meta ? `<div class="reto${reto.cumplido ? ' cumplido' : ''}"><div class="reto-txt"><b>${reto.cumplido ? 'Reto de equipo cumplido' : 'Reto de equipo de esta semana'}</b><span>${Math.min(reto.hechos, reto.meta)} de ${reto.meta} casos bien revisados entre todos</span></div>
+        <div class="reto-barra" role="img" aria-label="${reto.hechos} de ${reto.meta}"><i style="width:${Math.min(100, Math.round(100 * reto.hechos / reto.meta))}%"></i></div></div>` : '';
+      $('estado-equipo').innerHTML = `<div class="ee-fila"><div class="ee-num"><b>${mios}</b><span>de 8</span></div><div>Territorios de tu equipo${terrMapa.isla?.dueno === a.equipo ? ' <b>+ la isla del detective</b>' : ''}.
+        <small>${bono ? `Tu racha de ${prog.racha} suma +${uni.reglas.puntos_bono} puntos al territorio donde juegas.` : `Con ${uni.reglas.racha_bono} casos seguidos bien revisados, tu racha suma +${uni.reglas.puntos_bono} puntos a tu equipo.`}</small></div></div>${retoHtml}`;
     }
 
     // Misión de hoy: una meta corta por sesión
@@ -226,6 +229,22 @@
       return { m, lista, hechos, completa: lista.length > 0 && hechos === lista.length, vacia: lista.length === 0 };
     });
     const actual = paradas.find(p => !p.completa && !p.vacia);
+    // Historia de inicio: una sola vez, antes del primer caso
+    const claveHist = `critia_historia_${a.seudonimo}`;
+    let histVista = true; try { histVista = !!localStorage.getItem(claveHist); } catch {}
+    if (!histVista && meta.historia_inicio && !Object.keys(prog.casos).length) {
+      try { localStorage.setItem(claveHist, '1'); } catch {}
+      setTimeout(() => {
+        $('hoja-etq').textContent = 'Tu expedición';
+        $('hoja-titulo').textContent = `Bienvenido al equipo ${a.equipo}`;
+        $('hoja-desc').textContent = meta.historia_inicio;
+        $('hoja-control').innerHTML = '';
+        $('hoja-casos').innerHTML = '<button class="btn btn-primario" id="hist-ok" style="min-height:52px">Empezar</button>';
+        mostrarHoja($('siguiente'));
+        $('hist-ok').onclick = cerrarHoja;
+      }, 600);
+    }
+
     // ¿Cambió de dueño algún territorio desde la última visita? (se guarda en este dispositivo)
     const claveDuenos = `critia_duenos_${a.seudonimo}_${mapaId || 0}`;
     let antes = null; try { antes = JSON.parse(localStorage.getItem(claveDuenos) || 'null'); } catch {}
@@ -307,9 +326,9 @@
   function mostrarHoja(desde) { ultimoFoco = desde; $('hoja-fondo').classList.remove('oculto'); const h = $('hoja-terr'); h.classList.remove('oculto'); h.scrollTop = 0; $('hoja-titulo').focus({ preventScroll: true }); }
   function abrirHoja(p, t, desde) {
     const a = Sesion.leer();
-    $('hoja-etq').textContent = `Territorio ${p.m.n}`;
+    $('hoja-etq').textContent = `Territorio ${p.m.n}${p.m.lugar ? ' · ' + p.m.lugar : ''}`;
     $('hoja-titulo').textContent = p.m.nombre;
-    $('hoja-desc').textContent = p.m.descripcion;
+    $('hoja-desc').innerHTML = `${p.m.historia ? esc(p.m.historia) + '<br>' : ''}<small>${esc(p.m.descripcion)}</small>`;
     if (t) {
       const max = Math.max(1, ...Object.values(t.puntos));
       $('hoja-control').innerHTML = `<div class="hc-titulo">${t.dueno ? `Lo controla el equipo <b>${esc(t.dueno)}</b>` : t.disputa ? '<b>En disputa:</b> hay empate en primer lugar' : 'Todavía no tiene dueño'}</div>` +

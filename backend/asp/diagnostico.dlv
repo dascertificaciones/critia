@@ -64,7 +64,11 @@ diagnostico(mantuvo_correcta) :- fase(final), es_correcta(inicial), es_correcta(
 %  - Termina en la correcta y su confianza no bajó (y es al menos moderada): está calibrado.
 %  - Termina en un error pero bajó su confianza hasta la zona de duda: reconoce que no está seguro.
 %  - Pasar de correcta a error nunca cuenta como calibrar, aunque suba o baje la confianza.
-calibro :- fase(final), es_correcta(final), confianza(inicial, C1), confianza(final, C2), C2 >= C1, C2 >= 60.
+% Acertó desde el inicio y mantiene o sube una seguridad alta.
+calibro :- fase(final), es_correcta(inicial), es_correcta(final), confianza(inicial, C1), confianza(final, C2), C2 >= C1, C2 >= 60.
+% Falló con seguridad baja (su duda era razonable) y corrigió sin bajar más su seguridad.
+% Quien falló con seguridad alta no calibra en ese caso, aunque corrija: se confió sin evidencia.
+calibro :- fase(final), es_error(inicial), es_correcta(final), confianza(inicial, C1), C1 <= 50, confianza(final, C2), C2 >= C1.
 calibro :- fase(final), es_error(final), es_error(inicial), confianza(inicial, C1), confianza(final, C2), C2 < C1, C2 <= 50.
 diagnostico(calibro) :- calibro.
 

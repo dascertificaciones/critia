@@ -148,10 +148,44 @@ def fallo_mision_previa(seudonimo, mapa_id, mision_de_caso, mision):
         return False
 
 
-def puntos_territorio(sentidos, eval_fin, pistas):
+def puntos_territorio(sentidos, eval_fin, pistas, armadura=0):
     """Puntos que un intento cerrado aporta al territorio de su equipo:
-    una por cada habilidad ganada y una más por resolver sin ayuda."""
-    return len(sentidos) + (1 if (eval_fin == "correcta" and (pistas or 0) == 0) else 0)
+    uno por cada habilidad ganada, uno por resolver sin ayuda y uno si la armadura resistió.
+    `pistas` son las ayudas que cuentan: la pregunta de «revisar primero» no es ayuda."""
+    return len(sentidos) + (1 if (eval_fin == "correcta" and (pistas or 0) <= 0) else 0) + (armadura or 0)
+
+
+# SQL de las ayudas que cuentan y del punto de armadura (i = intentos)
+SQL_PUNTOS = "(COALESCE(i.pistas_usadas,0) - COALESCE(i.reviso_antes,0)) pistas, COALESCE(i.punto_armadura,0) arm, i.armadura armadura"
+
+
+def resultado_armadura(eval_ini, conf_ini):
+    """La seguridad inicial puesta a prueba con la primera respuesta.
+    resiste: seguro y acertó (+1). abollada: seguro y falló (corta la racha).
+    ligera: dudó y acertó. protegido: dudó y falló (conserva la racha)."""
+    alta, acerto = (conf_ini or 0) >= SEGURO_DESDE, eval_ini == "correcta"
+    return ("resiste" if acerto else "abollada") if alta else ("ligera" if acerto else "protegido")
+
+
+def guardar_armadura(intento_id, armadura):
+    with conectar() as con:
+        con.execute("UPDATE intentos SET armadura=?, punto_armadura=? WHERE id=?", (armadura, 1 if armadura == "resiste" else 0, intento_id))
+
+
+def marcar_reviso(intento_id):
+    """El alumno usó «revisar primero» antes de decidir. No cuenta como ayuda."""
+    with conectar() as con:
+        con.execute("UPDATE intentos SET reviso_antes=1 WHERE id=?", (intento_id,))
+
+
+def efecto_racha(sentidos, eval_ini, armadura=None):
+    """Qué hace un caso cerrado con la racha: 1 la sube, 0 la conserva, -1 la corta.
+    Los intentos anteriores a la armadura (armadura None) siguen la regla de antes."""
+    if armadura == "abollada":
+        return -1
+    if eval_ini == "correcta" or "revisar" in sentidos:
+        return 1
+    return 0 if armadura == "protegido" else -1
 
 
 def resolucion(it):
@@ -160,8 +194,10 @@ def resolucion(it):
         return "abierta"
     if it.get("eval_fin") != "correcta":
         return "no_resolvio"
-    p = it.get("pistas_usadas") or 0
-    return "solo" if p == 0 else ("con_pregunta" if p == 1 else "con_senalamiento")
+    p, reviso = it.get("pistas_usadas") or 0, it.get("reviso_antes") or 0
+    if p - reviso <= 0:
+        return "reviso" if reviso else "solo"
+    return "con_pregunta" if (p == 1 and not reviso) else "con_senalamiento"
 
 
 def guardar_reflexion(intento_id, texto):
@@ -191,14 +227,14 @@ def errores_previos(seudonimo):
 
 
 # ---------- Consultas para el juego ----------
+SEGURO_DESDE = 60          # seguridad desde la que cuenta como «seguro» (niveles 75 y 100 de la armadura)
+RETO_POR_JUGADOR = 3       # casos bien revisados por jugador que forman el reto semanal del equipo
+RETO_MINIMO = 6            # meta mínima del reto semanal, para equipos pequeños
 META_DIARIA = 3            # casos nuevos que forman la «misión de hoy» del alumno
 RACHA_PARA_DETECTIVE = 3   # casos seguidos "bien revisados" para desbloquear el caso del detective
 CASOS_PARA_INSIGNIA = 2    # casos del mismo postulado sin pista para sugerir insignia
 
 
-def _bien_revisado(sentidos, eval_ini):
-    """Cuenta para la racha: acertó sin pista, o corrigió después de la pista."""
-    return eval_ini == "correcta" or "revisar" in sentidos
 
 
 def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
@@ -206,25 +242,41 @@ def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
     fm = " AND mapa_id=?" if mapa_id else ""
     pm = (mapa_id,) if mapa_id else ()
     with conectar() as con:
-        rows = con.execute(f"""SELECT caso_id, sentidos, eval_ini, eval_fin, cierre, COALESCE(pistas_usadas,0) pistas FROM intentos
+        rows = con.execute(f"""SELECT i.caso_id, i.sentidos, i.eval_ini, i.eval_fin, i.cierre, i.conf_ini, COALESCE(i.reviso_antes,0) reviso, {SQL_PUNTOS} FROM intentos i
                               WHERE seudonimo=? AND cierre IS NOT NULL AND COALESCE(repeticion,0)=0{fm} ORDER BY cierre""",
                            (seudonimo,) + pm).fetchall()
         casos, total, racha, mejor_racha = {}, 0, 0, 0
         avance = {}
         puntos_total, hoy, casos_hoy, puntos_hoy = 0, ahora()[:10], [], 0
+        # Puntería: ¿la seguridad inicial coincidió con el resultado de la primera respuesta?
+        punteria = {"total": 0, "coinciden": 0, "seguro_y_mal": 0, "duda_y_bien": 0}
+        # Revisión: cuántas veces revisó antes de decidir y cómo le fue a su armadura
+        revision = {"casos": 0, "reviso_antes": 0, "abolladas": 0, "resistio": 0}
         for r in rows:
+            if r["eval_ini"] in ("correcta", "error_esperado", "error_otro") and r["conf_ini"] is not None:
+                acerto, seguro = r["eval_ini"] == "correcta", r["conf_ini"] >= SEGURO_DESDE
+                punteria["total"] += 1
+                punteria["coinciden"] += 1 if acerto == seguro else 0
+                punteria["seguro_y_mal"] += 1 if (seguro and not acerto) else 0
+                punteria["duda_y_bien"] += 1 if (acerto and not seguro) else 0
             s = json.loads(r["sentidos"] or "[]")
-            pts = puntos_territorio(s, r["eval_fin"], r["pistas"])
+            pts = puntos_territorio(s, r["eval_fin"], r["pistas"], r["arm"])
+            if r["eval_ini"] in ("correcta", "error_esperado", "error_otro"):
+                revision["casos"] += 1
+                revision["reviso_antes"] += r["reviso"]
+                revision["abolladas"] += 1 if r["armadura"] == "abollada" else 0
+                revision["resistio"] += 1 if r["armadura"] == "resiste" else 0
             casos[r["caso_id"]] = {"sentidos": s, "eval_ini": r["eval_ini"], "eval_fin": r["eval_fin"], "puntos": pts}
             total += len(s)
             puntos_total += pts
             if (r["cierre"] or "")[:10] == hoy:
                 casos_hoy.append(r["caso_id"])
                 puntos_hoy += pts
-            if _bien_revisado(s, r["eval_ini"]):
+            ef = efecto_racha(s, r["eval_ini"], r["armadura"])
+            if ef > 0:
                 racha += 1
                 mejor_racha = max(mejor_racha, racha)
-            else:
+            elif ef < 0:
                 racha = 0
             if casos_por_postulado and r["eval_ini"] == "correcta":
                 p = casos_por_postulado.get(r["caso_id"])
@@ -238,6 +290,8 @@ def progreso_alumno(seudonimo, casos_por_postulado=None, mapa_id=None):
             "casos_hoy": casos_hoy,
             "puntos_hoy": puntos_hoy,
             "meta_diaria": META_DIARIA,
+            "punteria": punteria,
+            "revision": revision,
             "insignias": ins,
             "avance_insignias": {p: len(v) for p, v in avance.items()},
             "casos_para_insignia": CASOS_PARA_INSIGNIA,
@@ -458,7 +512,8 @@ def _migrar():
             con.execute("ALTER TABLE intentos ADD COLUMN mapa_id INTEGER")
         if "repeticion" not in cols:
             con.execute("ALTER TABLE intentos ADD COLUMN repeticion INTEGER DEFAULT 0")
-        for col, tipo in (("pistas_usadas", "INTEGER DEFAULT 0"), ("pista_pedida", "INTEGER DEFAULT 0"), ("clave_med", "TEXT"), ("conf_med", "INTEGER")):
+        for col, tipo in (("pistas_usadas", "INTEGER DEFAULT 0"), ("pista_pedida", "INTEGER DEFAULT 0"), ("clave_med", "TEXT"), ("conf_med", "INTEGER"),
+                          ("reviso_antes", "INTEGER DEFAULT 0"), ("armadura", "TEXT"), ("punto_armadura", "INTEGER DEFAULT 0")):
             if col not in cols:
                 con.execute(f"ALTER TABLE intentos ADD COLUMN {col} {tipo}")
         cols = [r[1] for r in con.execute("PRAGMA table_info(mapas)")]
@@ -776,17 +831,18 @@ def universo(codigo, mision_de_caso, detective_ids=()):
         for m in mapas:
             terr = {}
             rachas = {}   # seudonimo -> [equipo, racha_actual, ultima_mision]
-            for r in con.execute("""SELECT a.equipo, a.seudonimo, i.caso_id, i.sentidos, i.eval_ini, i.eval_fin, COALESCE(i.pistas_usadas,0) pistas FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+            for r in con.execute(f"""SELECT a.equipo, a.seudonimo, i.caso_id, i.sentidos, i.eval_ini, i.eval_fin, {SQL_PUNTOS} FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
                                     WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND a.grupo=? AND i.mapa_id=? ORDER BY i.cierre""", (g["codigo"], m["id"])):
                 mis = mision_de_caso.get(r["caso_id"])
                 if not mis:
                     continue
                 sent = json.loads(r["sentidos"] or "[]")
-                n = puntos_territorio(sent, r["eval_fin"], r["pistas"])
+                n = puntos_territorio(sent, r["eval_fin"], r["pistas"], r["arm"])
                 terr.setdefault(mis, {e: 0 for e in EQUIPOS})[r["equipo"]] += n
                 totales[r["equipo"]]["sentidos"] += n
                 st = rachas.setdefault(r["seudonimo"], [r["equipo"], 0, mis])
-                st[1] = st[1] + 1 if _bien_revisado(sent, r["eval_ini"]) else 0
+                ef = efecto_racha(sent, r["eval_ini"], r["armadura"])
+                st[1] = st[1] + 1 if ef > 0 else (st[1] if ef == 0 else 0)
                 st[2] = mis
             # bono de racha: cada alumno con racha >= RACHA_BONO empuja la misión donde está
             bonos = {}
@@ -840,6 +896,28 @@ def universo(codigo, mision_de_caso, detective_ids=()):
                 "reglas": {"racha_bono": RACHA_BONO, "puntos_bono": PUNTOS_BONO, "detective_ok": DETECTIVE_OK}}
 
 
+def reto_semanal(codigo):
+    """Reto de equipo de la semana en curso (lunes a domingo): casos bien revisados entre todos.
+    La meta crece con el tamaño del equipo. No da puntos: es un logro compartido."""
+    from datetime import date, timedelta
+    hoy = date.fromisoformat(ahora()[:10])
+    lunes = (hoy - timedelta(days=hoy.weekday())).isoformat()
+    with conectar() as con:
+        jugadores = {e: 0 for e in EQUIPOS}
+        for r in con.execute("SELECT equipo, COUNT(*) n FROM alumnos WHERE grupo=? GROUP BY equipo", (codigo,)):
+            jugadores[r["equipo"]] = r["n"]
+        hechos = {e: 0 for e in EQUIPOS}
+        for r in con.execute("""SELECT a.equipo, i.sentidos, i.eval_ini, i.armadura FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+                                WHERE a.grupo=? AND i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND i.cierre>=?""", (codigo, lunes)):
+            if efecto_racha(json.loads(r["sentidos"] or "[]"), r["eval_ini"], r["armadura"]) > 0:
+                hechos[r["equipo"]] += 1
+        out = {}
+        for e in EQUIPOS:
+            meta = max(RETO_MINIMO, RETO_POR_JUGADOR * jugadores[e]) if jugadores[e] else 0
+            out[e] = {"hechos": hechos[e], "meta": meta, "cumplido": bool(meta and hechos[e] >= meta)}
+        return {"desde": lunes, "equipos": out}
+
+
 # ---------- Vistas filtradas por grupo ----------
 def _filtro_grupos(codigos):
     if codigos is None:
@@ -856,12 +934,12 @@ def tablero_equipos_grupo(codigo, mapa_id=None):
         tab = {e: {"puntos": 0, "sentidos": 0, "casos": 0, "alumnos": 0, "insignias": 0, "justificar": 0, "revisar": 0, "calibrar": 0, "sin_ayuda": 0} for e in EQUIPOS}
         for r in con.execute("SELECT equipo, COUNT(*) n FROM alumnos WHERE grupo=? GROUP BY equipo", (codigo,)):
             tab[r["equipo"]]["alumnos"] = r["n"]
-        for r in con.execute(f"""SELECT a.equipo, i.sentidos, i.eval_fin, COALESCE(i.pistas_usadas,0) pistas FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
+        for r in con.execute(f"""SELECT a.equipo, i.sentidos, i.eval_fin, {SQL_PUNTOS} FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
                                 WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND a.grupo=?{fm}""", (codigo,) + pm):
             s = json.loads(r["sentidos"] or "[]"); t = tab[r["equipo"]]
             t["sentidos"] += len(s); t["casos"] += 1
-            t["puntos"] += puntos_territorio(s, r["eval_fin"], r["pistas"])
-            t["sin_ayuda"] += 1 if (r["eval_fin"] == "correcta" and r["pistas"] == 0) else 0
+            t["puntos"] += puntos_territorio(s, r["eval_fin"], r["pistas"], r["arm"])
+            t["sin_ayuda"] += 1 if (r["eval_fin"] == "correcta" and r["pistas"] <= 0) else 0
             for k in s:
                 if k in t: t[k] += 1
         for r in con.execute(f"""SELECT a.equipo, COUNT(*) n FROM insignias i JOIN alumnos a ON a.seudonimo=i.seudonimo
@@ -877,8 +955,9 @@ def resumen_grupo_codigos(codigos):
             SELECT i.caso_id, COUNT(*) n, SUM(i.eval_ini='correcta') ok_ini,
                    SUM(i.eval_ini<>'correcta' AND i.eval_fin='correcta') mejoraron,
                    SUM(i.eval_ini<>'correcta' AND i.eval_fin<>'correcta') siguen_mal,
-                   SUM(i.eval_fin='correcta' AND COALESCE(i.pistas_usadas,0)=0) solos,
-                   SUM(i.eval_fin='correcta' AND COALESCE(i.pistas_usadas,0)=1) con_pregunta,
+                   SUM(i.eval_fin='correcta' AND COALESCE(i.pistas_usadas,0)-COALESCE(i.reviso_antes,0)<=0) solos,
+                   SUM(i.eval_fin='correcta' AND COALESCE(i.pistas_usadas,0)=1 AND COALESCE(i.reviso_antes,0)=0) con_pregunta,
+                   SUM(COALESCE(i.reviso_antes,0)) revisaron, SUM(i.armadura='abollada') abolladas,
                    SUM(i.eval_fin='correcta' AND COALESCE(i.pistas_usadas,0)>=2) con_senalamiento,
                    SUM(COALESCE(i.pista_pedida,0)) pidieron,
                    ROUND(AVG(i.conf_ini)) conf_ini_prom, ROUND(AVG(i.conf_fin)) conf_fin_prom, SUM(i.reporta_duda) dudas
@@ -888,7 +967,9 @@ def resumen_grupo_codigos(codigos):
             WHERE i.cierre IS NOT NULL AND i.tipo_error_ini IS NOT NULL{f} GROUP BY i.tipo_error_ini ORDER BY n DESC""", params)]
         totales = dict(con.execute(f"""
             SELECT COUNT(DISTINCT i.seudonimo) alumnos, COUNT(*) intentos,
-                   SUM(i.eval_ini<>'correcta' AND i.eval_fin='correcta') mejoraron, SUM(i.eval_ini<>'correcta') errores_ini
+                   SUM(i.eval_ini<>'correcta' AND i.eval_fin='correcta') mejoraron, SUM(i.eval_ini<>'correcta') errores_ini,
+                   SUM(i.armadura IS NOT NULL) con_armadura, SUM(COALESCE(i.reviso_antes,0)) revisaron,
+                   SUM(i.armadura IN ('resiste','abollada')) armadura_alta, SUM(i.armadura='abollada') abolladas
             FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo WHERE i.cierre IS NOT NULL{f}""", params).fetchone())
         return {"totales": totales, "por_caso": por_caso, "por_familia": por_familia}
 
@@ -905,11 +986,17 @@ def lista_alumnos_codigos(codigos):
         lista = [dict(r) for r in rows]
         # puntos con la regla que ve el alumno (sin contar repeticiones)
         puntos = {}
-        for r in con.execute("""SELECT seudonimo, sentidos, eval_fin, COALESCE(pistas_usadas,0) pistas FROM intentos
-                                WHERE cierre IS NOT NULL AND COALESCE(repeticion,0)=0"""):
-            puntos[r["seudonimo"]] = puntos.get(r["seudonimo"], 0) + puntos_territorio(json.loads(r["sentidos"] or "[]"), r["eval_fin"], r["pistas"])
+        reviso, abolladas = {}, {}
+        for r in con.execute(f"""SELECT i.seudonimo, i.sentidos, i.eval_fin, COALESCE(i.reviso_antes,0) reviso, {SQL_PUNTOS} FROM intentos i
+                                WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0"""):
+            s = r["seudonimo"]
+            puntos[s] = puntos.get(s, 0) + puntos_territorio(json.loads(r["sentidos"] or "[]"), r["eval_fin"], r["pistas"], r["arm"])
+            reviso[s] = reviso.get(s, 0) + r["reviso"]
+            abolladas[s] = abolladas.get(s, 0) + (1 if r["armadura"] == "abollada" else 0)
         for a in lista:
             a["puntos"] = puntos.get(a["seudonimo"], 0)
+            a["reviso_antes"] = reviso.get(a["seudonimo"], 0)
+            a["abolladas"] = abolladas.get(a["seudonimo"], 0)
         return lista
 
 
@@ -928,7 +1015,7 @@ def sugerencias_insignia_codigos(casos_por_postulado, codigos):
     f, params = _filtro_grupos(codigos)
     with conectar() as con:
         rows = con.execute(f"""SELECT i.seudonimo, i.caso_id, COALESCE(i.mapa_id, 0) mapa_id FROM intentos i JOIN alumnos a ON a.seudonimo=i.seudonimo
-                              WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND i.eval_ini='correcta' AND COALESCE(i.pistas_usadas,0)=0{f}""", params).fetchall()
+                              WHERE i.cierre IS NOT NULL AND COALESCE(i.repeticion,0)=0 AND i.eval_ini='correcta' AND COALESCE(i.pistas_usadas,0)-COALESCE(i.reviso_antes,0)<=0{f}""", params).fetchall()
         conteo = {}
         for r in rows:
             p = casos_por_postulado.get(r["caso_id"])

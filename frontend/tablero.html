@@ -70,6 +70,7 @@ async function pintar() {
     [...sel.querySelectorAll('button.mapa-tab')].forEach(b => b.onclick = () => { mapaParam = +b.dataset.id; pintar(); });
   }
   const equipos = Object.keys(t);
+  const reto = (r.reto && r.reto.equipos) || {};
   const max = Math.max(1, ...equipos.map(e => (t[e].puntos ?? t[e].sentidos)));
   const tope = Math.max(...equipos.map(e => (t[e].puntos ?? t[e].sentidos)));
   document.getElementById('tablero').innerHTML = equipos.map(e => {
@@ -85,6 +86,7 @@ async function pintar() {
           <div><span class="ic">${ICONO.revisar}</span>Revisar<b>${d.revisar}</b></div>
           <div><span class="ic">${ICONO.calibrar}</span>Calibrar<b>${d.calibrar}</b></div>
         </div>
+        ${reto[e] && reto[e].meta ? `<div class="reto-eq${reto[e].cumplido ? ' cumplido' : ''}"><span>Reto semanal${reto[e].cumplido ? ' cumplido' : ''}</span><b>${Math.min(reto[e].hechos, reto[e].meta)}/${reto[e].meta}</b></div>` : ''}
         <div class="detalle" style="margin-top:12px">
           <div>Sin pistas<b>${d.sin_ayuda ?? 0}</b></div>
           <div>Jugadores<b>${d.alumnos}</b></div>
