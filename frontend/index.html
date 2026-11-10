@@ -93,6 +93,7 @@
       <button class="btn btn-enlace" id="salir">Salir</button>
     </div>
     <div class="mapas-sel" id="mapas-sel"></div>
+    <details class="tarea-mapa oculto" id="tarea-mapa"><summary></summary><p></p></details>
     <div class="mision-hoy" id="mision-hoy"></div>
     <div class="estado-equipo" id="estado-equipo" aria-live="polite"></div>
     <div class="mapa-marco"><svg class="territorios" id="territorios" viewBox="30 50 850 1140" role="group" aria-label="Mapa de territorios. Toca un territorio para ver sus casos."></svg></div>
@@ -178,6 +179,11 @@
       api(`/casos?seudonimo=${encodeURIComponent(a.seudonimo)}${q}`),
       api(`/alumno/${encodeURIComponent(a.seudonimo)}/progreso?x=1${q}`),
       a.grupo ? api(`/universo/${a.grupo}`).catch(() => null) : null]);
+    // La tarea que Critia propuso para este mapa y que el docente aprobó (puede no haber)
+    tareaMapa = await api(`/tarea${mapaId ? '?mapa=' + mapaId : ''}`).catch(() => null);
+    const cajaTarea = $('tarea-mapa');
+    cajaTarea.classList.toggle('oculto', !tareaMapa);
+    if (tareaMapa) { cajaTarea.querySelector('summary').textContent = `Tu tarea: ${tareaMapa.producto} · ${tareaMapa.tema}`; cajaTarea.querySelector('p').textContent = tareaMapa.consigna; }
     const mapaActual = (a.mapas || []).find(m => m.id === mapaId);
     progHoja = prog;
     const terrMapa = uni ? ((uni.mapas || []).find(x => x.id === mapaId) || (uni.mapas || [])[0]) : null;
@@ -322,13 +328,15 @@
       <span class="fc-titulo">${esc(c.titulo)}${c.provisional ? ' <em>nuevo</em>' : ''}</span>
       <span class="fc-estado">${h ? `${h.puntos} ${h.puntos === 1 ? 'punto' : 'puntos'} · repetir` : 'Jugar'}</span></a>`;
   }
-  let progHoja = null;
+  let progHoja = null, tareaMapa = null;
   function mostrarHoja(desde) { ultimoFoco = desde; $('hoja-fondo').classList.remove('oculto'); const h = $('hoja-terr'); h.classList.remove('oculto'); h.scrollTop = 0; $('hoja-titulo').focus({ preventScroll: true }); }
   function abrirHoja(p, t, desde) {
     const a = Sesion.leer();
     $('hoja-etq').textContent = `Territorio ${p.m.n}${p.m.lugar ? ' · ' + p.m.lugar : ''}`;
     $('hoja-titulo').textContent = p.m.nombre;
     $('hoja-desc').innerHTML = `${p.m.historia ? esc(p.m.historia) + '<br>' : ''}<small>${esc(p.m.descripcion)}</small>`;
+    const paso = tareaMapa && tareaMapa.pasos.find(x => x.mision === p.m.n);
+    if (paso) $('hoja-desc').insertAdjacentHTML('beforeend', `<span class="paso-alumno"><b>Paso ${p.m.n} de tu tarea: ${esc(paso.titulo)}</b>${esc(paso.instruccion)}${paso.entregable ? `<em>Entregas: ${esc(paso.entregable)}</em>` : ''}</span>`);
     if (t) {
       const max = Math.max(1, ...Object.values(t.puntos));
       $('hoja-control').innerHTML = `<div class="hc-titulo">${t.dueno ? `Lo controla el equipo <b>${esc(t.dueno)}</b>` : t.disputa ? '<b>En disputa:</b> hay empate en primer lugar' : 'Todavía no tiene dueño'}</div>` +

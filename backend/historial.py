@@ -488,6 +488,16 @@ CREATE TABLE IF NOT EXISTS transferencias (
     fecha     TEXT,
     PRIMARY KEY (seudonimo, mapa_id)
 );
+CREATE TABLE IF NOT EXISTS tareas (
+    mapa_id   INTEGER PRIMARY KEY,
+    tipo      TEXT NOT NULL,
+    tema      TEXT NOT NULL,
+    alcances  TEXT,
+    consigna  TEXT NOT NULL,
+    pasos     TEXT NOT NULL,          -- JSON: [{mision, titulo, instruccion, entregable}]
+    aprobada  INTEGER NOT NULL DEFAULT 0,
+    creado    TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS sesiones_alumno (
     token     TEXT PRIMARY KEY,
     seudonimo TEXT NOT NULL,
@@ -703,7 +713,9 @@ def es_miembro(docente, codigo):
 def mapas_de_grupo(codigo):
     with conectar() as con:
         return [dict(r) for r in con.execute("""SELECT m.*, d.nombre docente_nombre,
-                    (SELECT COUNT(*) FROM casos_mapa c WHERE c.mapa_id=m.id) casos_propios
+                    (SELECT COUNT(*) FROM casos_mapa c WHERE c.mapa_id=m.id) casos_propios,
+                    (SELECT t.tipo FROM tareas t WHERE t.mapa_id=m.id) tarea_tipo,
+                    (SELECT t.aprobada FROM tareas t WHERE t.mapa_id=m.id) tarea_aprobada
                     FROM mapas m LEFT JOIN docentes d ON d.usuario=m.docente WHERE m.codigo=? ORDER BY m.creado""", (codigo,))]
 
 
@@ -789,6 +801,25 @@ def nivel_de_alumno(seudonimo):
     cod = grupo_de_alumno(seudonimo)
     g = grupo(cod) if cod else None
     return (g.get("nivel") or 2) if g else None
+
+
+# ---------- Tarea propuesta para un mapa (Critia 2.0) ----------
+def guardar_tarea(mapa_id, tipo, tema, alcances, consigna, pasos, aprobada=False):
+    with conectar() as con:
+        con.execute("INSERT OR REPLACE INTO tareas (mapa_id, tipo, tema, alcances, consigna, pasos, aprobada, creado) VALUES (?,?,?,?,?,?,?,?)",
+                    (int(mapa_id), tipo, tema, alcances or "", consigna, json.dumps(pasos, ensure_ascii=False), 1 if aprobada else 0, ahora()))
+    return tarea_de_mapa(mapa_id)
+
+
+def tarea_de_mapa(mapa_id):
+    with conectar() as con:
+        r = con.execute("SELECT * FROM tareas WHERE mapa_id=?", (mapa_id,)).fetchone()
+        if not r:
+            return None
+        t = dict(r)
+        t["pasos"] = json.loads(t["pasos"] or "[]")
+        t["aprobada"] = bool(t["aprobada"])
+        return t
 
 
 # ---------- Casos ↔ mapa ----------

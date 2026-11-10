@@ -85,6 +85,18 @@ Esta versión cambia la experiencia del alumno y del docente. Las capturas de la
 
 El problema que Critia quiere atender es que quien usa una IA suele no revisar lo que recibe. Por eso las reglas del juego premian revisar y declarar una seguridad acorde con la evidencia, no solo acertar. Esta mecánica (la armadura a prueba, «Revisar primero» sin costo y los dos indicadores para el docente) es desarrollo de Critia y no formaba parte del diseño de Sexto Sentido. Los valores de la regla son una primera propuesta: **no se han probado con estudiantes** y deben ajustarse con un piloto. Un riesgo conocido es que un alumno elija siempre armadura baja para proteger su racha; por eso acertar con armadura baja no da el punto extra.
 
+## Critia 2.0 (en desarrollo)
+
+Critia 2.0 conserva el juego y cambia el punto de partida: en lugar de que el docente dicte la tarea por fuera, **Critia la propone** y la reparte en los territorios del mapa, para que el alumno la construya mientras practica revisar lo que dice la IA.
+
+Hecho hasta ahora:
+
+- El docente indica el tema, el tipo de producto (investigación, infografía o mapa mental) y los alcances.
+- Critia propone una consigna y ocho pasos, uno por territorio; cada paso trabaja la misma habilidad que la misión de ese territorio. La propuesta sale de plantillas escritas a mano en `backend/planeador.py`, no de un modelo.
+- El docente edita y aprueba la propuesta. El alumno ve la tarea en el mapa y, en cada territorio, el paso que le toca.
+
+Pendiente: que el alumno entregue su avance en cada paso, que el docente lo revise, y la lógica de competencia entre equipos para la tarea.
+
 ## Siguiente versión
 
 Trabajo planeado, todavía sin construir:

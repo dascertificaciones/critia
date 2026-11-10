@@ -25,6 +25,7 @@ from pydantic import BaseModel
 
 import generador
 import historial
+import planeador
 import motor
 import sesion
 
@@ -170,6 +171,18 @@ class UnirseIn(BaseModel):
 class MapaIn(BaseModel):
     codigo: Optional[str] = None
     nombre: str
+
+
+class TareaIn(BaseModel):
+    tipo: str
+    tema: str
+    alcances: str = ""
+
+
+class TareaEditIn(BaseModel):
+    consigna: str
+    pasos: list[dict]
+    aprobada: bool = False
 
 
 class LoginIn(BaseModel):
@@ -351,6 +364,17 @@ def duda(intento_id: int, x_alumno: str = Header(default="")):
     return sesion.reportar_duda(intento_id)
 
 
+@app.get("/api/tarea")
+def tarea_alumno(mapa: Optional[int] = None, x_alumno: str = Header(default="")):
+    """La tarea aprobada del mapa en el que trabaja el alumno (o null si el mapa no tiene)."""
+    quien = _alumno(x_alumno)
+    t = historial.tarea_de_mapa(_mapa_de(quien, mapa) or 0)
+    if not t or not t["aprobada"]:
+        return None
+    return {"tipo": t["tipo"], "producto": planeador.PRODUCTOS[t["tipo"]]["nombre"], "tema": t["tema"],
+            "consigna": t["consigna"], "pasos": t["pasos"]}
+
+
 @app.get("/api/tablero")
 def tablero(grupo: Optional[str] = None, mapa: Optional[int] = None):
     if grupo:
@@ -471,6 +495,52 @@ def mapa_solo_propios(mapa_id: int, d: SoloPropiosIn, x_admin: str = Header(defa
         raise HTTPException(403, "Ese mapa no es tuyo")
     historial.fijar_solo_propios(mapa_id, d.valor)
     return {"ok": True, "solo_propios": d.valor}
+
+
+@app.get("/api/docente/productos")
+def docente_productos(x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    _quien(x_admin, x_sesion)
+    return [{"clave": k, "nombre": v["nombre"]} for k, v in planeador.PRODUCTOS.items()]
+
+
+@app.get("/api/docente/mapas/{mapa_id}/tarea")
+def docente_tarea(mapa_id: int, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    q = _quien(x_admin, x_sesion)
+    if not q.puede_mapa(mapa_id):
+        raise HTTPException(403, "Ese mapa no es de tus grupos")
+    return historial.tarea_de_mapa(mapa_id)
+
+
+@app.post("/api/docente/mapas/{mapa_id}/tarea")
+def docente_proponer_tarea(mapa_id: int, d: TareaIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    """Critia propone la tarea del mapa: una consigna y un paso por territorio. Queda como borrador."""
+    q = _quien(x_admin, x_sesion)
+    if not q.puede_mapa(mapa_id, solo_propio=True):
+        raise HTTPException(403, "Ese mapa no es tuyo")
+    try:
+        p = planeador.proponer(d.tipo, d.tema, d.alcances[:400], META["misiones"])
+    except ValueError as e:
+        _err(e)
+    return historial.guardar_tarea(mapa_id, d.tipo, d.tema.strip()[:120], d.alcances.strip()[:400], p["consigna"], p["pasos"])
+
+
+@app.put("/api/docente/mapas/{mapa_id}/tarea")
+def docente_editar_tarea(mapa_id: int, d: TareaEditIn, x_admin: str = Header(default=""), x_sesion: str = Header(default="")):
+    """El docente edita la propuesta y, si quiere, la aprueba para que la vean los alumnos."""
+    q = _quien(x_admin, x_sesion)
+    if not q.puede_mapa(mapa_id, solo_propio=True):
+        raise HTTPException(403, "Ese mapa no es tuyo")
+    t = historial.tarea_de_mapa(mapa_id)
+    if not t:
+        raise HTTPException(404, "Ese mapa no tiene una tarea propuesta")
+    consigna = d.consigna.strip()[:1200]
+    if len(consigna) < 20:
+        raise HTTPException(400, "La consigna es demasiado corta")
+    try:
+        pasos = planeador.limpiar_pasos(d.pasos, META["misiones"])
+    except ValueError as e:
+        _err(e)
+    return historial.guardar_tarea(mapa_id, t["tipo"], t["tema"], t["alcances"], consigna, pasos, aprobada=d.aprobada)
 
 
 # =====================================================================

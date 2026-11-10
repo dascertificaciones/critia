@@ -352,3 +352,10 @@ body:not(.juego) .punteria { display: none; }
 @keyframes golpe { 0%, 100% { transform: none; } 20% { transform: translateX(-7px) rotate(-3deg); } 45% { transform: translateX(6px) rotate(2deg); } 70% { transform: translateX(-3px); } }
 @keyframes protege { 0%, 100% { filter: none; } 40% { filter: drop-shadow(0 0 14px var(--azul)); } }
 body.juego-pag .punteria.revision { border-color: var(--azul); margin-top: 10px; } .punteria.revision .icono { color: var(--azul); } .punteria.revision .reto-barra i { background: var(--azul); }
+
+/* ---------- Critia 2.0: la tarea del mapa y el paso de cada territorio ---------- */
+.tarea-mapa { margin-top: 12px; padding: 4px 14px; border-radius: 14px; background: #1E2742; border: 1px solid var(--violeta); font-size: 15px; }
+.tarea-mapa summary { cursor: pointer; font-weight: 700; padding: 10px 0; min-height: 24px; }
+.tarea-mapa p { margin: 0 0 12px; color: var(--tinta-suave); }
+.paso-alumno { display: block; margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: #2B2550; border-left: 4px solid var(--violeta); color: var(--tinta); font-size: 15px; }
+.paso-alumno b { display: block; margin-bottom: 4px; } .paso-alumno em { display: block; margin-top: 8px; font-style: normal; font-size: 13px; color: var(--tinta-suave); }

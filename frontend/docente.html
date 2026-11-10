@@ -70,6 +70,11 @@
   .actividad h3 { font-family: var(--serif); font-size: 20px; margin: 0; }
   .actividad .codigo { font-family: var(--serif); font-weight: 900; font-size: 24px; letter-spacing: 3px; }
   .actividad .fila-acciones { margin-top: auto; padding-top: 6px; }
+  .paso-tarea { border-top: 1px solid var(--papel-3); margin-top: 16px; padding-top: 12px; }
+  .paso-tarea label { margin: 10px 0 4px; font-size: 13px; color: var(--tinta-suave); }
+  .paso-tarea textarea { min-height: 72px; }
+  .pt-cab { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-weight: 700; font-size: 17px; }
+  .pt-cab b { width: 30px; height: 30px; border-radius: 50%; background: var(--tinta); color: #fff; display: grid; place-items: center; font-size: 15px; }
   .pasos-asist { display: flex; gap: 8px; margin: 0 0 18px; padding: 0; list-style: none; flex-wrap: wrap; }
   .pasos-asist li { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--papel-3); color: var(--tinta-suave); font-weight: 700; font-size: 14px; }
   .pasos-asist li b { width: 24px; height: 24px; border-radius: 50%; background: var(--papel-3); color: var(--tinta); display: grid; place-items: center; font-size: 13px; }
@@ -558,12 +563,12 @@
   // =====================================================================
   // Inicio: un solo campo para el tema, y un asistente de tres pasos
   // =====================================================================
-  const pasosAsistente = n => `<ol class="pasos-asist">${['Tema', 'Revisar casos', 'Compartir con alumnos'].map((t, i) =>
+  const pasosAsistente = n => `<ol class="pasos-asist">${['Tema', 'Tarea', 'Casos', 'Compartir'].map((t, i) =>
     `<li class="${i + 1 < n ? 'hecho' : i + 1 === n ? 'activo' : ''}"${i + 1 === n ? ' aria-current="step"' : ''}><b>${i + 1 < n ? '✓' : i + 1}</b>${t}</li>`).join('')}</ol>`;
   const misionDe = n => META.misiones.find(m => m.n === n) || {};
 
   VISTAS.inicio = async function () {
-    const [yo, est, lista] = await Promise.all([api('/docente/yo', 'GET', null, H()), api('/docente/generador/estado', 'GET', null, H()), api('/docente/casos', 'GET', null, H())]);
+    const [yo, est, lista, productos] = await Promise.all([api('/docente/yo', 'GET', null, H()), api('/docente/generador/estado', 'GET', null, H()), api('/docente/casos', 'GET', null, H()), api('/docente/productos', 'GET', null, H())]);
     YO = yo;
     const niveles = META.marco_teorico?.niveles || [];
     const mios = misMapas();
@@ -574,6 +579,12 @@
         <p class="suave" style="margin:0;max-width:62ch">Escribe el tema de tu clase. ${est.configurado ? 'Critia prepara un caso para cada uno de los ocho territorios del mapa y tú los revisas antes de que los vean tus alumnos.' : 'Critia crea un mapa con ese nombre y usa los casos del banco base.'}</p>
         <label for="a-tema" class="oculto">Tema</label>
         <input type="text" id="a-tema" placeholder="Por ejemplo: el ciclo del agua" maxlength="60" autocomplete="off">
+        <div class="crear-fila">
+          <div><label for="a-tipo">¿Qué van a elaborar?</label>
+            <select id="a-tipo">${productos.map(x => `<option value="${esc(x.clave)}">${esc(x.nombre)}</option>`).join('')}</select></div>
+        </div>
+        <label for="a-alcances">Alcances <span class="suave peq" style="font-weight:400">(opcional: extensión, fecha de entrega, qué se permite hacer con la IA)</span></label>
+        <textarea id="a-alcances" maxlength="400" placeholder="Por ejemplo: una página, para el viernes. Pueden usar IA para buscar ideas, no para redactar." style="min-height:64px"></textarea>
         <div class="crear-fila">
           <div><label for="a-grupo">Grupo</label>
             <select id="a-grupo">${yo.grupos.map(g => `<option value="${esc(g.codigo)}">${esc(g.nombre)} · ${esc(nivelEdad(g.nivel || 2))}</option>`).join('')}<option value="">Crear un grupo nuevo…</option></select></div>
@@ -594,9 +605,11 @@
           <h3>${esc(m.nombre)}</h3>
           <div class="peq suave">Grupo ${esc(m.grupo_nombre)} · ${g.alumnos || 0} alumno(s)</div>
           <div><span class="peq suave">Código para alumnos</span><div class="codigo">${esc(m.codigo)}</div></div>
+          ${m.tarea_tipo ? `<div class="peq"><span class="tag ${m.tarea_aprobada ? 'ok' : 'aviso'}">${esc((productos.find(x => x.clave === m.tarea_tipo) || {}).nombre || 'Tarea')}${m.tarea_aprobada ? '' : ' · propuesta sin aprobar'}</span></div>` : ''}
           <div class="peq">${m.solo_propios ? `${m.casos_propios} caso(s) aprobados` : `Banco base${m.casos_propios ? ` y ${m.casos_propios} caso(s) propios` : ''}`}${pen ? ` · <b>${pen} por revisar</b>` : ''}</div>
           <div class="fila-acciones">
             ${pen ? `<button class="btn btn-primario btn-peq act-revisar" data-id="${m.id}">Revisar casos</button>` : ''}
+            ${m.tarea_tipo ? `<button class="btn btn-secundario btn-peq act-tarea" data-id="${m.id}">${m.tarea_aprobada ? 'Ver la tarea' : 'Revisar la tarea'}</button>` : ''}
             <button class="btn btn-secundario btn-peq act-compartir" data-id="${m.id}">Compartir</button>
             <a class="btn btn-enlace btn-peq" href="universo.html?grupo=${encodeURIComponent(m.codigo)}" target="_blank">Ver mapa de equipos</a>
           </div>
@@ -621,21 +634,53 @@
         }
         const soloBase = !est.configurado || ($('a-base') && $('a-base').checked);
         const m = await api('/docente/mapas', 'POST', { codigo: g.codigo, nombre: tema }, H());
-        if (soloBase) return pasoCompartir(g, m);
-        await api(`/docente/mapas/${m.id}/solo-propios`, 'PUT', { valor: true }, H());
-        await pasoGenerar(g, m, tema);
+        const tarea = await api(`/docente/mapas/${m.id}/tarea`, 'POST', { tipo: $('a-tipo').value, tema, alcances: $('a-alcances').value }, H());
+        if (!soloBase) await api(`/docente/mapas/${m.id}/solo-propios`, 'PUT', { valor: true }, H());
+        pasoTarea(g, m, tarea, soloBase ? () => pasoCompartir(g, m) : () => pasoGenerar(g, m, tema));
       } catch (e) { toast(e.message, 6000); $('a-crear').disabled = false; }
     };
     const porId = id => { const m = mios.find(x => x.id === +id); return [yo.grupos.find(g => g.codigo === m.codigo), m]; };
+    document.querySelectorAll('.act-tarea').forEach(b => b.onclick = async () => {
+      const [g, m] = porId(b.dataset.id);
+      pasoTarea(g, m, await api(`/docente/mapas/${m.id}/tarea`, 'GET', null, H()), () => irA('inicio'));
+    });
     document.querySelectorAll('.act-compartir').forEach(b => b.onclick = () => pasoCompartir(...porId(b.dataset.id)));
     document.querySelectorAll('.act-revisar').forEach(b => b.onclick = () => { const [g, m] = porId(b.dataset.id); pasoRevisar(g, m, pendientesDe(m), 0); });
   };
 
   function abrirAsistente(html) { enAsistente = true; $('subnav').innerHTML = ''; $('contenido').innerHTML = html; window.scrollTo(0, 0); }
 
-  // Paso 2a: un caso por territorio, uno tras otro, para poder mostrar el avance
-  async function pasoGenerar(g, m, tema) {
+  // Paso 2: Critia propone la tarea (consigna y un paso por territorio); el docente la edita y la aprueba
+  function pasoTarea(g, m, t, alSeguir) {
     abrirAsistente(`${pasosAsistente(2)}
+      <h2 style="margin:0">Critia propone esta tarea</h2>
+      <p class="suave" style="margin:4px 0 14px">Actividad «${esc(m.nombre)}». Cada paso corresponde a un territorio del mapa y trabaja la misma habilidad que su caso. Cambia lo que quieras: los alumnos verán la tarea cuando la apruebes.</p>
+      <div class="previa">
+        <label for="t-consigna" style="margin-top:0">Lo que se le pide al grupo</label>
+        <textarea id="t-consigna" style="min-height:120px" maxlength="1200">${esc(t.consigna)}</textarea>
+        ${t.pasos.map(p => `<div class="paso-tarea" data-n="${p.mision}">
+          <div class="pt-cab"><b>${p.mision}</b><span>${esc(misionDe(p.mision).nombre || '')}</span></div>
+          <label>Paso</label><input type="text" class="pt-titulo" maxlength="80" value="${esc(p.titulo)}">
+          <label>Qué hace el alumno</label><textarea class="pt-ins" maxlength="600">${esc(p.instruccion)}</textarea>
+          <label>Qué entrega</label><input type="text" class="pt-ent" maxlength="300" value="${esc(p.entregable || '')}">
+        </div>`).join('')}
+      </div>
+      <div class="rev-acciones">
+        <button class="btn btn-primario" id="t-ok">${t.aprobada ? 'Guardar cambios' : 'Aprobar la tarea'}</button>
+        <button class="btn btn-enlace" id="t-salir" style="margin-left:auto">Seguir después</button>
+      </div>`);
+    $('t-ok').onclick = async () => {
+      $('t-ok').disabled = true;
+      const pasos = [...document.querySelectorAll('.paso-tarea')].map(d => ({ mision: +d.dataset.n, titulo: d.querySelector('.pt-titulo').value, instruccion: d.querySelector('.pt-ins').value, entregable: d.querySelector('.pt-ent').value }));
+      try { await api(`/docente/mapas/${m.id}/tarea`, 'PUT', { consigna: $('t-consigna').value, pasos, aprobada: true }, H()); toast('Tarea aprobada'); alSeguir(); }
+      catch (e) { toast(e.message, 6000); $('t-ok').disabled = false; }
+    };
+    $('t-salir').onclick = () => irA('inicio');
+  }
+
+  // Paso 3a: un caso por territorio, uno tras otro, para poder mostrar el avance
+  async function pasoGenerar(g, m, tema) {
+    abrirAsistente(`${pasosAsistente(3)}
       <h2>Preparando los casos de «${esc(tema)}»</h2>
       <p class="suave">Se prepara un caso por territorio. Cada uno tarda entre 20 y 60 segundos. No cierres esta página.</p>
       <ul class="gen-lista" id="gen-lista">${META.misiones.map(x => `<li data-n="${x.n}"><span><b>Territorio ${x.n}</b> · ${esc(x.nombre)}</span><span class="estado">en espera</span></li>`).join('')}</ul>
@@ -687,7 +732,7 @@
   function pasoRevisar(g, m, cola, i) {
     if (i >= cola.length) return pasoCompartir(g, m);
     const c = cola[i];
-    abrirAsistente(`${pasosAsistente(2)}
+    abrirAsistente(`${pasosAsistente(3)}
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><h2 style="margin:0">Revisa el caso ${i + 1} de ${cola.length}</h2><span class="peq suave">Actividad «${esc(m.nombre)}» · así lo verá el alumno, con la respuesta correcta marcada</span></div>
       <div style="margin-top:12px">${vistaPrevia(c)}</div>
       <div class="en-asistente oculto" id="rev-editar" style="margin-top:14px">${tarjetaCaso(c)}</div>
@@ -725,7 +770,7 @@
     const mapa = (yo.grupos.find(x => x.codigo === g.codigo)?.mapas || []).find(x => x.id === m.id) || m;
     const sitio = location.origin;
     const texto = `Critia · ${m.nombre}\n1. Entra a ${sitio}\n2. Escribe el código del grupo: ${g.codigo}\n3. Elige un seudónimo (no tu nombre real) y tu equipo.\n4. Abre el mapa «${m.nombre}» y resuelve los casos de hoy.`;
-    abrirAsistente(`${pasosAsistente(3)}
+    abrirAsistente(`${pasosAsistente(4)}
       <div class="compartir">
         <h2 style="margin:0">La actividad «${esc(m.nombre)}» está lista</h2>
         <p class="suave" style="margin:6px 0 0">${mapa.solo_propios ? `${mapa.casos_propios} caso(s) aprobados.${mapa.casos_propios < 8 ? ' Los territorios sin caso aparecen como «pronto» en el mapa.' : ''}` : 'Usa el banco base de Critia.'}</p>
